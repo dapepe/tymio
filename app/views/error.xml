@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xpage title="Error" id="error">
+	<view:collect section="javainit">
+		$('errorMsg').addEvent('dblclick', function() {
+			$('errorDetails').setStyle('display', 'block');
+		});
+		$('closeDetails').addEvent('click', function() {
+			$('errorDetails').setStyle('display', 'none');
+		});
+	</view:collect>
+	
+	<div class="p">
+		<h1>An Error Occurred</h1>
+		<div id="errorMsg" class="alert alert-error">
+			%{message}
+		</div>
+		<div id="errorDetails" class="alert code" style="background: #FFF; border: 1px solid #b3b3b3; display: none;">
+			<a class="close" id="closeDetails">×</a>
+			%{trace}
+		</div>
+	</div>
+</xpage>

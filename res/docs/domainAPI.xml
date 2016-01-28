@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doc>
+<sect3>
+	<title>Domain API</title>
+	
+	<api source="domain.php" level="4">
+	
+	</api>
+</sect3>
+</doc>

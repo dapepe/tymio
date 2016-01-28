@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<menu>
+	<entry href="clockings" caption="{{menu.clockings}}" />
+	<entry href="offtime" caption="{{menu.offtime}}" />
+	<entry href="timeaccount" caption="{{menu.timeaccount}}" />
+</menu>

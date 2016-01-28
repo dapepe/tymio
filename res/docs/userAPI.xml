@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doc>
+<sect3>
+	<title>User API</title>
+	
+	<para>The <emphasis>user</emphasis> API includes all functions to manage the
+	support agents. All support agents belong to a single domain.</para>
+	
+	<para>When authenticating with username and password, agents will only be able
+	to list other agents and to change their own password. For all other operations,
+	like adding or deleting agents, you will have to use domain authentication.</para>
+	
+	<api source="user.php" level="4">
+		<demo ref="auth">
+			<string name="api" default="user" fixed="true" />
+			<string name="do" default="auth" fixed="true" />
+			<string name="username" default="{{USERNAME}}" />
+			<string name="password" default="{{PASSWORD}}" />
+		</demo>
+		
+		<demo ref="list">
+			<string name="api" default="user" fixed="true" />
+			<string name="do" default="list" fixed="true" />
+			<string name="domain" default="{{DOMAIN}}" optional="true" active="false" />
+			<string name="token" default="{{TOKEN}}" optional="true" active="false" />
+			<string name="username" default="{{USERNAME}}" optional="true" />
+			<string name="password" default="{{PASSWORD}}" optional="true" />
+			<string name="search" default="" optional="true" active="false" />
+		</demo>
+		
+		<demo ref="add">
+			<string name="api" default="user" fixed="true" />
+			<string name="do" default="add" fixed="true" />
+			<string name="domain" default="{{DOMAIN}}" />
+			<string name="token" default="{{TOKEN}}" />
+			<string name="name" default="" />
+			<string name="password" default="" />
+		</demo>
+		
+		<demo ref="setpwd">
+			<string name="api" default="user" fixed="true" />
+			<string name="do" default="setpwd" fixed="true" />
+			<string name="domain" default="{{DOMAIN}}" optional="true" active="false" />
+			<string name="token" default="{{TOKEN}}" optional="true" active="false" />
+			<string name="username" default="{{USERNAME}}" optional="true" />
+			<string name="password" default="{{PASSWORD}}" optional="true" />
+			<int name="id" default="" optional="true" active="false" />
+			<string name="new_password" default="" />
+		</demo>
+		
+		<demo ref="delete">
+			<string name="api" default="user" fixed="true" />
+			<string name="do" default="delete" fixed="true" />
+			<string name="domain" default="{{DOMAIN}}" />
+			<string name="token" default="{{TOKEN}}" />
+			<int name="id" default="" />
+		</demo>
+	</api>
+</sect3>
+</doc>

@@ -1,0 +1,3 @@
+initView(function() {
+	
+});

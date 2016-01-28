@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<apidoc>
+	<head>
+		<author>Peter-Christoph Haider(Project leader) et. al</author>
+		<date>2012-02-25</date>
+		<version>1.00</version>
+		<copyright>2011, Zeyon GmbH &amp; Co. KG</copyright>
+		<title>tymio API Documentation</title>
+		<abstract>
+			This document describes the structure as well as the API for Typing.
+			YOU ARE NOT ALLOWED TO COPY, DISTRIBUTE OR QUOTE THIS DOCUMENT OR DISCLOSE ITS CONTENT WITHOUT THE WRITTEN
+			CONSENT OF ZEYON GMBH &amp; CO KG.
+		</abstract>
+	</head>
+	<body>
+		<sect1>
+		<title>Application Programming Interface (API)</title>
+
+		<para><emphasis>An application programming interface (API) is a particular set of rules ('code') and specifications
+		that software programs can follow to communicate with each other. It serves as an interface between different
+		software programs and facilitates their interaction, similar to the way the user interface facilitates interaction
+		between humans and computers.</emphasis> [Source: <link xlink:href="http://en.wikipedia.org/wiki/Application_programming_interface">Wikipedia.org</link>]</para>
+
+		<sect2>
+		<title>Call URL and initial parameters</title>
+
+		<para>
+			<emphasis>NOTICE: Use POST to prevent passwords and other sensitive data from being written to web server log files.</emphasis>
+		</para>
+
+		<para>All API calls are performed via HTTP POST or GET using the following parameters:</para>
+
+		<programlisting><![CDATA[
+		http://tymio.net/?api=[[API]]&do=[[TASK]]
+		]]></programlisting>
+
+		<para>The "api" parameter will specify the API class, the "do" parameter the API task
+		that should be executed.</para>
+
+		<para>So, a sample API call could look like this:</para>
+
+		<programlisting><![CDATA[
+		http://tymio.net/?api=project&do=project_list
+		]]></programlisting>
+
+		</sect2>
+
+		<sect2>
+		<title>Return values</title>
+
+		<para>The API will usually return a JSON string. The result will always be included in the
+		<command>result</command> parameter, e.g.</para>
+
+		<programlisting><![CDATA[
+		{
+			result: {
+				SOME RESULTS...
+			}
+		}
+		]]></programlisting>
+
+		<para>In case an error occurs, the <command>result</command> parameter will be empty, instead
+		the <command>error</command> parameter will be initialized, e.g.</para>
+
+		<programlisting><![CDATA[
+		{
+			error: "ERROR MESSAGE"
+		}
+		]]></programlisting>
+
+		<para>You should therefore always check for server-side errors before evaluation the
+		<command>result</command> parameter.</para>
+
+		</sect2>
+
+		<sect2>
+		<title>Authentication</title>
+
+		<para>Every API class may have its own authentication function. In addition to that, every API may include
+		exceptions for some functions, e.g. calling <command>sys.error_report</command> does not require any authentication</para>
+
+		<para>In total, there are three different authentication tiers:</para>
+
+		<sect3>
+		<title>User Authentication</title>
+		<para>In order to authenticate a user, you will need to supply the following parameters:</para>
+
+		<itemizedlist mark="bullet">
+			<listitem>
+				<para><command>username</command>: The username</para>
+			</listitem>
+			<listitem>
+				<para><command>password</command>: The user's password</para>
+			</listitem>
+		</itemizedlist>
+		</sect3>
+
+		</sect2>
+
+		</sect1>
+
+		<sect2>
+		<title>API Classes</title>
+
+		<include file="accountAPI.xml" />
+		<include file="clockingAPI.xml" />
+		<include file="domainAPI.xml" />
+		<include file="holidayAPI.xml" />
+		<include file="pluginAPI.xml" />
+		<include file="propertyAPI.xml" />
+		<include file="transactionAPI.xml" />
+		<include file="userAPI.xml" />
+
+		</sect2>
+	</body>
+</apidoc>

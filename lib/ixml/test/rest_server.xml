@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE ixml SYSTEM "http://www.ixmldev.com/ixml.dtd">
+<ixml>
+
+<global var="people"/>
+
+<array var="people">
+  <array key="bg">
+    <item key="lastname">Gates</item>
+    <item key="firstname">Bill</item>
+  </array>
+  
+  <array key="sj">
+    <item key="lastname">Jobs</item>
+    <item key="firstname">Steve</item>
+  </array>
+</array>
+
+<rest:server>
+  <rest:resource route="/person/:id" method="GET">
+    <array:keyexists var="people" var_result="exists">$id</array:keyexists>
+  
+    <if value1="$exists" func="=" value2="0">
+      <set var="return">404</set>
+      <return/>
+    </if>
+    
+    <header>Content-Type: application/json</header>
+    
+    <output>
+      <encode:json var="people[$id]"/>
+    </output>
+  </rest:resource>
+  
+  <rest:resource route="/person/:id" method="POST">
+    <set var="people[$id].lastname">$lastname</set>
+    <set var="people[$id].firstname">$firstname</set>
+  </rest:resource>
+  
+  <rest:resource route="/person/:id" method="PUT" var_body="data">
+    <decode:json var="people[$id]">$data</decode:json>
+    <set var="return">201</set>
+  </rest:resource>
+  
+  <rest:resource route="/person/:id" method="DELETE">
+    <unset var="people[$id]"/>
+  </rest:resource>
+</rest:server>
+
+</ixml>

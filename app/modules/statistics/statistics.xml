@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xpage title="Clockings" id="clockings">
+	<view:include src="app/modules/statistics/statistics.js" type="js" />
+	
+	<div class="p2_b">
+		<div id="txtStatUsers" class="f_l m2_r"></div>
+				<input id="btnStatReset" type="button" value="Alle" class="f_l m2_r" />
+		<span class="paging f_r">
+			<a id="btnDateStatBack">&lt;</a><select id="txtDateStatMonth" class="bold">%monthlist</select><input type="text" id="txtDateStatYear" value="%year" style="width: 40px;" /><a id="btnDateStatNext">&gt;</a>
+		</span>
+		<div class="clear"></div>
+	</div>
+	<div id="tabStat" style="background: #FFF; height: 400px; overflow: auto;" class="b clear">
+		<table id="statData" style="display:none;">
+			<thead>
+				<tr>
+					<td>Arbeitszeit</td>
+					<td>Aufgaben</td>
+				</tr>
+			</thead>
+			<tbody id="statDataBody"></tbody>
+			<tfoot id="statDataFoot"></tfoot>
+		</table>
+	</div>
+</xpage>

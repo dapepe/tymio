@@ -1,0 +1,385 @@
+# English translation for tymio
+
+lang:
+  name: "English"
+  code: "en"
+  
+date:
+  format:
+    # Use the strftime parameters for formats.
+    # When no format has been given, it uses default.
+    # You can provide other formats here if you like!
+    default: "%m/%d/%Y"
+    reverse: "%m/%d/%Y"
+    short: "%b %d"
+    long: "%B %d, %Y"
+
+  day_names:      [Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday]
+  abbr_day_names: [Sun, Mon, Tue, Wed, Thu, Fri, Sat]
+
+  # Don't forget the nil at the beginning; there's no such thing as a 0th month
+  month_names:      [~, January, February, March, April, May, June, July, August, September, October, November, December]
+  abbr_month_names: [~, Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec]
+
+time:
+  format:
+    default: "%m/%d/%Y %I:%M %p"
+    reverse: "%I:%M %p, %m/%d/%Y"
+    time:    "%I:%M %p"
+    short:   "%d %b %H:%M"
+    long:    "%B %d, %Y %H:%M"
+  am:        "am"
+  pm:        "pm"
+  first_day_of_week: 7
+  
+datetime:
+  unit:
+    format:
+      seconds: "hh:mm:ss"
+      minutes: "hh:mm"
+      hours: "hour(s)"
+      days: "day(s)"
+      weeks: "week(s)"
+  distance_in_words:
+    half_a_minute: "half a minute"
+    less_than_x_seconds:
+      one:   "less than 1 second"
+      other: "less than {count} seconds"
+    x_seconds:
+      one:   "1 second"
+      other: "{count} seconds"
+    less_than_x_minutes:
+      one:   "less than a minute"
+      other: "less than {count} minutes"
+    x_minutes:
+      one:   "1 minute"
+      other: "{count} minutes"
+    about_x_hours:
+      one:   "about 1 hour"
+      other: "about {count} hours"
+    x_days:
+      one:   "1 day"
+      other: "{count} days"
+    about_x_months:
+      one:   "about 1 month"
+      other: "about {count} months"
+    x_months:
+      one:   "1 month"
+      other: "{count} months"
+    about_x_years:
+      one:   "about 1 year"
+      other: "about {count} years"
+    over_x_years:
+      one:   "over 1 year"
+      other: "over {count} years"
+    almost_x_years:
+      one:   "almost 1 year"
+      other: "almost {count} years"
+
+number:
+  # Default format for numbers
+  format:
+    separator     : "."
+    delimiter     : ","
+    precision     : 2
+  currency:       
+    format:       
+      unit        : '$'
+      format      : '%n %u'
+      separator   :
+      delimiter   :
+      precision   :
+  percentage:     
+    format:       
+      delimiter   : ""
+  precision:      
+    format:       
+      delimiter   : ""
+  human:          
+    format:       
+      delimiter   : ""
+      precision   : 1
+    storage_units:
+      format      : "%n %u"
+      units:      
+        byte:     
+          one     : "Byte"
+          other   : "Bytes"
+        kb        : "KB"
+        mb        : "MB"
+        gb        : "GB"
+        tb        : "TB"
+                  
+common:           
+  no              :  "no"
+  yes             : "yes"
+  all             : "all"
+  loadingerror:
+    row           : "Die Daten konnten nicht geladen werden. Bitte laden Sie die Seite erneut."
+  
+menu:
+  home            : "Home"
+  clockings       : "Clockings"
+  offtime         : "Offtime"
+  transactions    : "Transactions"
+  statistics      : "Statistics"
+  timeaccount     : "Time Account"
+  settings        :
+    caption       : "Settings"
+    myaccount     : "My Account"
+    organization  : "Organization"
+    companyaccount: "Company Account"
+    domains       : "Domains"
+    users         : "Users"
+    holidays      : "Holidays"
+  extensions      :
+    caption       : "Extensions"
+    plugins       : "Plugins"
+    api           : "API"
+
+section:
+  general         : "General"
+  details         : "Details"
+  access          : "Access"
+  security        : "Security"
+  contact         : "Contact Data"
+
+message:
+  update:               "{model} updated"
+  create:               "{model} created"
+  remove:               "{model} removed"
+
+error:
+  create:               "Could not create new {model}"
+  update:               "Could not update {model}"
+  remove:               "Could not remove {model}"
+  noselection:          "No {model} selected"
+  one:                  "1 error prohibited this {model} from being saved"
+  other:                "{count} errors prohibited this {model} from being saved"
+  inclusion:            "{value} is not included in the list"
+  exclusion:            "{value} is reserved"
+  invalid:              "{value} is invalid"
+  confirmation:         "{value} does not match confirmation"
+  accepted:             "{value} must be accepted"
+  empty:                "{value} cannot be empty"
+  blank:                "{value} cannot be blank"
+  too_long:             "{value} is too long (maximum is {count} characters)"
+  too_short:            "{value} is too short (minimum is {count} characters)"
+  wrong_length:         "{value} is the wrong length (should be {count} characters)"
+  taken:                "{value} has already been taken"
+  not_a_number:         "{value} is not a number"
+  not_a_date:           "{value} is not a valid date"
+  not_a_int:            "{value} is not a valid integer number"
+  not_a_url:            "{value} is not a valid URL"
+  not_a_address:        "{value} is not a valid {type} address"
+  not_set:              "{value} is not set"
+  username:             "{value} is not a valid user name (2 characters or more, only letters, digits, dot \".\" and minus \"-\")."
+  resource:             "Invalid resource name {value} (2 characters or more, only letters, digits, dot \".\" and minus \"-\")."
+  password:             "Invalid password (5 characters or more, at least one capital letter, a small letter and a digit)."
+  password_no_match:    "Passwords do not match"
+  greater_than:         "{value} must be greater than {count}"
+  equal_to:             "{value} must be equal to {count}"
+  less_than:            "{value} must be less than {count}"
+  in_between:           "{value} must be between {min} and {max}"
+  odd:                  "{value} must be odd"
+  even:                 "{value} must be even"
+  start_before_end:     "Start date must be before end date"
+  date_start_end:       "{value} must be before end date ({end})"
+  date_range:           "{value} must be in the time range {min} - {max}" 
+  circular_dependency:  "This relation would create a circular dependency"
+
+entity:
+  menu:
+    singular: "Menu"
+  system:
+    singular: "System"
+    plural:   "Systems"
+  user:
+    singular: "User"
+    plural:   "Users"
+  domain:
+    singular: "Domain"
+    plural:   "Domains"
+  account:
+    singular: "Account"
+    plural:   "Accounts"
+  clocking:
+    singular: "Clocking"
+    plural:   "Clockings"
+  transaction:
+    singular: "Transaction"
+    plural:   "Transactions"
+  entity:
+    singular: "Entity"
+    plural:   "Entities"
+  event:
+    singular: "Event"
+    plural:   "Events"
+  holiday:
+    singular: "Holiday"
+    plural:   "Holidays"
+  vacation:
+    singular: "Vacation"
+    plural:   "Vacations"
+  entry:
+    singular: "Entry"
+    plural:   "Entries"
+  plugin:
+    singular: "Plugin"
+    plural:   "Plugins"
+
+field:
+  option:             "Option"
+  options:            "Options"
+  date:               "Date"
+  start:              "Start"
+  end:                "End"
+  name:               "Name"
+  details:            "Details"
+  username:           "User Name"
+  password:           "Password"
+  passwordrep:        "Confirm Password"
+  search:             "Search"
+  company:            "Company Name"
+  firstname:          "First Name"
+  lastname:           "Last Name"
+  street:             "Street"
+  address:            "Address"
+  zipcode:            "Zip Code"
+  city:               "City"
+  state:              "State"
+  region:             "Region"
+  province:           "Province"
+  country:            "Country"
+  phone:              "Phone"
+  cell:               "Cell Phone"
+  fax:                "Fax"
+  number:             "Number"
+  status:             "Status"
+  type:               "Type"
+  description:        "Description"
+  permission:         "Permission"
+  pleaseselect:       "Please Select"
+  selection:          "Selection"
+  website:            "Web Site"
+  email:              "E-Mail"
+  vatid:              "Tax / VAT ID"
+  role:               "Role"
+  hours_per_week:     "Hours/Week"
+  days_per_week:      "Days/Week"
+  vacation_per_year:  "Vacation Days/Year"
+  account_admin:      "Administrator"
+  domain_manager:     "Domain Manager"
+  deleted:            "Deleted"
+  identifier:         "Identifier"
+  active:             "Active"
+  inactive:           "Inactive"
+  creationdate:       "Created"
+  last_changed:       "Modified"
+  priority:           "Priority"
+
+filter:
+  deleted:            "Show Deleted"
+  inactive:           "Show Inactive"
+  syntax:             "Syntax Highlighting"
+
+clocking:
+  details:
+    creationdate        : "Created {date}"
+    lastchanged         : "Changed {date}"
+  remove:
+    prompt              : "Remove selected clocking entries ?"
+  status:
+    caption             : "Status"
+    preliminary         : "Preliminary"
+    required            : "Approval required"
+    denied              : "Denied"
+    confirmed           : "Approved"
+    as_is               : "Approved, use as is"
+  transaction:
+    create              : "Create Transaction"
+  from_to               : "From – To"
+  time                  : "Time"
+  type:
+    caption             : "Type"
+    regular             : "Regular work time"
+    reduce_overtime     : "Overtime reduction"
+    reduce_overtime_half: "Overtime reduction (part-time)"
+    vacation            : "Vacation"
+    vacation_half       : "Vacation (part-time)"
+    sickday             : "Sick leave"
+    active              : "Active"
+    school              : "School"
+  booked:
+    caption             : "Booked"
+    open                : "Not booked"
+    closed              : "Booked"
+    frozen              : "Locked for booking"
+
+offtime:
+  clocking: "{user_fullname} {type}"
+
+transaction:
+  section:
+    clockings           : "Clockings"
+    details             : "Details"
+  clockings:
+    empty               : "This transaction has no clockings."
+  bookings:
+    empty               : "This transaction has no bookings."
+    summary             : "{caption} {value} {unit}"
+  remove:
+    prompt              : "Remove {n} transaction(s) ?"
+  rebook:
+    from_type           : "From Type"
+    to_type             : "To Type"
+    duration            : "Duration"
+
+action:
+  ok         : "Ok"
+  update     : "Update"
+  refresh    : "Refresh"
+  login      : "Login"
+  logout     : "Logout"
+  add        : "Add"
+  remove     : "Remove"
+  delete     : "Delete"
+  save       : "Save"
+  close      : "Close"
+  changepwd  : "Change Password"
+  restore    : "Restore"
+  activate   : "Enable"
+  deactivate : "Disable"
+  execute    : "Run"
+  expandall  : "Expand All"
+  collapseall: "Collapse All"
+  deny       : "Deny"
+  approve    : "Approve"
+  rebook     : "Rebook"
+
+view:
+  login:
+    stayloggedin:   "Stay logged in for two weeks"
+
+plugin:
+  event:
+    call      : "External call"
+    timed     : "Timed"
+    include   : "Library"
+    add       : "On add"
+    create    : "On creation"
+    update    : "On change"
+    remove    : "On removal"
+    restore   : "On restore"
+    activate  : "On activation"
+    reactivate: "On reactivation"
+    calculate : "On calculation"
+
+    clocking    : "Clocking Details"
+    clockings   : "Clockings"
+    offtime     : "Off-time"
+    transaction : "Transaction Details"
+    transactions: "Transactions"
+
+property:
+  add         : "Add value"

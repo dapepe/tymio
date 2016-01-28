@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doc>
+<sect3>
+	<title>Transaction API</title>
+
+	<api source="transaction.php" level="4">
+		<demo ref="list">
+			<string name="api" default="transaction" fixed="true" />
+			<string name="do" default="list" fixed="true" />
+			<int name="user" default="" optional="true" />
+			<date name="start" default="1356994800" optional="true" />
+			<date name="end" default="1388530800" optional="true" />
+			<bool name="showdeleted" default="false" optional="true" />
+			<string name="ordermode" optional="true">
+				<option label="Descending" default="true">desc</option>
+				<option label="Ascending">asc</option>
+			</string>
+			<string name="orderby" default="" optional="true">
+				<option label="Start" default="true">Start</option>
+				<option label="End">End</option>
+				<option label="User">User</option>
+			</string>
+			<int name="limit" default="1000" optional="true" />
+		</demo>
+
+		<demo ref="list_bookings">
+			<string name="api" default="transaction" fixed="true" />
+			<string name="do" default="list_bookings" fixed="true" />
+			<int name="user" default="" optional="true" />
+			<date name="start" default="1356994800" optional="true" />
+			<date name="end" default="1388530800" optional="true" />
+			<string name="types[]" optional="true" />
+			<string name="types[]" optional="true" />
+			<string name="types[]" optional="true" />
+			<string name="types[]" optional="true" />
+			<bool name="showdeleted" default="false" optional="true" />
+			<string name="ordermode" optional="true">
+				<option label="Descending" default="true">desc</option>
+				<option label="Ascending">asc</option>
+			</string>
+			<string name="orderby" default="" optional="true">
+				<option label="Start" default="true">Start</option>
+				<option label="End">End</option>
+				<option label="User">User</option>
+			</string>
+		</demo>
+	</api>
+</sect3>
+</doc>

@@ -1,0 +1,705 @@
+fieldset legend {
+	margin: 0;
+	font-size: 1.2em;
+	font-weight: bold;
+	line-height: 1.3em;
+}
+
+.CodeArea {
+	font-family: Consolas, "Courier New", Courier;
+	margin: 0;
+	-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+	-moz-box-sizing: border-box;    /* Firefox, other Gecko */
+	box-sizing: border-box;         /* Opera/IE 8+ */
+}
+
+.CodeMirror {
+	font-family: Consolas, "Courier New", Courier;
+	background-color: #ffffff;
+	border: 1px solid #cccccc;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+	-webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+	-moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+	box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+	-webkit-transition: border linear 0.2s, box-shadow linear 0.2s;
+	-moz-transition: border linear 0.2s, box-shadow linear 0.2s;
+	-ms-transition: border linear 0.2s, box-shadow linear 0.2s;
+	-o-transition: border linear 0.2s, box-shadow linear 0.2s;
+	transition: border linear 0.2s, box-shadow linear 0.2s;
+}
+
+.deleted,
+.deleted span,
+.deleted .booking_type_select {
+	text-decoration: line-through;
+	color: #919191;
+}
+
+tr.deleted td {
+	background: #bbbbbb !important;
+}
+
+form.form-horizontal.fullw .controls input[type="text"],
+form.form-horizontal.fullw .controls select,
+form.form-horizontal.fullw .controls textarea {
+	width: 100%;
+}
+.help-inline .label {
+	white-space: normal;
+	display: block;
+}
+.help-inline {
+	padding: 5px 0 0 0;
+}
+
+.navbar .btn-mini {
+	padding: 2px 6px;
+}
+
+.breadcrumb.btn-toolbar { margin-bottom: 3px; }
+
+.bs-checklist table tr:FIRST-CHILD td {
+	border-top: none;
+}
+
+.bs-message {
+	margin-bottom: 8px;
+	-moz-box-shadow: 2px 2px 3px 3px #b3b3b3;
+	-webkit-box-shadow: 2px 2px 3px 3px #b3b3b3;
+	box-shadow: 2px 2px 3px 3px #b3b3b3;
+}
+.bs-message-inner {
+	word-wrap: break-word;
+}
+.bs-message-inner:before {
+	font-size: 1.3em;
+	margin-right: 0.5em;
+	text-shadow: 2px 2px 2px #efefef;
+}
+
+.bs-timebox .separator {
+	display: inline-block;
+	*display: inline;
+	/* IE7 inline-block hack */
+	*zoom: 1;
+	padding: 4px 1px 4px;
+	margin-bottom: 0;
+	font-size: 13px;
+	font-weight: bold;
+	line-height: 18px;
+	color: #333333;
+	text-align: center;
+	text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75);
+	vertical-align: middle;
+	background-color: #EEEEEE;
+	border: 1px solid #cccccc;
+	border-bottom-color: #b3b3b3;
+	border-right-width: 0;
+	border-left-width: 0;
+	*margin-left: .3em;
+}
+.bs-timebox input {
+	width: 25px;
+	text-align: center;
+}
+
+.bs-select .add-on {
+	border-color: #b94a48;
+	float: left;
+	display: block;
+	width: auto;
+	min-width: 16px;
+	padding: 4px 5px;
+	font-weight: normal;
+	line-height: 18px;
+	/* color: #999999; */
+	text-align: center;
+	text-shadow: 0 1px 0 #ffffff;
+	background-color: #f5f5f5;
+	border: 1px solid #ccc;
+	margin-right: -1px;
+	-webkit-border-radius: 3px 0 0 3px;
+	-moz-border-radius: 3px 0 0 3px;
+	border-radius: 3px 0 0 3px;
+}
+.bs-select-append .add-on {
+	margin-right: 0;
+	margin-left: -1px;
+	-webkit-border-radius: 0 3px 3px 0;
+	-moz-border-radius: 0 3px 3px 0;
+	border-radius: 0 3px 3px 0;
+}
+.bs-select-menu { padding-right: 1px; }
+.bs-select-menu a {
+	font-size: 10px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+.bs-select-menu li:nth-child(odd) { background-color: #f5f5f5; }
+.bs-select-menu a:hover {
+	cursor: pointer;
+	color: #ffffff;
+	text-decoration: none;
+	background-color: #0088cc;
+}
+
+.input-prepend input, .input-append input {
+	display: inline-block;
+	margin-bottom: 0;
+}
+
+.form-actions {
+	margin: 0;
+}
+
+.nav-tabs li a,
+.pagination ul li a,
+.dropdown-menu li a {
+	cursor: pointer;
+}
+
+.nav-tabs li { position: relative; }
+.nav-tabs li span.label {
+	position: absolute;
+	margin: -5px 0 0 -5px;
+}
+
+.dropdown-menu li a i {
+	margin-right: 5px;
+}
+
+.table-container {
+	border: 1px solid #ddd;
+}
+.table-head th {
+	text-align: left;
+	padding: 8px;
+	font-weight: bold;
+	border-top: 1px solid #DDD;
+	background-color: #FFF;
+	background-image: -khtml-gradient(linear, left top, left bottom, from(#FFF), to(#d8d8d8));
+	background-image: -moz-linear-gradient(top, #FFF, #d8d8d8);
+	background-image: -ms-linear-gradient(top, #FFF, #d8d8d8);
+	background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #FFF), color-stop(100%, #d8d8d8));
+	background-image: -webkit-linear-gradient(top, #FFF, #d8d8d8);
+	background-image: -o-linear-gradient(top, #FFF, #d8d8d8);
+	background-image: linear-gradient(top, #FFF, #d8d8d8);
+	text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+}
+
+.table-striped tbody tr.selected td {
+    background-color: #dce4ff;
+}
+
+.table-striped tbody tr.selected:nth-child(2n+1) td {
+    background-color: #d8e0ff;
+}
+
+#transaction_edit_bookings td {
+	vertical-align: middle;
+}
+
+.modal {
+	width: auto;
+	margin: 0;
+}
+
+.table .cal_type_badge,
+.form-actions .cal_type_badge {
+	display: inline-block;
+	vertical-align: middle;
+	margin: 0 4px 0 0;
+	border: 1px solid #808080;
+	width: 10px;
+	height: 10px;
+}
+
+.form-actions .cal_type_badge {
+	vertical-align: baseline;
+}
+
+.time_account_balance_title,
+.time_account_balance {
+	float: left;
+	margin: 0 4px;
+	border: 1px solid transparent;
+	border-radius: 5px;
+	padding: 10px;
+}
+
+.time_account_balance:hover {
+	border-color: #808080;
+}
+
+.time_account_balance.selected {
+	border-color: #8080ff;
+	background: #dce4ff;
+}
+
+.time_account_balance.selected:hover {
+	border-color: #aaaaff;
+	background: #e4eeff;
+}
+
+#offtime_calendar {
+	margin-top: 10px;
+	padding: 0;
+}
+
+#offtime_calendar table {
+	table-layout: fixed;
+}
+
+#offtime_calendar th {
+	width: 14%;
+	background: #e8f0ff;
+	text-align: center;
+	vertical-align: middle;
+	font-weight: bold;
+}
+
+#offtime_calendar td.day {
+	width: 14%;
+	height: 60px;
+	padding: 0 8px 0 8px;
+	vertical-align: top;
+	color: #000000;
+}
+
+#offtime_calendar td.today {
+	background-color: #ffffaa;
+	font-weight: bold;
+}
+
+#offtime_calendar td.holiday {
+	background: #ffe8ff;
+}
+
+#offtime_calendar .table-striped tbody tr:nth-child(2n+1) td.holiday {
+    background-color: #ffe0ff;
+}
+
+#offtime_calendar .table tbody tr:hover td.holiday {
+    background-color: #ffccff;
+}
+
+#offtime_calendar .table tbody tr:hover td.today {
+    background-color: #ffff88;
+}
+
+#offtime_calendar td.day .cal_contents {
+	overflow: hidden;
+	max-height: 100%;
+}
+
+#offtime_calendar td.day .cal_contents:hover {
+	overflow-y: auto;
+}
+
+#offtime_calendar td.day .cal_date {
+	float: right;
+	padding-top: 4px;
+	text-align: right;
+}
+
+#offtime_calendar .cal_clocking {
+	display: block;
+	overflow: hidden;
+	cursor: pointer;
+	margin-bottom: 1px;
+	border: 1px solid #cccccc;
+	border-left-width: 0;
+	border-right-width: 0;
+	padding: 0 4px;
+	background: #eeeeee;
+	font-size: 90%;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+#offtime_calendar .cal_clocking.cal_booked {
+	background: #aaffaa;
+}
+
+#offtime_calendar .cal_clocking.cal_denied {
+	background: #cccccc;
+}
+
+#offtime_calendar .cal_clocking.cal_denied,
+#offtime_calendar .cal_clocking.cal_denied:hover {
+	text-decoration: line-through;
+}
+
+#offtime_calendar .cal_clocking.cal_start {
+	border-top-left-radius: 3px;
+	border-bottom-left-radius: 3px;
+	border-left-width: 1px !important;
+}
+
+#offtime_calendar .cal_clocking.cal_end {
+	border-top-right-radius: 3px;
+	border-bottom-right-radius: 3px;
+	border-right-width: 1px !important;
+}
+
+#offtime_calendar .cal_clocking:hover {
+	border: 1px solid #000000;
+	border-left-width: 0;
+	border-right-width: 0;
+	background: #ffffff;
+	text-decoration: none;
+}
+
+#offtime_calendar .cal_type_badge {
+	float: left;
+	margin: 3px 1px;
+	border: 1px solid #ffffff;
+	width: 10px;
+	height: 10px;
+}
+
+#offtime_calendar .cal_clocking:hover .cal_type_badge {
+	border-color: #808080;
+}
+
+#offtime_calendar td.day.other {
+	color: #cccccc;
+}
+
+#offtime_calendar .cal_items {
+	margin: 4px 20px 2px 0px;
+	overflow: hidden;
+}
+
+#offtime_calendar .cal_item_holiday {
+	overflow: hidden;
+	color: #800080;
+	font-size: 80%;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+#offtime_calendar td.day.other .cal_item_holiday {
+	color: #ccaacc;
+}
+
+tr.holiday td {
+	background: #ffe8ff;
+}
+
+.table-striped tr.holiday:nth-child(2n+1) td {
+	background: #ffe0ff;
+}
+
+tr.holiday:hover td {
+	background: #ffccff;
+}
+
+tr.clocking td {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+tr.clocking.selected td {
+	font-weight: bold;
+}
+
+tr.clocking_open td {
+	background: #ffffaa !important;
+}
+
+tr.clocking_open.holiday td {
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffaa', endColorstr='#ffe8ff') !important; /* for IE */
+	background: -webkit-gradient(linear, left top, left bottom, from(#ffffaa), to(#ffe8ff)) !important; /* for webkit browsers */
+	background: -moz-linear-gradient(top,  #ffffaa,  #ffe8ff) !important; /* for firefox 3.6+ */
+}
+
+tr.clocking_open.selected td, tr.clocking_open.em.selected td {
+	background: #ffbb33 !important;
+}
+
+tr.clocking_open.holiday.selected td, tr.clocking_open.holiday.em.selected td {
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#aaffaa', endColorstr='#ffe8ff') !important; /* for IE */
+	background: -webkit-gradient(linear, left top, left bottom, from(#aaffaa), to(#ffe8ff)) !important; /* for webkit browsers */
+	background: -moz-linear-gradient(top,  #aaffaa,  #ffe8ff) !important; /* for firefox 3.6+ */
+}
+
+tr.clocking_open.em:hover td {
+	background: #ffff80 !important;
+}
+
+tr.clocking_open.holiday.em:hover td {
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffff80', endColorstr='#ffccff') !important; /* for IE */
+	background: -webkit-gradient(linear, left top, left bottom, from(#ffff80), to(#ffccff)) !important; /* for webkit browsers */
+	background: -moz-linear-gradient(top,  #ffff80,  #ffccff) !important; /* for firefox 3.6+ */
+}
+
+tr.clocking_open.em.selected:hover td {
+	background: #ffaa00 !important;
+}
+
+tr.clocking_open.holiday.em.selected:hover td {
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#00aa40', endColorstr='#ffccff') !important; /* for IE */
+	background: -webkit-gradient(linear, left top, left bottom, from(#00aa40), to(#ffccff)) !important; /* for webkit browsers */
+	background: -moz-linear-gradient(top,  #00aa40,  #ffccff) !important; /* for firefox 3.6+ */
+}
+
+tr.clocking_booked td, tr.clocking_booked.em td {
+	background: #c0ffcc !important;
+}
+
+tr.clocking_booked.selected td, tr.clocking_booked.em.selected td {
+	background: #66ff99 !important;
+}
+
+tr.clocking_booked.em:hover td {
+	background: #33ff80 !important;
+}
+
+tr.clocking_booked.em.selected:hover td {
+	background: #33cc66 !important;
+}
+
+.table-striped tbody tr.placeholder td {
+	padding-top: 2px;
+	padding-bottom: 2px;
+    background-color: #d8e0ff;
+}
+
+.add-on.dialog_label {
+	width: 80px;
+	overflow: hidden;
+	text-align: left;
+	text-overflow: ellipsis;
+}
+
+table.fixed {
+	table-layout: fixed;
+}
+
+.transaction_table {
+	width: 100%;
+}
+
+.transaction_table .label {
+	margin-right: 8px;
+	border: 1px solid #aaaaaa;
+	text-shadow:
+		-1px -1px 1px rgba(128, 128, 128, 0.5),
+		1px -1px 1px rgba(128, 128, 128, 0.5),
+		-1px 1px 1px rgba(128, 128, 128, 0.5),
+		1px 1px 1px rgba(128, 128, 128, 0.5);
+	font-size: 90%;
+}
+
+.selected .transaction_table .table-bordered,
+.selected .transaction_table .table-bordered th,
+.selected .transaction_table .table-bordered td {
+    border-color: #999999;
+}
+
+.transaction_table .transaction_header>td {
+	padding-bottom: 0;
+}
+
+.transaction_table .transaction_details>td {
+	border: 0;
+	padding: 4px 0 0 0;
+}
+
+.transaction_table .transaction_checkbox {
+	vertical-align: middle;
+}
+
+.transaction_table .transaction_employee {
+	font-weight: bold;
+}
+
+.transaction_table .transaction_booking_types {
+	white-space: nowrap;
+}
+
+.transaction_table .transaction_date {
+	width: 180px;
+	text-align: right;
+	font-weight: bold;
+}
+
+/*.transaction_table table th,*/
+.transaction_table table tbody tr:nth-child(2n) th,
+.transaction_table table tbody tr:nth-child(2n+1) th {
+	background: #eeeeee;
+}
+
+.transaction_table td {
+	word-wrap: break-word;
+	text-overflow: ellipsis;
+}
+
+.transaction_table_user_hidden .transaction_table_user_column,
+.clocking_table_user_hidden .clocking_table_user_column {
+	display: none;
+}
+
+.booking_type_select {
+	cursor: pointer;
+	display: inline-block;
+	vertical-align: middle;
+	width: auto;
+	margin: -4px 0;
+	border: none;
+	background: transparent;
+	font-size: inherit;
+}
+
+.booking_type_select:hover {
+	color: #000080;
+}
+
+.booking_toggle {
+	z-index: 1;
+	visibility: hidden;
+	float: right;
+	margin-top: -2px;
+	margin-right: 4px;
+	right: 0;
+}
+
+tr:hover>td>.booking_toggle {
+	visibility: visible;
+}
+
+.clocking_table_status {
+	display: block;
+	margin: auto;
+}
+
+.clocking_table td>div,
+.clocking_table td>span {
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.clocking_details_last_changed {
+    display: inline-block;
+    float: left;
+    vertical-align: middle;
+	margin: 5px 10px;
+	color: #808080;
+	font-weight: bold;
+}
+
+.changed {
+	color: #a00000;
+	font-style: italic;
+}
+
+.simple_table>.table-bordered {
+	margin-bottom: 0;
+	border-bottom-left-radius: 0;
+	border-bottom-right-radius: 0;
+}
+
+.simple_table>.table-bordered thead th {
+	border-top: 0;
+}
+
+.simple_table>.table-bordered thead,
+.simple_table>.table-bordered thead tr,
+.simple_table>.table-bordered thead th {
+	border-bottom: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.simple_table>div {
+	border-bottom-left-radius: 2px;
+	border-bottom-right-radius: 2px;
+	border: 1px solid #dddddd;
+	border-top: 0;
+}
+
+.simple_table>div>.table-bordered {
+	margin-left: -1px;
+}
+
+.simple_table>div>.table-bordered,
+.simple_table>div>.table-bordered tbody tr:first-child td {
+	border-top: 0;
+}
+
+.simple_table>div>.table-bordered {
+	border-radius: 0;
+	border-right: 1px solid #f9f9f9; /* compensates one 1px border of the scrollbar column */
+}
+
+.simple_table>div>.table-bordered tbody:last-child tr:last-child td:last-child,
+.simple_table>div>.table-bordered td:last-child {
+	border-radius: 0;
+}
+
+.simple_table>div>.table-bordered td:first-child {
+	border-radius: 0;
+	border-left: 2px solid #fafafa;
+}
+
+.simple_table>div>.table-bordered.table-striped tbody tr:nth-child(2n+1) td:first-child {
+	border-left: 1px solid #f9f9f9;
+}
+
+.modal .modal-body {
+	max-height: none;
+}
+
+.expand {
+	display: inline-block;
+	vertical-align: middle;
+	width: 16px;
+	height: 16px;
+	background: url(../img/plus.png);
+}
+
+.expand.expanded {
+	background: url(../img/minus.png);
+}
+
+span.inplace {
+	/* Ensure triple-clicking a contenteditable element selects only the element's contents */
+	display: inline-block;
+}
+
+.inplace:hover {
+	border-radius: 1px;
+	background: #eeeeff;
+	color: #000080;
+}
+
+.inplace-editing,
+.inplace-editing:hover {
+	background: #ffffff !important;
+	color: #000000;
+}
+
+.transaction_details .inplace:hover,
+.transaction_details .inplace-editing {
+	margin: -4px;
+	border: 1px solid #000080;
+	border-radius: 3px;
+	padding: 3px;
+}
+
+.transaction_details .inplace:hover {
+	border-color: #80aaff;
+}
+
+.comment_box {
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	width:100%;
+	height:100px;
+}

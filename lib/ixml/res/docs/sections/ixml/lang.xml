@@ -1,0 +1,581 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook V5.0//EN"
+"http://www.docbook.org/xml/5.0/dtd/docbook.dtd">
+<article xml:id="crm_en">
+<title>The iXML Language</title>
+<subtitle></subtitle>
+<info>
+	<author>
+		<personname>
+			<firstname>Ben</firstname>
+			<surname>Coutu</surname>
+		</personname>
+	</author>
+	<edition>1.0</edition>
+	<copyright>
+		<year>2009</year>
+	</copyright>
+	<pubdate>2010-01-12</pubdate>
+</info>
+
+<sect1>
+<title>iXML envelope</title>
+<programlisting language="xml"><![CDATA[
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE ixml SYSTEM "http://www.ixmldev.com/ixml.dtd">
+<ixml>
+
+<!-- Code -->
+
+</ixml>
+]]></programlisting>
+</sect1>
+
+<sect1>
+<title>Variables</title>
+
+<para>The name of a variable is a placeholder for its value, the data it holds. Referencing its value is called variable substitution.
+Variables that are referenced inside an expression are expanded to their respective values.
+For that purpose variables are represented by a dollar sign ('$') followed by the name of the variable.
+The next punctuation character implicitly ends the variable name even though it may explicitly be concluded by a trailing dollar sign ('$'). A dollar sign ('$') is passed unchanged if not followed by an alphanumeric character or underscore.
+Two adjacent dollar signs ('$$') are substituted with one single dollar sign ('$') as an escape syntax.
+The variable name is case-sensitive and consists of alphanumeric characters and underscores only.</para>
+
+<para>Variables typically have a single local scope and are therefore only visible within the immediate context, unless they have been specifically declared as global variables in which case they are given global scope and are then independent of the context within which they are defined.
+Closures may be used to establish a referencing environment for free function variables. Those variables are explicitly bound to corresponding variables from the immediate context within which a function is defined, thereby directly referencing non-local variables from the parent scope outside of the inherent context of that function.
+The order of visibility precedence from highest to lowest is: special local variables (e.g. 'this', 'return', 'arguments'), free function variables, regular local variables (parameters), global variables.
+Primitive non-composite variables are always assigned by value while complex variables are always assigned by reference. Assignment by reference may cause circular references. Complex data structures with circular references are considered bad practice as they generally entail memory management drawbacks and possibly raise maximum stack depth exceptions when operated on.
+Using a variable before assigning a value to it may cause problems. It is nevertheless possible to perform operations on an uninitialized variable as it then defaults to the neutral literal of the accordant input type.</para>
+
+<programlisting language="xml"><![CDATA[
+	<set var="name">iXML</set>
+	<output>My name is $name!</output>
+	<!-- My name is iXML! -->
+]]></programlisting>
+
+<para>A special shortcut syntax may be used for referencing array items directly by specifing the corresponding key, either enclosed in square brackets ('[]') or appended with a dot ('.').</para>
+
+<programlisting language="xml"><![CDATA[
+	<set var="names[bg]">Bill Gates</set>
+	<set var="names[sj]">Steve Jobs</set>
+	<output>$names[bg] and $names[sj] are competitors!</output>
+	<!-- Bill Gates and Steve Jobs are competitors! -->
+]]></programlisting>
+
+<para>Within square brackets (array notation) a key is not interpreted as a literal but as an expression, resulting in further variable substitution.
+Although empty brackets will simply be interpreted as empty key literals in case of substitution or when used for getting or unsetting in general, they will implicitly generate a consecutive numeric key when used for setting.</para>
+
+<programlisting language="xml"><![CDATA[
+	<set var="names[bg]">Bill Gates</set>
+	<set var="names[sj]">Steve Jobs</set>
+	<set var="key1">bg</set>
+	<set var="key2">sj</set>
+	<output>$names[$key1] and $names[$key2] are competitors!</output>
+	<!-- Bill Gates and Steve Jobs are competitors! -->
+]]></programlisting>
+
+<para>A key that is appended with a dot (object notation) is always interpreted as a literal.
+Although keys in general may consist of any characters whatsoever, they may consist of alphanumeric characters and underscores only when accessed with the object notation (dot syntax). This specific restriction does not apply to the array notation (square bracket syntax).</para>
+
+<programlisting language="xml"><![CDATA[
+	<set var="names.bg">Bill Gates</set>
+	<set var="names.sj">Steve Jobs</set>
+	<output>$names.bg and $names.sj are competitors!</output>
+	<!-- Bill Gates and Steve Jobs are competitors! -->
+]]></programlisting>
+
+<para>Several keys may also be strung together to form a key chain of arbitrary length, which allows multidimensional arrays to be accessed directly, whereby the array notation (square bracket syntax) and the object notation (dot syntax) may be mixed.</para>
+
+<programlisting language="xml"><![CDATA[
+	<set var="names.microsoft[bg]">Bill Gates</set>
+	<set var="names[apple].sj">Steve Jobs</set>
+	<output>$names[microsoft].bg and $names.apple[sj] are competitors!</output>
+	<!-- Bill Gates and Steve Jobs are competitors! -->
+]]></programlisting>
+
+<para>References of array items may also be deeply nested within the array notation (square bracket syntax) or other substitution mechanisms.</para>
+
+<programlisting language="xml"><![CDATA[
+	<set var="names.bg">Bill Gates</set>
+	<set var="names[sj]">Steve Jobs</set>
+	<set var="keys[bill_gates]">bg</set>
+	<set var="keys.steve_jobs">sj</set>
+	<output>$names[$keys.bill_gates] and $names[$keys[steve_jobs]] are competitors!</output>
+	<!-- Bill Gates and Steve Jobs are competitors! -->
+]]></programlisting>
+
+<para>A special shortcut syntax may be used for substitution of embedded functional expressions pertaining to a variable that references a function (parenthesis syntax). Functional expressions that are embedded inside another expression are replaced by their result.
+For that purpose functional expressions are represented by a leading variable reference followed by a single argument put into parentheses ('()').</para>
+
+<programlisting language="xml"><![CDATA[
+	<function var="lcase">
+	  <tolower var="return">$return</tolower>
+	</function>
+
+	<set var="name">iXML</set>
+	<output>My name is $lcase($name)!</output>
+	<!-- My name is ixml! -->
+]]></programlisting>
+
+<para>Functional expressions in parenthesis syntax may also be deeply nested within other substitution mechanisms.</para>
+
+<para>The data type of a variable is determined by the context in which the variable is used and defaults to the neutral literal of the accordant input type.</para>
+
+<para>iXML recognizes the following data types for variables:</para>
+<table frame="all">
+<title></title>
+<tgroup cols="2" align="left" colsep="1" rowsep="1">
+	<thead>
+		<row>
+			<entry>Type</entry>
+			<entry>Neutral</entry>
+			<entry>Literal</entry>
+			<entry>Description</entry>
+		</row>
+	</thead>
+	<tbody>
+			<row>
+				<entry>NULL</entry><entry>NULL</entry><entry></entry><entry>NULL</entry>
+			</row>
+      <row>
+        <entry>bool</entry><entry>FALSE</entry><entry></entry><entry>Boolean (true or false)</entry>
+      </row>
+			<row>
+				<entry>int</entry><entry>0</entry><entry></entry><entry>Integer number</entry>
+			</row>
+			<row>
+				<entry>float</entry><entry>0.0</entry><entry></entry><entry>Floating point number</entry>
+			</row>
+			<row>
+				<entry>string</entry><entry>''</entry><entry></entry><entry>String (arbitrary byte sequence)</entry>
+			</row>
+			<row>
+				<entry>array</entry><entry>-</entry><entry></entry><entry>Array (collection of items in an ordered map that associates keys to values)</entry>
+			</row>
+			<row>
+				<entry>function</entry><entry>-</entry><entry></entry><entry>Function (closed subroutine)</entry>
+			</row>
+      <row>
+        <entry>macro</entry><entry>-</entry><entry></entry><entry>Macro (open subroutine)</entry>
+      </row>
+			<row>
+				<entry>class</entry><entry>-</entry><entry></entry><entry>Class (array prototype)</entry>
+			</row>
+	</tbody>
+</tgroup>
+</table>
+
+<para>&#160;</para>
+
+<para>An undeclared variable is undefined and therefore has neither type nor value. The NULL value however indicates a variable that is declared but does not hold any data. It can be thought of as uninitialized, invalid or empty.
+NULL is not equivalent to the ASCII NUL byte ('\0') and, although comparable, it is semantically different from an empty string.</para>
+
+<para>The extended classification includes the following additional pseudo-types that generalize semantically interchangeable intrinsic data types:</para>
+<table frame="all">
+<title></title>
+<tgroup cols="2" align="left" colsep="1" rowsep="1">
+	<thead>
+		<row>
+			<entry>Pseudo-Type</entry>
+			<entry>Intrinsic Types</entry>
+			<entry>Description</entry>
+		</row>
+	</thead>
+	<tbody>
+			<row>
+				<entry>number</entry><entry>int/float</entry><entry>Integer or floating point number</entry>
+			</row>
+			<row>
+				<entry>numeric</entry><entry>int/float/string</entry><entry>Number or string representation thereof</entry>
+			</row>
+			<row>
+				<entry>scalar</entry><entry>bool/int/float/string</entry><entry>All primitive non-composite types other than NULL</entry>
+			</row>
+      <row>
+        <entry>subroutine</entry><entry>function/macro</entry><entry>All subroutine types</entry>
+      </row>
+      <row>
+        <entry>complex</entry><entry>array/function/macro/class</entry><entry>All complex types</entry>
+      </row>
+	</tbody>
+</tgroup>
+</table>
+<para>&#160;</para>
+<table frame="all">
+<title></title>
+<tgroup cols="2" align="left" colsep="1" rowsep="1">
+	<thead>
+		<row>
+			<entry>Value</entry>
+			<entry>Types</entry>
+			<entry>TYPEOF</entry>
+			<entry>IF=''</entry>
+			<entry>IF!=''</entry>
+			<entry>IF='0'</entry>
+      <entry>CAST(bool)</entry>
+			<entry>CAST(int)</entry>
+			<entry>CAST(float)</entry>
+			<entry>CAST(string)</entry>
+		</row>
+	</thead>
+	<tbody>
+			<row>
+				<entry>&lt;undefined&gt;</entry><entry>-</entry><entry>'undefined'</entry>
+				<entry>true</entry><entry>false</entry><entry>false</entry>
+				<entry>false</entry><entry>0</entry><entry>0</entry><entry>''</entry>
+			</row>
+			<row>
+				<entry>NULL</entry><entry>null</entry><entry>'null'</entry>
+				<entry>true</entry><entry>false</entry><entry>false</entry>
+				<entry>false</entry><entry>0</entry><entry>0</entry><entry>''</entry>
+			</row>
+      <row>
+        <entry>TRUE</entry><entry>bool/scalar</entry><entry>'bool'</entry>
+        <entry>false</entry><entry>true</entry><entry>false</entry>
+        <entry>true</entry><entry>1</entry><entry>1</entry><entry>'1'</entry>
+      </row>
+      <row>
+        <entry>FALSE</entry><entry>bool/scalar</entry><entry>'bool'</entry>
+        <entry>true</entry><entry>false</entry><entry>false</entry>
+        <entry>false</entry><entry>0</entry><entry>0</entry><entry>''</entry>
+      </row>
+			<row>
+				<entry>0</entry><entry>int/number/numeric/scalar</entry><entry>'int'</entry>
+				<entry>false</entry><entry>true</entry><entry>true</entry>
+				<entry>false</entry><entry>0</entry><entry>0</entry><entry>'0'</entry>
+			</row>
+			<row>
+				<entry>123</entry><entry>int/number/numeric/scalar</entry><entry>'int'</entry>
+				<entry>false</entry><entry>true</entry><entry>false</entry>
+				<entry>true</entry><entry>123</entry><entry>123</entry><entry>'123'</entry>
+			</row>
+			<row>
+				<entry>0.0</entry><entry>float/number/numeric/scalar</entry><entry>'float'</entry>
+				<entry>false</entry><entry>true</entry><entry>true</entry>
+				<entry>false</entry><entry>0</entry><entry>0</entry><entry>'0.0'</entry>
+			</row>
+			<row>
+				<entry>123.123</entry><entry>float/number/numeric/scalar</entry><entry>'float'</entry>
+				<entry>false</entry><entry>true</entry><entry>false</entry>
+				<entry>true</entry><entry>123</entry><entry>123.123</entry><entry>'123.123'</entry>
+			</row>
+			<row>
+				<entry>'0'</entry><entry>string/numeric/scalar</entry><entry>'string'</entry>
+				<entry>false</entry><entry>true</entry><entry>true</entry>
+				<entry>false</entry><entry>0</entry><entry>0</entry><entry>'0'</entry>
+			</row>
+			<row>
+				<entry>'123'</entry><entry>string/numeric/scalar</entry><entry>'string'</entry>
+				<entry>false</entry><entry>true</entry><entry>false</entry>
+				<entry>true</entry><entry>123</entry><entry>123</entry><entry>'123'</entry>
+			</row>
+			<row>
+				<entry>''</entry><entry>string/scalar</entry><entry>'string'</entry>
+				<entry>true</entry><entry>false</entry><entry>false</entry>
+				<entry>false</entry><entry>0</entry><entry>0</entry><entry>''</entry>
+			</row>
+			<row>
+				<entry>'abc'</entry><entry>string/scalar</entry><entry>'string'</entry>
+				<entry>false</entry><entry>true</entry><entry>false</entry>
+				<entry>true</entry><entry>0</entry><entry>0</entry><entry>'abc'</entry>
+			</row>
+			<row>
+				<entry>&lt;array&gt;</entry><entry>array/complex</entry><entry>'array'</entry>
+				<entry>false</entry><entry>true</entry><entry>false</entry>
+				<entry>true</entry><entry>0</entry><entry>0</entry><entry>'Array'</entry>
+			</row>
+			<row>
+				<entry>&lt;function&gt;</entry><entry>function/subroutine/complex</entry><entry>'function'</entry>
+				<entry>false</entry><entry>true</entry><entry>false</entry>
+				<entry>true</entry><entry>0</entry><entry>0</entry><entry>'Function'</entry>
+			</row>
+      <row>
+        <entry>&lt;macro&gt;</entry><entry>macro/subroutine/complex</entry><entry>'macro'</entry>
+        <entry>false</entry><entry>true</entry><entry>false</entry>
+        <entry>true</entry><entry>0</entry><entry>0</entry><entry>'Macro'</entry>
+      </row>
+			<row>
+				<entry>&lt;class&gt;</entry><entry>class/complex</entry><entry>'class'</entry>
+				<entry>false</entry><entry>true</entry><entry>false</entry>
+				<entry>true</entry><entry>0</entry><entry>0</entry><entry>'Class'</entry>
+			</row>
+	</tbody>
+</tgroup>
+</table>
+</sect1>
+
+<sect1>
+	<title>Arithmetic expressions</title>
+	An arithmetic expression is a placeholder for its result. Whenever a number is explicitly expected, the corresponding expression is automatically evaluated arithmetically. Its result is then implicitly cast to the appropriate input type.
+	All C-like arithmetic and bitwise operators as well as their respective precedences are applicable to arithmetic expressions. Integer numbers can be specified in decimal (base 10), hexadecimal (base 16, '0x...'), octal (base 8, '0...') or binary (base 2, '0b...') notation while floating point numbers can be specified in decimal (base 10) or scientific E notation.
+
+	<programlisting language="xml"><![CDATA[
+		<math:abs var="number">(0x12 - 19.5) * $number</math:abs>
+	]]></programlisting>
+
+	A special shortcut syntax may be used for substitution of embedded arithmetic expressions that are independent of the superordinate data type (parenthesis syntax). Arithmetic expressions that are embedded inside another expression are replaced by their result. For that purpose arithmetic expressions are represented by a leading dollar sign ('$') and put into parentheses ('()').
+
+	<programlisting language="xml"><![CDATA[
+		<set var="birthyear">1950</set>
+		<output>This person is $(2012 - $birthyear) years old!</output>
+		<!-- This person is 62 years old! -->
+	]]></programlisting>
+
+	Arithmetic expressions in parenthesis syntax may also be deeply nested within other substitution mechanisms.
+
+	<programlisting language="xml"><![CDATA[
+		<array var="names">
+		  <item>Bill Gates</item>
+		  <item>Steve Jobs</item>
+		</array>
+
+		<output>$names[0] and $names[$(0 + 1)] are competitors!</output>
+		<!-- Bill Gates and Steve Jobs are competitors! -->
+	]]></programlisting>
+</sect1>
+
+<sect1>
+<title>Result propagation</title>
+<para>Any CDATA value of a statement may be replaced with the result of an embedded statement unless it is explicitly precluded. An incompatible result type is thereby implicitly cast to the appropriate input type.</para>
+
+<programlisting language="xml"><![CDATA[
+<math:calc var="number">15 + (7.5 * 2 - 3)</math:calc>
+<output>$number</output>
+<!-- 27 -->
+
+<output>
+	<math:calc>15 + (7.5 * 2 - 3)</math:calc>
+</output>
+<!-- 27 -->
+]]></programlisting>
+
+<para>At the same time the result may still be stored in a result variable if specified.</para>
+
+<programlisting language="xml"><![CDATA[
+<output>
+	<math:calc var="number">15 + (7.5 * 2 - 3)</math:calc>
+</output>
+
+<output>,$number</output>
+
+<!-- 27,27 -->
+]]></programlisting>
+
+<para>If code is embedded, the result of the last statement is then used for propagation.</para>
+
+<programlisting language="xml"><![CDATA[
+<output>
+	<set var="number">10</set>
+	<math:calc>$number + 100</math:calc>
+	<math:calc>$number + 5</math:calc>
+</output>
+<!-- 15 -->
+]]></programlisting>
+
+<para>The embedded code may also be deeply nested. Any results are then propagated to the topmost statement.</para>
+
+<programlisting language="xml"><![CDATA[
+<set var="born">1945</set>
+
+<output>
+	<if value1="$born" func="&lt;" value2="1950">
+    	<set>This person is very old!</set>
+	<else>
+		<math:calc>2009 - $born[$name]</math:calc>
+	</else>
+    </if>
+</output>
+
+<!-- This person is very old! -->
+]]></programlisting>
+
+<para>If CDATA values are used alongside embedded code, the embedded code then prevails.</para>
+
+<programlisting language="xml"><![CDATA[
+<output>
+	<math:calc>15 + (7.5 * 2 - 3)</math:calc>
+	471
+</output>
+<!-- 27 -->
+]]></programlisting>
+</sect1>
+
+<sect1>
+<title>Terminology</title>
+<table frame="all">
+<title></title>
+<tgroup cols="2" align="left" colsep="1" rowsep="1">
+	<thead>
+		<row>
+			<entry>Term</entry>
+			<entry>Definition</entry>
+		</row>
+	</thead>
+	<tbody>
+			<row>
+				<entry>Element</entry><entry>Simple XML element</entry>
+			</row>
+			<row>
+				<entry>Structure</entry><entry>Compound XML structure containing one or more elements</entry>
+			</row>
+			<row>
+				<entry>Operation</entry><entry>Semantic definition of an element</entry>
+			</row>
+			<row>
+				<entry>Construct</entry><entry>Semantic definition of a structure</entry>
+			</row>
+			<row>
+				<entry>Statement</entry><entry>Executable instance of an operation or construct</entry>
+			</row>
+			<row>
+				<entry>Code</entry><entry>Series of statements</entry>
+			</row>
+	</tbody>
+</tgroup>
+</table>
+</sect1>
+
+<sect1>
+<title>Occurrences</title>
+<table frame="all">
+<title></title>
+<tgroup cols="2" align="left" colsep="1" rowsep="1">
+	<thead>
+		<row>
+			<entry>Occurrence</entry>
+			<entry>Definition</entry>
+		</row>
+	</thead>
+	<tbody>
+			<row>
+				<entry>single</entry><entry>Element must appear exactly once</entry>
+			</row>
+			<row>
+				<entry>optional</entry><entry>Element is optional and may appear once at most</entry>
+			</row>
+			<row>
+				<entry>multiple</entry><entry>Element may appear any number of times including not at all</entry>
+			</row>
+	</tbody>
+</tgroup>
+</table>
+</sect1>
+<sect1>
+<title>Inputtypes</title>
+<table frame="all">
+<title></title>
+<tgroup cols="2" align="left" colsep="1" rowsep="1">
+	<thead>
+		<row>
+			<entry>Type</entry>
+			<entry>Definition</entry>
+		</row>
+	</thead>
+	<tbody>
+      <row>
+        <entry>var</entry><entry>String referencing a variable ('name') or an array item with a specific key ('name[key]', 'name.key') (unnecessary whitespace characters are automatically stripped)</entry>
+      </row>
+      <row>
+        <entry>bool</entry><entry>Applicable if set and not empty</entry>
+      </row>
+      <row>
+        <entry>int</entry><entry>Numeric expression cast to an integer number</entry>
+      </row>
+      <row>
+        <entry>float</entry><entry>Numeric expression cast to a floating point number</entry>
+      </row>
+      <row>
+        <entry>date</entry><entry>Numeric expression cast to an integer number and interpreted as a Unix timestamp</entry>
+      </row>
+			<row>
+				<entry>binary</entry><entry>Arbitrary byte sequence (binary data)</entry>
+			</row>
+			<row>
+				<entry>string</entry><entry>Series of Unicode (UTF-8) characters</entry>
+			</row>
+			<row>
+				<entry>regexp</entry><entry>String interpreted as a Perl-compatible regular expression pattern enclosed in delimiters ('/[a-z]+/i')</entry>
+			</row>
+			<row>
+				<entry>type</entry><entry>Meta type (case-insensitive)</entry>
+			</row>
+      <row>
+        <entry>ixml</entry><entry>Arbitrary code<</entry>
+      </row>
+	</tbody>
+</tgroup>
+</table>
+</sect1>
+<sect1>
+<title>Resulttypes</title>
+<table frame="all">
+<title></title>
+<tgroup cols="2" align="left" colsep="1" rowsep="1">
+	<thead>
+		<row>
+			<entry>Type</entry>
+			<entry>Definition</entry>
+		</row>
+	</thead>
+	<tbody>
+      <row>
+        <entry>null</entry><entry>NULL</entry>
+      </row>
+      <row>
+        <entry>bool</entry><entry>Boolean</entry>
+      </row>
+      <row>
+        <entry>int</entry><entry>Integer number</entry>
+      </row>
+      <row>
+        <entry>string</entry><entry>String (arbitrary byte sequence)</entry>
+      </row>
+      <row>
+        <entry>array</entry><entry>Array (collection of items in an ordered map that associates keys to values)</entry>
+      </row>
+      <row>
+        <entry>function</entry><entry>Function (closed subroutine)</entry>
+      </row>
+      <row>
+        <entry>macro</entry><entry>Macro (open subroutine)</entry>
+      </row>
+      <row>
+        <entry>class</entry><entry>Class (array prototype)</entry>
+      </row>
+	</tbody>
+</tgroup>
+</table>
+</sect1>
+<sect1>
+<title>Predicates</title>
+<table frame="all">
+<title></title>
+<tgroup cols="2" align="left" colsep="1" rowsep="1">
+	<thead>
+		<row>
+			<entry>Predicate</entry>
+			<entry>Definition</entry>
+		</row>
+	</thead>
+	<tbody>
+			<row>
+				<entry>applicable-if-set</entry><entry>Property is applicable if any value is explicitly set</entry>
+			</row>
+			<row>
+				<entry>case-insensitive</entry><entry>Interpretation does not distinguish between lower and upper case characters</entry>
+			</row>
+			<row>
+				<entry>encapsulated-break</entry><entry>Break-off is limited to the execution of the current control statement</entry>
+			</row>
+			<row>
+				<entry>no-result-propagation</entry><entry>Result is not propagated to paternal statement</entry>
+			</row>
+			<row>
+				<entry>local-context</entry><entry>Incorporates a local context with a new local variable scope</entry>
+			</row>
+	</tbody>
+</tgroup>
+</table>
+</sect1>
+
+</article>

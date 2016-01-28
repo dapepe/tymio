@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ixml>
+
+<global var="API_URL" />
+<env type="property" key="ApiUrl" var="API_URL" />
+<is var="API_URL" type="empty">
+	<env type="tymio" key="API_URL" var="API_URL" />
+</is>
+
+<global var="getFullName" />
+<function var="getFullName">
+	<trim var="name">$user.Firstname $user.Lastname</trim>
+
+	<if value1="$name">
+		<trim var="name">$user.Name</trim>
+	</if>
+
+	<set var="return">$name</set>
+</function>
+
+<if value1="$_DATA.Type.Identifier" value2="vacation" func="!=">
+	<debug:output>Ignoring non-vacation clocking $_DATA.Id</debug:output>
+	<return />
+</if>
+
+<debug:output><t>VACATION REQUEST for $_USER.Name by $_AUTH_USER.Name: </t><encode:json var="_DATA" /></debug:output>
+
+<date:format localize="1" format="D, d.m.Y" var="startDay">$_DATA.Start</date:format>
+<date:format localize="1" format="D, d.m.Y" var="endDay">$_DATA.End</date:format>
+
+<call func="getFullName" var="userName">
+	<param name="user" var="_USER" />
+</call>
+
+<call func="getFullName" var="authUserName">
+	<param name="user" var="_AUTH_USER" />
+</call>
+
+<if value1="$startDay" value2="$endDay">
+	<set var="timeSpan">$startDay</set>
+	<set var="subject">Urlaubsantrag für $userName am $startDay</set>
+<else>
+	<set var="timeSpan">$startDay bis $endDay</set>
+	<set var="subject">Urlaubsantrag für $userName vom $startDay bis $endDay</set>
+</else>
+</if>
+
+<debug:output>$subject, $timeSpan</debug:output>
+
+<encode:base64 var="subject">$subject</encode:base64>
+<set var="subject">=?UTF-8?B?$subject?=</set>
+
+<set var="supervisorName"><env key="Supervisor" user="$_USER.Id" /></set> <!-- Set as string -->
+
+<api name="user" do="details" var="supervisorData">
+	<param name="id">cms/$supervisorName</param>
+	<param name="allowpeers">1</param>
+</api>
+<assign var="supervisor" var_source="supervisorData.result" />
+
+<if value1="$supervisorName">
+	<debug:output>No supervisors defined</debug:output>
+	<return />
+</if>
+
+<debug:output>
+	<t>Supervisor cms/$supervisorName data: </t>
+	<encode:json var="supervisorData" />
+</debug:output>
+
+<if value1="$supervisor.Id" value2="$_AUTH_USER.Id">
+	<!-- Authenticated user is the supervisor; accept -->
+	<set var="_DATA.ApprovalStatus">3</set> <!-- APPROVAL_STATUS_CONFIRMED -->
+	<debug:output>Auto-confirm</debug:output>
+	<return />
+</if>
+
+<is var="supervisor.Email" type="non-valid">
+	<!-- No supervisor e-mail; do nothing -->
+	<debug:output>Supervisor #$supervisor.Id $supervisor.Name does not have an e-mail address</debug:output>
+	<return />
+</is>
+
+<call func="getFullName" var="supervisorName">
+	<param name="user" var="supervisor" />
+</call>
+<replace var="supervisorName" pattern="`[&lt;&gt;\x00-\x1f]`" replacement="">$supervisorName</replace>
+
+<debug:output>Mail to $supervisorName &lt;$supervisor.Email&gt;: $subject</debug:output>
+
+<mail:send>
+	<mail:header><![CDATA[
+From: noreply@tymio.local
+To: $supervisorName <$supervisor.Email>
+Subject: $subject
+Content-Type: text/plain; charset=UTF-8
+]]></mail:header>
+	<mail:body>
+		<if value1="$_AUTH_USER.Id" value2="$_USER.Id">
+			<t>$userName hat Urlaub beantragt.</t>
+		<else>
+			<t>$authUserName möchte Urlaub für $userName beantragen.</t>
+		</else>
+		</if>
+		<t>
+Genehmigen / Ablehnen:
+$API_URL/confirm/$_DATA.Id?api=plugin&amp;do=execute&amp;id=vacation-book&amp;inline=1
+
+Zeitraum: $timeSpan
+</t>
+		<is var="_DATA.Comment" type="non-empty">
+			<t>
+Grund:
+$_DATA.Comment</t>
+		</is>
+	</mail:body>
+</mail:send>
+
+</ixml>

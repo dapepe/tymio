@@ -1,0 +1,593 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ixml>
+	<global var="BOOKING_TYPES" />
+
+	<global var="MAX_Y" />
+	<set var="MAX_Y">265</set>
+
+	<global var="loadBookingTypes" />
+	<function var="loadBookingTypes">
+		<api name="transaction" do="types" var="result" />
+		<is var="result.error" type="non-empty">
+			<error>$result.error</error>
+		</is>
+		<is var="result.result" type="empty">
+			<error>Invalid result.</error>
+		</is>
+
+		<array var="return">
+			<array key="ById" />
+			<array key="ByIdentifier" />
+		</array>
+
+		<foreach var="result.result" var_value="item">
+			<assign var="return[ById][$item.Id]" var_source="item" />
+			<assign var="return[ByIdentifier][$item.Identifier]" var_source="item" />
+		</foreach>
+	</function>
+
+	<global var="getUserName" />
+	<function var="getUserName">
+		<set var="return">$user.Firstname $user.Lastname</set>
+		<trim var="return">$return</trim>
+		<if value1="$return">
+			<set var="return">$user.Name</set>
+		</if>
+	</function>
+
+	<global var="getDateRange" />
+	<function var="getDateRange">
+		<date:format format="Y" var="fromYear">$range.Start</date:format>
+		<date:format format="Y" var="toYear">$range.End</date:format>
+
+		<if value1="$fromYear" value2="$toYear">
+			<set var="fromFormat">d.m.</set>
+		<else>
+			<set var="fromFormat">d.m.Y</set>
+		</else>
+		</if>
+
+		<date:format format="$fromFormat" var="return.from">$range.Start</date:format>
+		<date:format format="d.m.Y" var="return.to">$range.End</date:format>
+	</function>
+
+	<global var="groupByDate" />
+	<function var="groupByDate">
+		<date:format format="Y-m-d" var="currentDate">$item.Start</date:format>
+		<set var="currentTimestamp">$item.Start</set>
+
+		<while value1="$currentTimestamp" value2="$item.End" func="&lt;=">
+			<date:format format="o\WW" var="currentWeek">$currentTimestamp</date:format>
+			<if value1="$currentWeek" value2="$week">
+				<set var="return[]">$currentDate</set>
+			<elseif value1="$week">
+				<set var="return[]">$currentDate</set>
+			</elseif>
+			<elseis var="week" type="null">
+				<set var="return[]">$currentDate</set>
+			</elseis>
+			</if>
+
+			<date:parse2 var="currentTimestamp" ref="$currentTimestamp">tomorrow</date:parse2>
+			<date:format format="Y-m-d" var="currentDate">$currentTimestamp</date:format>
+		</while>
+	</function>
+
+	<global var="formatTransactionDate" />
+	<function var="formatTransactionDate">
+		<date:format format="Y-m-d" var="startDay">$transaction.Start</date:format>
+		<date:format format="Y-m-d" var="endDay">$transaction.End</date:format>
+
+		<if value1="$startDay" value2="$endDay">
+			<!-- Same day -->
+			<date:format localize="1" format="d.m.Y, l" var="return">$transaction.Start</date:format>
+		<else>
+			<!-- Multiple days -->
+			<set var="return">
+				<date:format localize="1" format="d.m.Y, l">$transaction.Start</date:format>
+				<t> - </t>
+				<date:format localize="1" format="d.m.Y, l">$transaction.End</date:format>
+			</set>
+		</else>
+		</if>
+	</function>
+
+	<global var="printHeaders" />
+	<!--
+		@param number y
+		@return number
+	-->
+	<function var="printHeaders">
+		<set var="height">5</set>
+		<set var="return">$($y + $height)</set>
+
+		<pdf:row y="$y"><pdf:style fontsize="10" align="R">
+			<!-- Clockings -->
+			<pdf:row x="24" y="$y"><pdf:style fontstyle="B" border="B" borderwidth="0.1">
+				<pdf:style align="L"><pdf:col nowrap="1" width="42" height="4">Datum</pdf:col></pdf:style>
+				<pdf:col nowrap="1" width="12" height="4">Von</pdf:col>
+				<pdf:col nowrap="1" width="12" height="4">Bis</pdf:col>
+				<pdf:col nowrap="1" width="12" height="4">Pause</pdf:col>
+			</pdf:style></pdf:row>
+
+			<!-- Bookings -->
+			<pdf:row x="107" y="$y"><pdf:style fontstyle="B" border="B" borderwidth="0.1">
+				<pdf:col nowrap="1" width="20" height="4">Arbeitszeit</pdf:col>
+				<pdf:col nowrap="1" width="18" height="4">Gleitzeit</pdf:col>
+				<pdf:col nowrap="1" width="23" height="4">Überstunden</pdf:col>
+				<pdf:col nowrap="1" width="18" height="4">Abgelehnt</pdf:col>
+			</pdf:style></pdf:row>
+		</pdf:style></pdf:row>
+	</function>
+
+	<global var="renderTransaction" />
+	<!--
+		@param array transaction
+		@param bool odd 1 if row is an odd row, otherwise 0
+		@param number y
+		@param number pageStartY
+		@param number maxY
+		@return number
+	-->
+	<function var="renderTransaction">
+		<call func="formatTransactionDate" var="dateText">
+			<param name="transaction" var="transaction" />
+		</call>
+
+		<replace var="transactionComment" pattern="`^\d{4}-[012]\d-[0123]\d$`">$transaction.Comment</replace>
+
+		<array:length var="transaction.Clockings" var_result="rowCount" />
+
+		<is var="transactionComment" type="non-empty">
+			<set var="commentHeight">6</set>
+		<else>
+			<set var="commentHeight">1</set>
+		</else>
+		</is>
+
+		<set var="height">$($rowCount * 4 + $commentHeight)</set>
+		<set var="return">$($y + $height)</set>
+
+		<if value1="$return" value2="$maxY" func="&gt;">
+			<pdf:pagebreak/>
+			<call func="printHeaders" var="y">
+				<param name="y" var="pageStartY" />
+			</call>
+			<set var="return">$($y + $height)</set>
+		</if>
+
+		<is var="odd" type="empty">
+			<set var="backgroundColor">#ffffff</set>
+		<else>
+			<set var="backgroundColor">#eeeeee</set>
+		</else>
+		</is>
+
+		<pdf:style fontsize="10" align="R" bgcolor="$backgroundColor">
+			<pdf:block x="24" y="$($y + $commentHeight)" width="$(210 - 2*24)" height="$height" />
+
+			<is var="transactionComment" type="non-empty">
+				<pdf:style fontstyle="B" align="L" border="">
+					<pdf:block x="24" y="$y" nowrap="1" width="162" height="$commentHeight">$transactionComment</pdf:block>
+				</pdf:style>
+			</is>
+
+			<set var="y">$($y + $commentHeight)</set>
+
+			<!-- Clockings -->
+			<foreach var="transaction.Clockings" var_key="clockingIndex" var_value="clocking">
+				<pdf:row x="24" y="$($y + $clockingIndex * 4)">
+					<is var="clocking.Type.WholeDay" type="empty">
+						<pdf:style align="L"><pdf:col nowrap="1" width="42" height="4"><date:format localize="1" format="d.m.Y, l">$clocking.Start</date:format></pdf:col></pdf:style>
+						<pdf:col nowrap="1" width="12" height="4"><date:format format="G:i">$clocking.Start</date:format></pdf:col>
+						<pdf:col nowrap="1" width="12" height="4"><date:format format="G:i">$clocking.End</date:format></pdf:col>
+						<pdf:col nowrap="1" width="12" height="4"><date:format format="G:i" timezone="UTC">$clocking.Breaktime</date:format></pdf:col>
+					<else>
+						<date:format localize="1" format="d.m.Y" var="startDate">$clocking.Start</date:format>
+						<date:format localize="1" format="d.m.Y" var="endDate">$clocking.End</date:format>
+						<pdf:style fontstyle="I" align="L"><pdf:col nowrap="1" width="42" height="4">
+							<if value1="$startDate" value2="$endDate">
+								<date:format localize="1" format="d.m.Y, l">$clocking.Start</date:format>
+							<else>
+								<t>$startDate - $endDate</t>
+							</else>
+							</if>
+						</pdf:col></pdf:style>
+						<pdf:col nowrap="1" width="36" height="4">$clocking.Type.Label</pdf:col>
+					</else>
+					</is>
+				</pdf:row>
+			</foreach>
+
+			<!-- Bookings -->
+			<array var="worktotals">
+				<item key="regular">0</item>
+				<item key="flexitime">0</item>
+				<item key="overtime">0</item>
+				<item key="rejected">0</item>
+			</array>
+
+			<foreach var="transaction.Bookings" var_key="bookingIndex" var_value="booking">
+				<array var="worktimes">
+					<item key="regular" />
+					<item key="flexitime" />
+					<item key="overtime" />
+					<item key="rejected" />
+				</array>
+
+				<set var="bookingTypeName">$BOOKING_TYPES[ById][$booking.BookingTypeId][Identifier]</set>
+
+				<set var="sign" />
+				<set var="bookingValue">$booking.Value</set>
+				<if value1="$booking.Value" value2="0" func="&lt;">
+					<set var="sign">-</set>
+					<set var="bookingValue">$(-($booking.Value))</set>
+				</if>
+
+				<replace var="worktimes[$bookingTypeName]" pattern="`^(-?)(?:0+:)*`" replacement="$$1"><t>$sign</t><date:format format="H:i" timezone="UTC">$($bookingValue * 60)</date:format></replace>
+				<set var="worktotals[$bookingTypeName]">$($worktotals[$bookingTypeName] + $booking.Value)</set>
+			</foreach>
+
+			<!-- TODO: Use units specified by booking types -->
+			<pdf:row x="107" y="$y"><pdf:style fontstyle="B">
+				<pdf:col nowrap="1" width="20" height="4"><replace pattern="`^-?0:00$$`"><duration mode="simple" convert="0" from="minutes" unit="minutes">$worktotals.regular</duration></replace></pdf:col>
+				<pdf:col nowrap="1" width="18" height="4"><replace pattern="`^-?0:00$$`"><duration mode="simple" convert="0" from="minutes" unit="minutes">$worktotals.flexitime</duration></replace></pdf:col>
+				<pdf:col nowrap="1" width="23" height="4"><replace pattern="`^-?0:00$$`"><duration mode="simple" convert="0" from="minutes" unit="minutes">$worktotals.overtime</duration></replace></pdf:col>
+				<pdf:col nowrap="1" width="18" height="4"><replace pattern="`^-?0:00$$`"><duration mode="simple" convert="0" from="minutes" unit="minutes">$worktotals.rejected</duration></replace></pdf:col>
+			</pdf:style></pdf:row>
+		</pdf:style>
+	</function>
+
+	<global var="getBalances" />
+	<!--
+		@param int userId
+		@param int start
+		@param int end
+	-->
+	<function var="getBalances">
+		<api name="transaction" do="types" var="return">
+			<param name="user" var="userId" />
+			<param name="start" var="start" />
+			<param name="end" var="end" />
+			<param name="deleted">0</param>
+		</api>
+	</function>
+
+	<global var="printBalance" />
+	<!--
+		@param userId
+		@param array dateRange
+		@param int y
+		@param int pageStartY
+		@param maxY
+		@return int height
+	-->
+	<function var="printBalance">
+		<date:parse var="yearStart"><date:format format="Y-01-01 00:00:00">$dateRange.Start</date:format></date:parse>
+		<array var="balances" />
+
+		<date:format format="d.m." var="dateFrom">$dateRange.Start</date:format>
+		<date:format format="d.m." var="dateTo">$dateRange.End</date:format>
+
+		<call func="getBalances" var="startBalances">
+			<param name="userId" var="userId" />
+			<param name="start" var="yearStart" />
+			<param name="end" var="dateRange.Start" />
+		</call>
+
+		<assign var="balances[Stand vor dem $dateFrom]" var_source="startBalances" />
+
+		<call func="getBalances" var="balances[Stand zum $dateTo]">
+			<param name="userId" var="userId" />
+			<param name="start" var="yearStart" />
+			<param name="end" var="dateRange.End" />
+		</call>
+
+		<array var="startBalancesByIdentifier" />
+		<foreach var="startBalances.result" var_value="balance">
+			<assign var="startBalancesByIdentifier[$balance.Identifier]" var_source="balance" />
+		</foreach>
+
+		<array var="deltas" />
+		<foreach var="balances[Stand zum $dateTo][result]" var_value="type">
+			<array var="deltas[$type.Identifier]">
+				<item key="Identifier" var="type.Identifier" />
+				<item key="Unit" var="type.Unit" />
+				<item key="DisplayUnit" var="type.DisplayUnit" />
+				<item key="Balance">$($type.Balance - $startBalancesByIdentifier[$type.Identifier][Balance])</item>
+			</array>
+		</foreach>
+
+		<array var="balances[Geleistet]" />
+		<assign var="balances[Geleistet][result]" var_source="deltas" />
+
+		<array:length var="balances" var_result="balanceCount" />
+
+		<set var="height">$((3 + $balanceCount) * 4)</set> <!-- Column headers, rows -->
+
+		<set var="return">$($y + $height)</set>
+		<if value1="$return" value2="$maxY" func="&gt;">
+			<pdf:pagebreak/>
+			<set var="y">$pageStartY</set>
+			<set var="return">$($y + $height)</set>
+		</if>
+
+		<pdf:row y="$($y + 5)">
+			<pdf:style fontstyle="B" fontsize="12" border=""><pdf:col nowrap="1" width="160" height="10">Saldo</pdf:col></pdf:style>
+		</pdf:row>
+
+		<!-- Headers -->
+		<pdf:row x="60" y="$($y + 10)"><pdf:style fontsize="10" fontstyle="B" align="R" border="B" borderwidth="0.1">
+			<pdf:col nowrap="1" width="47" height="4"></pdf:col>
+			<pdf:col nowrap="1" width="20" height="4">Arbeitszeit</pdf:col>
+			<pdf:col nowrap="1" width="18" height="4">Gleitzeit</pdf:col>
+			<pdf:col nowrap="1" width="23" height="4">Überstunden</pdf:col>
+			<pdf:col nowrap="1" width="18" height="4">Abgelehnt</pdf:col>
+		</pdf:style></pdf:row>
+
+		<set var="rowCount">0</set>
+		<foreach var="balances" var_key="balanceLabel" var_value="typesResult">
+			<array var="typesByIdentifier" />
+			<foreach var="typesResult.result" var_value="type">
+				<assign var="typesByIdentifier[$type.Identifier]" var_source="type" />
+			</foreach>
+
+			<if value1="$balanceLabel" value2="Geleistet">
+				<set var="fontStyle">B</set>
+				<set var="border">T</set>
+			<else>
+				<set var="fontStyle" />
+				<set var="border" />
+			</else>
+			</if>
+
+			<pdf:row x="60" y="$($y + 10 + 5 + $rowCount * 5)"><pdf:style fontsize="10" fontstyle="$fontStyle" align="R" border="$border" borderwidth="0.1">
+				<pdf:col nowrap="1" width="47" height="4">$balanceLabel</pdf:col>
+				<pdf:col nowrap="1" width="20" height="4"><replace pattern="`^-?00$$`"><duration mode="simple" convert="0" from="$typesByIdentifier.regular.Unit" unit="$typesByIdentifier.regular.DisplayUnit">$typesByIdentifier.regular.Balance</duration></replace></pdf:col>
+				<pdf:col nowrap="1" width="18" height="4"><replace pattern="`^-?00$$`"><duration mode="simple" convert="0" from="$typesByIdentifier.flexitime.Unit" unit="$typesByIdentifier.flexitime.DisplayUnit">$typesByIdentifier.flexitime.Balance</duration></replace></pdf:col>
+				<pdf:col nowrap="1" width="23" height="4"><replace pattern="`^-?00$$`"><duration mode="simple" convert="0" from="$typesByIdentifier.overtime.Unit" unit="$typesByIdentifier.overtime.DisplayUnit">$typesByIdentifier.overtime.Balance</duration></replace></pdf:col>
+				<pdf:col nowrap="1" width="18" height="4"><replace pattern="`^-?00$$`"><duration mode="simple" convert="0" from="$typesByIdentifier.rejected.Unit" unit="$typesByIdentifier.rejected.DisplayUnit">$typesByIdentifier.rejected.Balance</duration></replace></pdf:col>
+			</pdf:style></pdf:row>
+
+			<set var="rowCount">$($rowCount + 1)</set>
+		</foreach>
+
+		<pdf:row x="24" y="$($y + 2)"><pdf:style fontsize="10" fontstyle="B" align="R" border="T" borderwidth="0.1">
+			<pdf:col nowrap="1" width="36" height="4"></pdf:col>
+			<pdf:col nowrap="1" width="47" height="4">Geleistet</pdf:col>
+			<pdf:col nowrap="1" width="20" height="4"><replace pattern="`^-?00$$`"><duration mode="simple" convert="0" from="$typesByIdentifier.regular.Unit" unit="$typesByIdentifier.regular.DisplayUnit">$typesByIdentifier.regular.Balance</duration></replace></pdf:col>
+			<pdf:col nowrap="1" width="18" height="4"><replace pattern="`^-?00$$`"><duration mode="simple" convert="0" from="$typesByIdentifier.flexitime.Unit" unit="$typesByIdentifier.flexitime.DisplayUnit">$typesByIdentifier.flexitime.Balance</duration></replace></pdf:col>
+			<pdf:col nowrap="1" width="23" height="4"><replace pattern="`^-?00$$`"><duration mode="simple" convert="0" from="$typesByIdentifier.overtime.Unit" unit="$typesByIdentifier.overtime.DisplayUnit">$typesByIdentifier.overtime.Balance</duration></replace></pdf:col>
+			<pdf:col nowrap="1" width="18" height="4"><replace pattern="`^-?00$$`"><duration mode="simple" convert="0" from="$typesByIdentifier.rejected.Unit" unit="$typesByIdentifier.rejected.DisplayUnit">$typesByIdentifier.rejected.Balance</duration></replace></pdf:col>
+		</pdf:style></pdf:row>
+	</function>
+
+	<global var="printOfftimeBalance" />
+	<!--
+		@param userId
+		@param array dateRange
+		@param int y
+		@param int pageStartY
+		@param maxY
+	-->
+	<function var="printOfftimeBalance">
+		<date:format format="d.m." var="dateFrom">$dateRange.Start</date:format>
+		<date:format format="d.m." var="dateTo">$dateRange.End</date:format>
+
+		<call func="getBalances" var="typesResult" />
+
+		<array var="typesById" />
+		<foreach var="typesResult.result" var_value="type">
+			<assign var="typesById[$type.Id]" var_source="type" />
+		</foreach>
+
+		<api name="transaction" do="list" var="transactionData">
+			<param name="user" var="userId" />
+			<param name="start">$dateRange.Start</param>
+			<param name="end">$dateRange.End</param>
+			<param name="deleted">0</param>
+		</api>
+
+		<is var="transactionData.result" type="non-array">
+			<error>Konnte Transaktionen nicht laden: $transactionData.error</error>
+		</is>
+		<is var="transactionData.error" type="non-empty">
+			<error>Konnte Transaktionen nicht laden: $transactionData.error</error>
+		</is>
+
+		<array var="balances" />
+
+		<foreach var="transactionData.result" var_value="transaction">
+			<foreach var="transaction.Bookings" var_value="booking">
+				<set var="balances[$booking.BookingTypeId]">$($balances[$booking.BookingTypeId] + $booking.Value)</set>
+			</foreach>
+		</foreach>
+
+		<array var="balancesByLabel" />
+
+		<foreach var="balances" var_key="bookingTypeId" var_value="balance">
+			<assign var="type" var_source="typesById[$bookingTypeId]" />
+			<if value1="$type.DisplayUnit" value2="days">
+				<duration var="balancesByLabel[$type.Label]" unit="$type.DisplayUnit" from="$type.Unit" decimals="1" convert="1" mode="simple">$balance</duration>
+			</if>
+		</foreach>
+
+		<is var="balancesByLabel" type="empty">
+			<return />
+		</is>
+
+		<array:length var="balancesByLabel" var_result="balanceCount" />
+
+		<set var="height">$((3 + $balanceCount) * 4)</set> <!-- Column headers, rows, empty lines -->
+
+		<set var="return">$($y + $height)</set>
+		<if value1="$return" value2="$maxY" func="&gt;">
+			<pdf:pagebreak/>
+			<set var="y">$pageStartY</set>
+			<set var="return">$($y + $height)</set>
+		</if>
+
+		<pdf:row y="$($y + 5)">
+			<pdf:style fontstyle="B" fontsize="12" border=""><pdf:col nowrap="1" width="160" height="10">Abwesenheiten</pdf:col></pdf:style>
+		</pdf:row>
+
+		<!-- Headers -->
+		<pdf:row x="60" y="$($y + 10)"><pdf:style fontsize="10" fontstyle="B" align="R" border="B" borderwidth="0.1">
+			<pdf:col nowrap="1" width="47" height="4"></pdf:col>
+			<pdf:col nowrap="1" width="20" height="4"></pdf:col>
+			<pdf:col nowrap="1" width="18" height="4"></pdf:col>
+			<pdf:col nowrap="1" width="23" height="4"></pdf:col>
+			<pdf:col nowrap="1" width="18" height="4">Tage</pdf:col>
+		</pdf:style></pdf:row>
+
+		<set var="rowCount">0</set>
+		<set var="odd">1</set>
+
+		<foreach var="balancesByLabel" var_key="balanceLabel" var_value="balance">
+			<is var="odd" type="empty">
+				<set var="backgroundColor">#eeeeee</set>
+			<else>
+				<set var="backgroundColor">#ffffff</set>
+			</else>
+			</is>
+
+			<pdf:row x="60" y="$($y + 10 + 5 + $rowCount * 5)"><pdf:style fontsize="10" align="R" bgcolor="$backgroundColor">
+				<pdf:col nowrap="1" width="47" height="4">$balanceLabel</pdf:col>
+				<pdf:col nowrap="1" width="20" height="4"></pdf:col>
+				<pdf:col nowrap="1" width="18" height="4"></pdf:col>
+				<pdf:col nowrap="1" width="23" height="4"></pdf:col>
+				<pdf:col nowrap="1" width="18" height="4">$balance</pdf:col>
+			</pdf:style></pdf:row>
+
+			<set var="rowCount">$($rowCount + 1)</set>
+			<set var="odd">$($odd ^ 1)</set>
+		</foreach>
+	</function>
+
+	<global var="printSignatureField" />
+	<!--
+		@param int y
+		@param int pageStartY
+		@param maxY
+	-->
+	<function var="printSignatureField">
+		<set var="height">$(10 + 20 + 5)</set> <!-- Column headers, rows -->
+
+		<set var="return">$($y + $height)</set>
+		<if value1="$return" value2="$maxY" func="&gt;">
+			<pdf:pagebreak/>
+			<set var="y">$pageStartY</set>
+			<set var="return">$($y + $height)</set>
+		</if>
+
+		<pdf:row y="$($y + 10 + 20)"><pdf:style fontstyle="B" fontsize="10" border="T" borderwidth="0.1">
+			<pdf:col nowrap="1" width="40" height="10">Ort, Datum</pdf:col>
+			<pdf:style border=""><pdf:col nowrap="1" width="10" height="10"></pdf:col></pdf:style>
+			<pdf:col nowrap="1" width="50" height="10">Unterschrift Mitarbeiter</pdf:col>
+			<pdf:style border=""><pdf:col nowrap="1" width="12" height="10"></pdf:col></pdf:style>
+			<pdf:col nowrap="1" width="50" height="10">Unterschrift Vorgesetzter</pdf:col>
+		</pdf:style></pdf:row>
+	</function>
+
+	<call func="loadBookingTypes" var="BOOKING_TYPES" />
+
+	<global var="DATE_RANGE" /> <!-- Needed for <pdf:header /> -->
+	<call func="getDateRange" var="DATE_RANGE">
+		<param name="range" var="_DATA.monthRange" />
+	</call>
+
+	<call func="getUserName" var="AUTHOR_NAME">
+		<param name="user" var="_AUTH_USER" />
+	</call>
+
+	<global var="EMPLOYEE_NAME" /> <!-- Needed for <pdf:header /> -->
+	<call func="getUserName" var="EMPLOYEE_NAME">
+		<param name="user" var="_DATA.user" />
+	</call>
+
+<!--	<array:group keyfunc="groupByDate" var="_DATA.transactions" var_result="transactionsByDate" />-->
+	<output>
+		<pdf:document author="$AUTHOR_NAME" title="Arbeitszeitbericht $EMPLOYEE_NAME vom $DATE_RANGE.from - $DATE_RANGE.to" subject="Arbeitszeitbericht" keywords="Arbeitszeitbericht, Buchungen, Transaktionen, $EMPLOYEE_NAME" unit="mm" zoom="fullpage" layout="SinglePage" mode="UseThumbs">
+			<pdf:section leftmargin="24" rightmargin="24" topmargin="30" bottommargin="28">
+				<pdf:header>
+					<pdf:style valign="middle" fontsize="12">
+						<pdf:row y="10">
+							<pdf:col nowrap="1" width="90" height="10">Arbeitszeitbericht vom $DATE_RANGE.from - $DATE_RANGE.to</pdf:col>
+							<pdf:style align="R"><pdf:col nowrap="1" width="73" height="10">Mitarbeiter: $EMPLOYEE_NAME</pdf:col></pdf:style>
+						</pdf:row>
+					</pdf:style>
+				</pdf:header>
+
+				<pdf:footer>
+					<pdf:style valign="middle" fontsize="12">
+						<pdf:row y="273">
+							<pdf:col nowrap="1" width="90" height="10"><t>Stand: </t><date:format format="d.m.Y"><date:now /></date:format><t>, Seite {{:pnp:}} von {{:ptp:}}</t></pdf:col>
+							<pdf:style align="R"><pdf:col nowrap="1" width="73" height="10">Gedruckt von: $_AUTH_USER.Name</pdf:col></pdf:style>
+						</pdf:row>
+					</pdf:style>
+				</pdf:footer>
+
+				<pdf:body>
+					<pdf:style valign="middle" fontsize="12">
+						<pdf:getpos var_y="pageStartY" />
+
+						<call func="printHeaders" var="y">
+							<param name="y" var="pageStartY" />
+						</call>
+
+						<!-- TODO: Perform multi-key sorting -->
+						<array:sort var="_DATA.transactions" var_result="transactions" key="End" />
+
+						<set var="odd">1</set>
+
+						<foreach var="transactions" var_value="transaction">
+							<is var="transaction.Deleted" type="non-empty">
+								<next />
+							</is>
+
+							<array:length var="transaction.Bookings" var_result="bookingCount" />
+							<if value1="$bookingCount" value2="0">
+								<next />
+							</if>
+
+							<call func="renderTransaction" var="y">
+								<param name="transaction" var="transaction" />
+								<param name="odd" var="odd" />
+								<param name="y" var="y" />
+								<param name="pageStartY" var="pageStartY" />
+								<param name="maxY" var="MAX_Y" />
+							</call>
+
+							<set var="odd">$($odd ^ 1)</set>
+						</foreach>
+					</pdf:style>
+
+					<call func="printBalance" var="y">
+						<param name="userId" var="_DATA.user.Id" />
+						<param name="dateRange" var="_DATA.monthRange" />
+						<param name="y" var="y" />
+						<param name="pageStartY" var="pageStartY" />
+						<param name="maxY" var="MAX_Y" />
+					</call>
+
+					<call func="printOfftimeBalance" var="y">
+						<param name="userId" var="_DATA.user.Id" />
+						<param name="dateRange" var="_DATA.monthRange" />
+						<param name="y" var="y" />
+						<param name="pageStartY" var="pageStartY" />
+						<param name="maxY" var="MAX_Y" />
+					</call>
+
+					<call func="printSignatureField" var="y">
+						<param name="y" var="y" />
+						<param name="pageStartY" var="pageStartY" />
+						<param name="maxY" var="MAX_Y" />
+					</call>
+				</pdf:body>
+			</pdf:section>
+		</pdf:document>
+	</output>
+
+	<header>Content-Type: application/pdf</header>
+	<header>Content-Disposition: attachment; filename=Arbeitszeitbericht.pdf</header>
+</ixml>

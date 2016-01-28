@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tutorials>
+	<section dir="ixml">
+		<name>Development with iXML</name>
+		<docs>
+			<doc src="lang">The iXML language</doc>
+		</docs>
+	</section>
+	<section dir="php">
+		<name>Integration with PHP</name>
+		<docs>
+			<doc src="include">Include iXML in your project</doc>
+			<doc src="extend">Extend iXML with custom commands</doc>
+		</docs>
+	</section>
+</tutorials>

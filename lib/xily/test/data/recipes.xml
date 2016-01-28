@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<recipes>
+	<recipe id="pancake" level="easy" cookingtime="10">
+		<title>Pancakes</title>
+		<ingredients>
+			<item>200g Mehl</item>
+			<item>2 Eier</item>
+			<item>3 Teeloeffel Zucker</item>
+			<item>100ml Milch</item>
+			<item>100ml Wasser</item>
+		</ingredients>
+		<preparation>
+			<![CDATA[
+			Put it all together in your frying pan!
+			]]>
+		</preparation>
+	</recipe>
+	<recipe id="steak" level="medium" cookingtime="20">
+		<title>Barbecue steak</title>
+		<ingredients>
+			<item>250g Steak</item>
+			<item>5 potatoes</item>
+			<item>Oil</item>
+			<item>Pepper</item>
+			<item>Salt</item>
+			<item>Garlic</item>
+			<item>Chilli</item>
+		</ingredients>
+		<preparation>
+			<![CDATA[
+			Just put everything on the barbecue grill!
+			]]>
+		</preparation>
+	</recipe>
+	<recipe id="soup" level="hard" cookingtime="40">
+		<title>Pumpkin Soup</title>
+		<ingredients>
+			<item>1 Kuerbis</item>
+			<item>1 Becher Sahne</item>
+			<item>Knoblauch</item>
+			<item>Pfeffer</item>
+			<item>Salz</item>
+		</ingredients>
+		<preparation>
+			<![CDATA[
+			In your pot it goes and stirr, stirr, stirr, ...
+			]]>
+		</preparation>
+	</recipe>
+</recipes>

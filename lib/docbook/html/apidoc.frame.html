@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>{{title}}</title>
+
+	{{includes}}
+
+	<style type="text/css">
+	<!--
+	* {
+		box-sizing: border-box;
+		-moz-box-sizing: border-box;
+		-webkit-box-sizing: border-box;
+	}
+	*:active, *:focus { outline-style:none; }
+
+	.headerBar {
+		height: 2px;
+		margin: 5px 0;
+		background-color: #dbdbdb;
+	}
+
+	.subhead {
+		font-weight: bold;
+		text-decoration: underline;
+	}
+
+	body, input, legend, select, textarea {
+		color: #303030;
+		font-family: Arial,'Lucida Grande',Helvetica,sans-serif;
+		font-size: 12px;
+	}
+
+	.clear { clear: both; }
+	.left { float: left; }
+	.right { float: right; }
+
+	a {
+		color: #303070;
+		cursor: pointer;
+		text-decoration: none;
+	}
+	a:hover {
+		color: #703030;
+		text-decoration: underline;
+	}
+
+	a img, iframe, table { border: none; }
+
+	body {
+		background-color: white;
+		margin: 0;
+		padding: 20px;
+	}
+
+	.bold { font-weight: bold; }
+	.emph { font-style: italic; }
+
+	pre, .pre, .code, .command { font-family: Consolas, Courier, monospace; }
+	pre, .pre {
+		padding: 10px;
+		background: #EEE;
+		border: 1px solid #b3b3b3;
+	}
+	table.view, table.list {
+		width: 100%;
+		border-collapse:separate;
+		border-spacing:0;
+		empty-cells:show;
+	}
+	table.list th {
+		text-align: left;
+		border-bottom: 2px solid #CACACA;
+		font-weight: bold;
+		white-space: nowrap;
+	}
+	table.list th, table.list td { padding: 4px 7px; }
+	table.list td { border-bottom: 1px solid #d9d9d9; }
+
+	.test {
+		padding: 5px;
+		border: 1px solid #cf9509;
+		background-color: #f1deb0;
+	}
+	.row { clear: both; }
+	.row label {
+		display: block;
+		float: left;
+		width: 100px;
+		font-weight: bold;
+		text-align: right;
+		padding: 3px 10px 0 0;
+	}
+	.row input { width: 200px; }
+	.test input[type=submit] {
+		margin: 10px 0 0 150px;
+		width: 100px;
+	}
+
+	.emph {
+		font-style: italic;
+	}
+
+	#root {
+		max-width: 800px;
+		margin: 0 auto;
+	}
+	#footer {
+		padding: 10px;
+		margin-top: 20px;
+		border-top: 1px solid #c6c6c6;
+	}
+
+	#toc a {
+		display: block;
+		margin: 3px;
+		font-size: 12px;
+	}
+	#toc a.lev0 { font-size: 16px; font-weight: bold; }
+	#toc a.lev1 { font-size: 15px; }
+	#toc a.lev2 { font-size: 14px; }
+	#toc a.lev3 { font-size: 13px; }
+
+	h1 { margin-top: 30px; }
+	h2, h3, h4, h5 {
+		margin-top: 25px;
+		padding-left: 4px;
+	}
+	h2 {
+		border-left: 6px solid #407e7a;
+		font-size: 24px;
+	}
+	h3 {
+		border-left: 10px solid #7c65c9;
+		font-size: 20px;
+		margin-top: 25px;
+	}
+	h4 {
+		border-left: 14px solid #a84fab;
+		font-size: 14px;
+	}
+	h5 {
+		border-left: 16px solid #dcb9d0;
+		font-size: 12px;
+		font-weight: bold;
+		font-style: italic;
+	}
+
+	.para {
+		margin-top: 10px;
+		margin-bottom: 10px;
+	}
+
+	.imgFrame {
+		margin: 50px;
+		padding: 15px;
+		border: 5px solid #e0e0e0;
+		text-align: center;
+		vertical-align: middle;
+	}
+
+	.imgFrame img {
+		max-width: 100%;
+	}
+
+	.demo_box {
+		padding: 1px;
+		margin-bottom: 1em;
+		border: 2px solid #ddd;
+		background: #FFF6BF;
+		color: #514721;
+		border-color: #FFD324;
+	}
+	.demo_bar {
+		padding-top: 5px;
+	}
+	table.demo_table td {
+		white-space: nowrap;
+	}
+	td.demo_label { padding-right: 7px; }
+	.demo_title {
+		border: 1px solid #c3c3c3;
+		width: 16px;
+		background-color: #FFF;
+	}
+	.demo_title div {
+		font-weight: bold;
+		font-size: 16px;
+		-webkit-transform: rotate(-90deg);
+		-moz-transform: rotate(-90deg);
+	}
+	table.demo_table td input.text, table.demo_table td textarea { width: 100%; }
+	textarea, input[type="text"] {
+		border: 1px solid #c9c9c9;
+		padding: 1px 2px;
+	}
+	textares:focus, input[type="text"]:focus { border: 1px solid #dc740f; }
+	input[type="text"][readonly="true"] { background: #d7d7d7; }
+
+	.keycap {
+		display: inline-block;
+		border: 1px solid #808080;
+		border-radius: 3px;
+		-webkit-border-radius: 3px;
+		-moz-border-radius: 3px;
+		padding: 1px 4px;
+		background: #eeeeee;
+		color: #000000;
+		font-weight: bold;
+	}
+
+	{{css}}
+	-->
+	</style>
+	<style type="text/css" media="print">
+	.demo_box { display: none; }
+	</style>
+	<script type="text/javascript"><!--
+	window.addEvent('domready', function() {
+		var demos = $$('.demo_box');
+		demos.each(function(demo) {
+			var selMethod = demo.getElement('.demo_bar').getElement('select');
+			if (selMethod) {
+				var frmSubmit = demo.getElement('form');
+				selMethod.addEvent('change', function() {
+					frmSubmit.set('method', this.get('value'));
+				});
+			}
+			var rows = demo.getElement('table.demo_table').getElements('tr');
+			rows.each(function(row) {
+				var checkbox = row.getElement('input[type="checkbox"]');
+				if (checkbox) {
+					var input = row.getElement('.demo_input');
+					if (input) {
+						if (input.get('type') == 'radio') {
+							var inputs = row.getElements('.demo_input');
+							if (checkbox.disabled == null || checkbox.disabled == false) {
+								if (checkbox.checked == null || !checkbox.checked)
+									inputs.each(function(input) { input.erase('name'); });
+								checkbox.addEvent('click', function() {
+									if (this.checked) {
+										inputs.each(function(input) { input.set('name', checkbox.get('value')); });
+									} else
+										inputs.each(function(input) { input.erase('name'); });
+								});
+							}
+						} else {
+							if (input.hasClass('date')) {
+								var lblTS = new Element('span', {'html': 'Timestamp: '});
+								lblTS.inject(input.getParent('td'), 'top');
+								var lblDate = new Element('span', {'html': 'Date: ', 'styles': {'padding-left': '10px'}});
+								input.getParent('td').adopt(lblDate);
+								var txtDate = new Element('input', {'type': 'text'});
+								input.getParent('td').adopt(txtDate);
+
+								txtDate.addEvent('blur', function() {
+									var d = new Date();
+									d.parse(this.get('value'));
+									input.set('value', d.getTime() / 1000);
+									this.set('value', d.format('%Y-%m-%d %H:%M'))
+								});
+								input.addEvent('blur', function() {
+									var d = new Date(parseInt(this.get('value'), 10) * 1000);
+									txtDate.set('value', d.format('%Y-%m-%d %H:%M'))
+								});
+								var d = new Date(parseInt(input.get('value'), 10) * 1000);
+								txtDate.set('value', d.format('%Y-%m-%d %H:%M'))
+							}
+							if (checkbox.disabled == null || checkbox.disabled == false) {
+								if (checkbox.checked == null || !checkbox.checked)
+									input.erase('name');
+								checkbox.addEvent('click', function() {
+									if (this.checked) {
+										if (!input.get('name'))
+											input.set('name', this.get('value'));
+									} else
+										input.erase('name');
+								});
+							}
+						}
+					}
+				}
+			});
+
+		});
+	});
+	--></script>
+	<script type="text/javascript"><!-- {{js}} --></script>
+</head>
+<body>
+<div id="root">
+{{head}}
+{{toc}}
+{{body}}
+<div id="footer">Copyright {{copyright}}</div>
+</div>
+</body>
+</html>

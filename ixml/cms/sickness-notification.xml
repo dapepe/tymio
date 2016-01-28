@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ixml>
+<!--
+  <set var="_DATA.UserId">2</set>
+  <set var="_DATA.Comment">bla</set>
+-->
+<!--<error>An error was raised by the plugin</error>-->
+
+<global var="getFullName" />
+<function var="getFullName">
+	<trim var="name">$user.Firstname $user.Lastname</trim>
+
+	<if value1="$name">
+		<trim var="name">$user.Name</trim>
+	</if>
+
+	<set var="return">$name</set>
+</function>
+
+<if value1="$_DATA.Type.Identifier" value2="sick_leave" func="!=">
+	<return />
+</if>
+
+<date:format localize="1" format="D, d.m.Y" var="startDay">$_DATA.Start</date:format>
+<date:format localize="1" format="D, d.m.Y" var="endDay">$_DATA.End</date:format>
+
+<call func="getFullName" var="userName">
+	<param name="user" var="_USER" />
+</call>
+
+<if value1="$startDay" value2="$endDay">
+	<set var="timeSpan">$startDay</set>
+	<set var="subject">Krankmeldung für $userName am $startDay</set>
+<else>
+	<set var="timeSpan">$startDay bis $endDay</set>
+	<set var="subject">Krankmeldung für $userName vom $startDay bis $endDay</set>
+</else>
+</if>
+
+<encode:base64 var="subject">$subject</encode:base64>
+<set var="subject">=?UTF-8?B?$subject?=</set>
+
+<api name="user" do="details" var="supervisorData">
+	<param name="id"><t>cms/</t><env key="Supervisor" user="$_USER.Id" /></param>
+</api>
+<assign var="supervisor" var_source="supervisorData.result" />
+
+<is var="supervisor.Email" type="non-valid">
+	<!-- No supervisor e-mail; do nothing -->
+	<return />
+</is>
+
+<call func="getFullName" var="supervisorName">
+	<param name="user" var="supervisor" />
+</call>
+<replace var="supervisorName" pattern="`[&lt;&gt;\x00-\x1f]`" replacement="">$supervisorName</replace>
+
+<mail:send>
+	<mail:header><![CDATA[
+From: noreply@tymio.cms-it.de
+To: $supervisorName <$supervisor.Email>
+Subject: $subject
+Content-Type: text/plain; charset=UTF-8
+]]></mail:header>
+	<mail:body>
+		<if value1="$_AUTH_USER.Id" value2="$_USER.Id">
+			<t>$userName hat sich krankgemeldet.</t>
+		<else>
+			<t>$userName wurde von $_AUTH_USER.Name krankgemeldet.</t>
+		</else>
+		</if>
+		<t>
+
+Zeitraum: $timeSpan
+</t>
+		<is var="_DATA.Comment" type="non-empty">
+			<t>
+Grund:
+$_DATA.Comment</t>
+		</is>
+	</mail:body>
+</mail:send>
+
+</ixml>

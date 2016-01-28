@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xpage id="domains" title="Domains">
+	<view:include src="assets/lib/tymio/api/domain.js" type="js" />
+	<view:include src="app/modules/domains/domains.js" type="js" />
+
+	<div class="p_l p_r">
+		<!-- ACTIONS -->
+		<div class="btn-toolbar form-horizontal">
+			<div class="input-prepend f_l">
+				<span class="add-on"><i class="icon-search"/><s/>{{field.search}}:</span><input class="span2" id="txtSearch" type="text" />
+			</div>
+			<div id="chkShowDel" class="f_l m_l" />
+
+			<button id="btnRefresh" class="btn m_l f_l"><i class="icon-refresh"/><s/>{{action.refresh}}</button>
+
+			<button id="btnAdd" class="btn btn-primary f_r"><i class="icon-plus icon-white"/><s/>{{action.add}}</button>
+			<button id="btnRemove" class="btn btn-danger m_r f_r"><i class="icon-trash icon-white"/><s/>{{action.remove}}</button>
+
+			<div class="clear" />
+		</div>
+
+		<div class="b_l b_r b_b">
+			<!-- TABLE -->
+			<div id="tabDomains" class="fullw" />
+		</div>
+	</div>
+</xpage>

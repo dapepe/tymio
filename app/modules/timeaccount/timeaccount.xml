@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xpage title="Time Account" id="timeaccount">
+	<view:include src="assets/lib/tymio/api/holiday.js" type="js" />
+	<view:include src="assets/lib/tymio/api/transaction.js" type="js" />
+	<view:include src="assets/lib/tymio/api/user.js" type="js" />
+	<view:include src="app/modules/timeaccount/timeaccount.js" type="js" />
+
+	<div class="p_l p_r">
+		<!-- ACTIONS -->
+		<div class="btn-toolbar form-horizontal">
+			<div id="mprRange" class="f_l m_r"/>
+			<div id="selUser" class="f_l m_r" />
+			<div id="chkShowDel" class="f_l" />
+
+			<div id="btnOptions" class="f_r" />
+			<div class="clear" />
+		</div>
+
+		<div class="b_l b_r b_b">
+			<!-- TABLE -->
+			<div id="tab_time_account" class="fullw" />
+
+			<div class="form-actions p">
+				<div class="time_account_balance_title">
+					<label>Arbeitszeitkonto</label>
+					<div>Monat</div>
+					<div class="bold">Kumuliert (Jahr)</div>
+					<div class="bold">Gesamtjahr</div>
+					<div class="bold">Gesamt bisher</div>
+					<div class="bold">Gesamt</div>
+				</div>
+				<div id="time_account_balance"></div>
+			</div>
+		</div>
+	</div>
+</xpage>

@@ -1,0 +1,8 @@
+# First, update the schema
+..\propel\generator\bin\propel-gen.bat . reverse
+
+# Next, generate the classes
+..\propel\generator\bin\propel-gen.bat
+
+# Generate the config files
+..\propel\generator\bin\propel-gen.bat convert-conf

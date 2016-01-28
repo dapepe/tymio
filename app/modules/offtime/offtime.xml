@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xpage title="Offtime" id="offtime">
+	<view:include src="assets/lib/tymio/api/user.js" type="js" />
+	<view:include src="assets/lib/tymio/api/clocking.js" type="js" />
+	<view:include src="assets/lib/tymio/api/holiday.js" type="js" />
+	<view:include src="app/modules/offtime/monthcalendar.js" type="js" />
+	<view:include src="app/modules/offtime/offtime.js" type="js" />
+
+	<!-- POPUP DETAILS -->
+	<div id="offtime_popup_details" class="form-inline">
+		<div><input type="hidden" id="offtime_edit_id" value="" /></div>
+
+		<div class="f_l">
+			<div id="offtime_edit_user" />
+			<div class="clear p2" />
+			<div id="offtime_edit_type" />
+		</div>
+
+		<div class="f_r">
+			<div id="offtime_edit_start" class="f_r" style="display:block;" />
+			<div class="clear p2" />
+			<div id="offtime_edit_end" class="f_r" style="display:block;" />
+		</div>
+
+		<div class="clear" />
+
+		<label>Kommentar</label>
+		<textarea id="offtime_edit_comment" class="comment_box"></textarea>
+	</div>
+
+	<div class="p_l p_r">
+		<!-- ACTIONS -->
+		<div class="btn-toolbar form-horizontal">
+			<div id="mprRange" class="f_l m_r"/>
+			<div id="selUser" class="f_l m_r" />
+			<div id="chkShowDel" class="f_l" />
+
+			<div id="btnNewOfftime" class="f_r btn primary m_l"><i class="icon-plus"></i>Neu...</div>
+			<div id="btnOptions" class="f_r" />
+			<div class="clear" />
+		</div>
+
+		<div id="offtime_calendar"></div>
+	</div>
+</xpage>

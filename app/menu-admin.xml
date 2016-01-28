@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<menu>
+	<!--<entry href="home" caption="{{menu.home}}" />-->
+	<entry href="clockings" caption="{{menu.clockings}}" />
+	<entry href="offtime" caption="{{menu.offtime}}" />
+	<entry href="transactions" caption="{{menu.transactions}}" />
+	<entry href="statistics" caption="{{menu.statistics}}" />
+	<entry href="timeaccount" caption="{{menu.timeaccount}}" />
+	<entry caption="{{menu.settings.caption}}">
+		<entry href="account" caption="{{menu.settings.myaccount}}" icon="info-sign" />
+		<divider />
+		<header caption="{{menu.settings.organization}}" />
+		<entry href="settings" caption="{{menu.settings.companyaccount}}" icon="flag" />
+		<entry href="domains" caption="{{menu.settings.domains}}" icon="map-marker" />
+		<entry href="users" caption="{{menu.settings.users}}" icon="user" />
+		<entry href="holidays" caption="{{menu.settings.holidays}}" icon="calendar" />
+		<divider />
+		<header caption="{{menu.extensions.caption}}" />
+		<entry href="plugins" caption="{{menu.extensions.plugins}}" icon="gift" />
+		<entry href="apidoc" caption="{{menu.extensions.api}}" icon="cog" />
+	</entry>
+</menu>

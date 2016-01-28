@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook V5.0//EN"
+"http://www.docbook.org/xml/5.0/dtd/docbook.dtd">
+<article xml:id="crm_en">
+<title>Include iXML in your PHP project</title>
+<info>
+	<author>
+		<personname>
+			<firstname>Benjamin</firstname>
+			<surname>Coutu</surname>
+		</personname>
+	</author>
+	<edition>1.0</edition>
+	<copyright>
+		<year>2012</year>
+	</copyright>
+	<pubdate>2012-11-02</pubdate>
+</info>
+
+<!-- Document body starts here -->
+<sect1>
+<title>How to utilize iXML</title>
+
+<para>The first step to get started with iXML is to understand the basic usage of the iXML class.</para>
+
+<programlisting language="php"><![CDATA[
+require './lib/ixml/base.php';
+
+$code = file_get_contents('myscript.xml'); // Read code from file
+
+(new iXml\iXml($code)) -> exec(); // Execute iXML
+]]></programlisting>
+
+<para>You may pass global variables to iXML by adding them as an associated array of key and value pairs when calling "exec". The values will be automatically converted to internal iXML data types.</para>
+
+<programlisting language="php"><![CDATA[
+$vars = [
+  'myvar1' => 'Value'
+  'myvar2' => 12345
+];
+
+$ixml -> exec($vars);
+]]></programlisting>
+
+<para>When including iXML in your application you should always use some instance of the predefined sandbox class. This ensures that any embedded iXML code runs within a protected execution environment for the purpose of preventing conflicts with the paternal application.</para>
+
+<programlisting language="php"><![CDATA[
+require './lib/ixml/base.php';
+
+// Declare custom iXML sandbox
+class MySandbox extends iXml\Sandbox {
+  protected $code;
+
+  public function __construct($code) {
+    $this -> code = $code;
+  }
+
+  // This method runs in a protected sandbox mode
+  protected function sandbox() {
+    (new iXml\iXml($this -> code)) -> exec();
+  }
+}
+
+$code = file_get_contents('myscript.xml'); // Read code from file
+
+(new MySandbox($code)) -> run(); // Run iXML code inside custom sandbox
+]]></programlisting>
+
+<para>For your convenience there is a special sandbox subclass available for the most simple inclusion of iXML (analog to the custom sandbox example but including global variable assignment).</para>
+
+<programlisting language="php"><![CDATA[
+require './lib/ixml/base.php';
+
+$code = file_get_contents('myscript.xml'); // Read code from file
+
+$vars = [
+  'myvar1' => 'Value'
+  'myvar2' => 12345
+];
+
+(new iXml\SimpleSandbox($code, $vars)) -> run(); // Run iXML code inside simple sandbox
+]]></programlisting>
+
+<para>That's it! </para>
+
+</sect1>
+
+</article>

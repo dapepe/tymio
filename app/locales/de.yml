@@ -1,0 +1,392 @@
+# German translation for tymio
+
+lang:
+  name: "Deutsch"
+  code: "de"
+  
+date:
+  format:
+    # Use the strftime parameters for formats.
+    # When no format has been given, it uses default.
+    # You can provide other formats here if you like!
+    default: "%d.%m.%Y"
+    reverse: "%d.%m.%Y"
+    short: "%e. %b"
+    long: "%e. %B %Y"
+
+  day_names:      [Sonntag, Montag, Dienstag, Mittwoch, Donnerstag, Freitag, Samstag]
+  abbr_day_names: [So, Mo, Di, Mi, Do, Fr, Sa]
+
+  # Don't forget the nil at the beginning; there's no such thing as a 0th month
+  month_names:      [~, Januar, Februar, März, April, Mai, Juni, Juli, August, September, Oktober, November, Dezember]
+  abbr_month_names: [~, Jan, Feb, Mär, Apr, Mai, Jun, Jul, Aug, Sep, Okt, Nov, Dez]
+    
+time:
+  format:
+    default: "%d.%m.%Y %H:%M"
+    reverse: "%H:%M, %d.%m.%Y"
+    time:    "%H:%M"
+    short:   "%e. %b %H:%M"
+    long:    "%A, %e. %B %Y, %H:%M Uhr"
+  am: "vormittags"
+  pm: "nachmittags"
+  first_day_of_week: 1
+    
+datetime:
+  unit:
+    format:
+      seconds: "hh:mm:ss"
+      minutes: "hh:mm"
+      hours: "Stunde(n)"
+      days: "Tag(e)"
+      weeks: "Woche(n)"
+  distance_in_words:
+    half_a_minute: 'eine halbe Minute'
+    less_than_x_seconds:
+      one: 'weniger als 1 Sekunde'
+      other: 'weniger als {count} Sekunden'
+    x_seconds:
+      one: '1 Sekunde'
+      other: '{count} Sekunden'
+    less_than_x_minutes:
+      one: 'weniger als 1 Minute'
+      other: 'weniger als {count} Minuten'
+    x_minutes:
+      one: '1 Minute'
+      other: '{count} Minuten'
+    about_x_hours:
+      one: 'etwa 1 Stunde'
+      other: 'etwa {count} Stunden'
+    x_days:
+      one: '1 Tag'
+      other: '{count} Tagen'
+    about_x_months:
+      one: 'etwa 1 Monat'
+      other: 'etwa {count} Monaten'
+    x_months:
+      one: '1 Monat'
+      other: '{count} Monaten'
+    about_x_years:
+      one: 'etwa 1 Jahr'
+      other: 'etwa {count} Jahren'
+    over_x_years:
+      one: 'mehr als 1 Jahr'
+      other: 'mehr als {count} Jahren'
+    almost_x_years:
+      one:   "fast 1 Jahr"
+      other: "fast {count} Jahren"
+
+number:
+  # Default format for numbers
+  format:
+    separator     : ','
+    delimiter     : '.'
+    precision     : 2
+  currency:       
+    format:       
+      unit        : '€'
+      format      : '%n %u'
+      separator   :
+      delimiter   :
+      precision   :
+  percentage:
+    format:
+      delimiter   : ""
+  precision:      
+    format:       
+      delimiter   : ""
+  human:
+    format:
+      delimiter   : ""
+      precision   : 1
+    storage_units:
+      format      : "%n %u"
+      units:
+        byte:
+          one     : "Byte"
+          other   : "Bytes"
+        kb        : "KB"
+        mb        : "MB"
+        gb        : "GB"
+        tb        : "TB"
+          
+common:
+  no              : "nein"
+  yes             : "ja"
+  all             : "alle"
+  loadingerror:
+    row           : "Die Daten konnten nicht geladen werden. Bitte laden Sie die Seite erneut."
+
+menu:
+  home            : "Start"
+  clockings       : "Arbeitszeiten"
+  offtime         : "Abwesenheit"
+  transactions    : "Transaktionen"
+  statistics      : "Statistik"
+  timeaccount     : "Zeitkonto"
+  settings        :
+    caption       : "Einstellungen"
+    myaccount     : "Mein Konto"
+    organization  : "Organisation"
+    companyaccount: "Unternehmenskonto"
+    domains       : "Domänen"
+    users         : "Benutzer"
+    holidays      : "Feiertage"
+  extensions      :
+    caption       : "Erweiterungen"
+    plugins       : "Plugins"
+    api           : "API"
+
+section:
+  general         : "Stammdaten"
+  details         : "Details"
+  access          : "Datenzugriff"
+  security        : "Sicherheit"
+  contact         : "Kontaktdaten"
+                  
+message:          
+  update          : "{model} gespeichert"
+  create          : "{model} erstellt"
+  remove          : "{model} gelöscht"
+  restore         : "{model} wiederherstellt"
+  activate        : "{model} aktiviert"
+  deactivate      : "{model} deaktiviert"
+  error           : "Folgende Fehler sind aufgetreten:"
+  
+confirm:
+  remove:               "Möchten Sie {value} wirklich entfernen"
+
+error:
+  create:               "{model} konnte nicht erzeugt werden"
+  update:               "{model} konnte nicht gespeichert werden"
+  remove:               "{model} konnte nicht gelöscht werden"
+  noselection:          "Kein {model} ausgewählt"
+  one:                  "Dieses {model}-Objekt konnte nicht gespeichert werden: {count} Fehler."
+  other:                "Dieses {model}-Objekt konnte nicht gespeichert werden: {count} Fehler."
+  inclusion:            "{value} ist kein gültiger Wert"
+  exclusion:            "{value} ist nicht verfügbar"
+  invalid:              "{value} ist nicht gültig"
+  confirmation:         "{value} stimmt nicht mit der Bestätigung überein"
+  accepted:             "{value} muss akzeptiert werden"
+  empty:                "{value} muss ausgefüllt werden"
+  blank:                "{value} muss ausgefüllt werden"
+  too_long:             "{value} ist zu lang (nicht mehr als {count} Zeichen)"
+  too_short:            "{value} ist zu kurz (nicht weniger als {count} Zeichen)"
+  wrong_length:         "{value} hat die falsche Länge (muss genau {count} Zeichen haben)"
+  wrong_range:          "{value} hat die falsche Länge (muss zwischen {min} und {max} Zeichen habe)"
+  taken:                "{value} ist bereits vergeben"
+  not_a_number:         "{value} ist keine Zahl"
+  not_a_date:           "{value} ist kein gültiges Datum"
+  not_a_int:            "{value} ist kein gültiger Integer-Wert"
+  not_a_url:            "{value} ist keine gültige URL"
+  not_a_address:        "{value} ist keine gültige {type}Adresse"
+  not_set:              "{value} ist nicht gesetzt"
+  username:             "{value} ist kein gültiger Benutzername. (Min. 2 Zeichen, nur Buchstaben, Zahlen, Punkt und Minus)"
+  resource:             "{value} ist kein gültiger Ressourcenname. (Min. 2 Zeichen, nur Buchstaben, Zahlen, Punkt und Minus)"
+  password:             "Ungültiges Passwort. (Min. 5 Zeichen, ein Großbuchstabe, ein Kleinbuchstabe, eine Zahl)"
+  password_no_match:    "Passwörter stimmen nicht überein"
+  greater_than:         "{value} muss größer als {count} sein"
+  equal_to:             "{value} muss genau {count} sein"
+  less_than:            "{value} muss kleiner als {count} sein"
+  in_between:           "{value} muss zwischen {min} und {max} liegen"
+  odd:                  "{value} muss ungerade sein"
+  even:                 "{value} muss gerade sein"
+  date_start_end:       "{value} muss vor dem Enddatum ({end}) liegen"
+  date_range:           "{value} muss im Zeitraum {min} - {max} liegen" 
+  circular_dependency:  "Diese Beziehung würde eine zyklische Abhängigkeit erzeugen"
+      
+entity:
+  menu:
+    singular: "Menü"
+  system:
+    singular: "System"
+    plural:   "Systeme"
+  user:
+    singular: "Benutzer"
+    plural:   "Benutzer"
+  domain:
+    singular: "Standort"
+    plural:   "Standorte"
+  account:
+    singular: "Konto"
+    plural:   "Konten"
+  clocking:
+    singular: "Arbeitszeiteintrag"
+    plural:   "Arbeitszeiteinträge"
+  transaction:
+    singular: "Transaktion"
+    plural:   "Transaktionen"
+  entity:
+    singular: "Entität"
+    plural:   "Entitäten"
+  event:
+    singular: "Ereignis"
+    plural:   "Ereignisse"
+  holiday:
+    singular: "Feiertag"
+    plural:   "Feiertage"
+  vacation:
+    singular: "Urlaub"
+    plural:   "Urlaube"
+  entry:
+    singular: "Eintrag"
+    plural:   "Einträge"
+  plugin:
+    singular: "Plugin"
+    plural:   "Plugins"
+          
+field:
+  option:             "Option"
+  options:            "Optionen"
+  date:               "Datum"
+  start:              "Start"
+  end:                "Ende"
+  name:               "Name"
+  details:            "Details"
+  username:           "Benutzername"
+  password:           "Passwort"
+  passwordrep:        "Passwort wiederholen"
+  search:             "Suche"
+  company:            "Firmenname"
+  firstname:          "Vorname"
+  lastname:           "Nachname"
+  street:             "Straße"
+  address:            "Adresse"
+  zipcode:            "Postleitzahl"
+  city:               "Stadt"
+  state:              "Bundesland/Staat"
+  region:             "Region"
+  province:           "Provinz"
+  country:            "Land"
+  phone:              "Telefon"
+  cell:               "Mobil"
+  fax:                "Fax"
+  number:             "Nummer"
+  status:             "Status"
+  type:               "Typ"
+  description:        "Beschreibung"
+  permission:         "Berechtigung"
+  pleaseselect:       "Bitte wählen"
+  selection:          "Auswahl"
+  website:            "Website"
+  email:              "E-Mail"
+  vatid:              "Umsatzsteuer-ID (VAT)"
+  role:               "Rolle"
+  hours_per_week:     "Stunden/Woche"
+  days_per_week:      "Tage/Woche"
+  vacation_per_year:  "Urlaubstage/Jahr"
+  account_admin:      "Administrator"
+  domain_manager:     "Domain Manager"
+  deleted:            "Gelöscht"
+  identifier:         "Bezeichner"
+  active:             "Aktiv"
+  inactive:           "Inaktiv"
+  creationdate:       "Erstellt"
+  last_changed:       "Geändert"
+  priority:           "Priorität"
+  
+filter:
+  deleted:            "Gelöschte anzeigen"
+  inactive:           "Inaktive anzeigen"
+  syntax:             "Syntax hervorheben"
+
+clocking:
+  details:
+    creationdate        : "Erstellt {date}"
+    lastchanged         : "Geändert {date}"
+  remove:
+    prompt              : "Möchten Sie die ausgewählten Arbeitszeiteinträge löschen ?"
+  status:
+    caption             : "Status"
+    preliminary         : "Vorläufig"
+    required            : "Bestätigung erforderlich"
+    denied              : "Abgelehnt"
+    confirmed           : "Bewilligt"
+    as_is               : "Bewilligt, unverändert übernehmen"
+  transaction:
+    create              : "Transaktion erstellen"
+  from_to               : "Von – Bis"
+  time                  : "Zeit"
+  type:
+    caption             : "Typ"
+    regular             : "Reguläre AZ"
+    reduce_overtime     : "Ü-Abbau"
+    reduce_overtime_half: "Ü-Abbau (halb)"
+    vacation            : "Urlaub"
+    vacation_half       : "Urlaub (halb)"
+    sickday             : "Krankheit"
+    active              : "Aktiv"
+    school              : "Schule"
+  booked:
+    caption             : "Gebucht"
+    open                : "Nicht gebucht"
+    closed              : "Gebucht"
+    frozen              : "Für Buchung gesperrt"
+
+offtime:
+  clocking: "{user_fullname} {type}"
+
+transaction:
+  section:
+    clockings           : "Arbeitszeiten"
+    details             : "Details"
+  clockings:
+    empty               : "Keine Arbeitszeiten vorhanden."
+  bookings:
+    empty               : "Keine Buchungen vorhanden."
+    summary             : "{caption} {value} {unit}"
+  remove:
+    prompt              : "{n} Transaktion(en) entfernen ?"
+  rebook:
+    from_type           : "Von Typ"
+    to_type             : "Zu Typ"
+    duration            : "Dauer"
+
+action:
+  ok         : "Ok"
+  update     : "Update"
+  refresh    : "Aktualisieren"
+  login      : "Login"
+  logout     : "Logout"
+  add        : "Hinzufügen"
+  remove     : "Entfernen"
+  delete     : "Löschen"
+  save       : "Speichern"
+  close      : "Schließen"
+  changepwd  : "Passwort ändern"
+  restore    : "Wiederherstellen"
+  activate   : "Aktivieren"
+  deactivate : "Deaktivieren"
+  execute    : "Ausführen"
+  expandall  : "Alle aufklappen"
+  collapseall: "Alle zuklappen"
+  deny       : "Ablehnen"
+  approve    : "Bewilligen"
+  rebook     : "Umbuchen"
+    
+view:
+  login:
+    stayloggedin:   "Für zwei Wochen angemeldet bleiben"
+    
+plugin:
+  event:      
+    call        : "Externer Aufruf"
+    timed       : "Zeitliche Steuerung"
+    include     : "Bibliothek"
+    add         : "Beim Hinzufügen"
+    create      : "Bei Erstellung"
+    update      : "Bei Änderung"
+    remove      : "Bei Entfernen"
+    restore     : "Bei Wiederherstellung"
+    activate    : "Bei Aktivierung"
+    reactivate  : "Bei Re-Aktivierung"
+    calculate   : "Bei Berechnung"
+
+    clocking    : "Arbeitszeit Details"
+    clockings   : "Arbeitszeiten"
+    offtime     : "Abwesenheiten"
+    transaction : "Transaktion Details"
+    transactions: "Transaktionen"
+
+property:
+  add         : "Wert hinzufügen"

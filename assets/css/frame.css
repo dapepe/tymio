@@ -1,0 +1,158 @@
+/* FONT SPECIFICATIONS
+------------------------------------------------------------------- */
+
+@font-face {
+    font-family: 'TitilliumText22LThin';
+    src: url('../font/titillium/TitilliumText22L001-webfont.eot');
+    src: url('../font/titillium/TitilliumText22L001-webfont.eot?#iefix') format('embedded-opentype'),
+         url('../font/titillium/TitilliumText22L001-webfont.woff') format('woff'),
+         url('../font/titillium/TitilliumText22L001-webfont.ttf') format('truetype'),
+         url('../font/titillium/TitilliumText22L001-webfont.svg#TitilliumText22LThin') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+.font-thin { font-family: "TitilliumText22LThin"; }
+
+@font-face {
+    font-family: 'TitilliumText22LLight';
+    src: url('../font/titillium/TitilliumText22L002-webfont.eot');
+    src: url('../font/titillium/TitilliumText22L002-webfont.eot?#iefix') format('embedded-opentype'),
+         url('../font/titillium/TitilliumText22L002-webfont.woff') format('woff'),
+         url('../font/titillium/TitilliumText22L002-webfont.ttf') format('truetype'),
+         url('../font/titillium/TitilliumText22L002-webfont.svg#TitilliumText22LLight') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+.font-light { font-family: "TitilliumText22LLight"; }
+
+@font-face {
+    font-family: 'TitilliumText22LRegular';
+    src: url('../font/titillium/TitilliumText22L003-webfont.eot');
+    src: url('../font/titillium/TitilliumText22L003-webfont.eot?#iefix') format('embedded-opentype'),
+         url('../font/titillium/TitilliumText22L003-webfont.woff') format('woff'),
+         url('../font/titillium/TitilliumText22L003-webfont.ttf') format('truetype'),
+         url('../font/titillium/TitilliumText22L003-webfont.svg#TitilliumText22LRegular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+.font-regular { font-family: "TitilliumText22LRegular"; }
+
+@font-face {
+    font-family: 'TitilliumText22LMedium';
+    src: url('../font/titillium/TitilliumText22L004-webfont.eot');
+    src: url('../font/titillium/TitilliumText22L004-webfont.eot?#iefix') format('embedded-opentype'),
+         url('../font/titillium/TitilliumText22L004-webfont.woff') format('woff'),
+         url('../font/titillium/TitilliumText22L004-webfont.ttf') format('truetype'),
+         url('../font/titillium/TitilliumText22L004-webfont.svg#TitilliumText22LMedium') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+.font-medium { font-family: "TitilliumText22LMedium"; }
+
+@font-face {
+    font-family: 'TitilliumText22LBold';
+    src: url('../font/titillium/TitilliumText22L005-webfont.eot');
+    src: url('../font/titillium/TitilliumText22L005-webfont.eot?#iefix') format('embedded-opentype'),
+         url('../font/titillium/TitilliumText22L005-webfont.woff') format('woff'),
+         url('../font/titillium/TitilliumText22L005-webfont.ttf') format('truetype'),
+         url('../font/titillium/TitilliumText22L005-webfont.svg#TitilliumText22LBold') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+.font-bold { font-family: "TitilliumText22LBold"; }
+
+@font-face {
+    font-family: 'TitilliumText22LXBold';
+    src: url('../font/titillium/TitilliumText22L006-webfont.eot');
+    src: url('../font/titillium/TitilliumText22L006-webfont.eot?#iefix') format('embedded-opentype'),
+         url('../font/titillium/TitilliumText22L006-webfont.woff') format('woff'),
+         url('../font/titillium/TitilliumText22L006-webfont.ttf') format('truetype'),
+         url('../font/titillium/TitilliumText22L006-webfont.svg#TitilliumText22LXBold') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+.font-xbold { font-family: "TitilliumText22LXBold"; }
+
+@font-face {
+	font-family: fico;
+	src: url('../font/fico/fico.eot');
+	src: url('../font/fico/fico.eot?#iefix') format('embedded-opentype'),
+		 url('../font/fico/fico.ttf') format('truetype'),
+		 url('../font/fico/fico.svg#Fico') format('svg');
+}
+
+.font-s10 { font-size: 10px; }
+.font-s12 { font-size: 12px; }
+.font-s14 { font-size: 14px; }
+.font-s18 { font-size: 18px; }
+.font-s24 { font-size: 24px; line-height: 28px; }
+.font-s28 { font-size: 28px; line-height: 32px; }
+
+/* GENERAL LAYOUT
+------------------------------------------------------------------- */
+
+body {
+	padding: 0;
+	margin: 50px 0 0 0;
+	font-size: 14px;
+	color: #404040;
+	min-height: 100%;
+	height: auto;
+}
+
+/*
+body, input, textarea { font-family: "TitilliumText22LRegular", Calibri, "DejaVu Sans", "URW Gothic L", "Helvetica Neue", Helvetica, Arial, "Microsoft Sans Serif", sans-serif; }
+*/
+
+.georgia, .pgeorgia p {
+	font-family: georgia,times,"times new roman";
+	line-height: 1.4em;
+}
+
+/*
+a, a:active {
+	cursor: pointer;
+	color: #304A0C;
+	text-decoration: none;
+	font-weight: bold;
+	border-bottom: 1px dotted #7C8067;
+}
+a:visited { color: #304A0C; }
+a:hover {
+	color: #2B3B63;
+	text-decoration: none;
+	border: none;
+}
+*/
+
+pre, .pre, .code, .command { font-family: Consolas, Courier, monospace; }
+
+/* MAJOR LAYOUT CONTAINERS
+------------------------------------------------------------------- */
+
+#loader {
+	padding: 2px 5px 2px 35px;
+	background-repeat: no-repeat;
+	background-position: 0 2px;
+	margin: 0;
+}
+#loader.active {
+	background-image: url('../img/frame/loader.gif');
+}
+
+#login {
+	float: right;
+	padding: 10px 10px 0 40px;
+	background-repeat: no-repeat;
+	background-position: 0 5px;
+	height: 30px;
+}
+#login.loggedout {
+	padding-left: 0;
+}
+#login a {
+	margin: -3px 0 0 5px;
+}
+.gxMessage {
+	z-index: 300; /* Display above popups */
+}

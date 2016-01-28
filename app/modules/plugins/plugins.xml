@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xpage id="plugins" title="Plugins">
+	<view:include src="assets/lib/tymio/api/plugin.js" type="js" />
+	<view:include src="app/modules/plugins/plugins.js" type="js" />
+	<view:include src="assets/lib/codemirror/lib/codemirror.js" type="js" />
+	<view:include src="assets/lib/codemirror/lib/codemirror.css" type="css" />
+	<view:include src="assets/lib/codemirror/mode/xml/xml.js" type="js" />
+
+	<form:token id="execution_token" name="plugin.execute" />
+
+	<div class="p_l p_r">
+		<!-- ACTIONS -->
+		<div class="btn-toolbar form-horizontal">
+			<div class="input-prepend f_l m_r">
+				<span class="add-on"><i class="icon-search"/><s/>{{field.search}}:</span><input class="span2" id="txtSearch" type="text" />
+			</div>
+			<div id="chkShowDel" class="f_l" />
+
+			<div id="btnOptions" class="f_r" />
+			<div class="clear" />
+		</div>
+
+		<div class="b_l b_r b_b">
+			<!-- TABLE -->
+			<div id="tabPlugins" class="fullw" />
+		</div>
+	</div>
+</xpage>

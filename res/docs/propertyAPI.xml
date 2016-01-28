@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doc>
+<sect3>
+	<title>Property API</title>
+
+	<api source="property.php" level="4">
+		<demo ref="list">
+			<string name="api" default="property" fixed="true" />
+			<string name="do" default="list" fixed="true" />
+			<string name="username" default="admin" />
+			<string name="password" default="" />
+		</demo>
+
+		<demo ref="details">
+			<string name="api" default="property" fixed="true" />
+			<string name="do" default="details" fixed="true" />
+			<int name="id" default="" />
+			<string name="username" default="admin" />
+			<string name="password" default="" />
+		</demo>
+
+		<demo ref="add">
+			<string name="api" default="property" fixed="true" />
+			<string name="do" default="add" fixed="true" />
+			<string name="data[AccountId]" default="" />
+			<string name="data[Name]" default="" />
+			<string name="data[Label]" default="" />
+			<string name="data[Description]" default="" />
+			<string name="data[Type]">
+				<option label="string" default="true">String</option>
+				<option label="bool">Boolean</option>
+				<option label="float">Float</option>
+				<option label="int">Integer</option>
+			</string>
+			<string name="data[DefaultValue]" default="" />
+			<bool name="data[Fixed]" default="true" />
+			<string name="username" default="admin" />
+			<string name="password" default="" />
+		</demo>
+
+		<demo ref="update">
+			<string name="api" default="property" fixed="true" />
+			<string name="do" default="update" fixed="true" />
+			<int name="id" default="" />
+			<string name="data[AccountId]" default="" optional="true" />
+			<string name="data[Name]" default="" optional="true" />
+			<string name="data[Label]" default="" optional="true" />
+			<string name="data[Description]" default="" optional="true" />
+			<string name="data[Type]" optional="true">
+				<option label="string" default="true">String</option>
+				<option label="bool">Boolean</option>
+				<option label="float">Float</option>
+				<option label="int">Integer</option>
+			</string>
+			<string name="data[DefaultValue]" default="" optional="true" />
+			<bool name="data[Fixed]" default="true" optional="true" />
+			<string name="username" default="admin" />
+			<string name="password" default="" />
+		</demo>
+	</api>
+
+</sect3>
+</doc>

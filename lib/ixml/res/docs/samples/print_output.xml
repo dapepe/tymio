@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<groupion:output>
+<pdf:document var="pdf" format="A4" leftmargin="25" rightmargin="20" topmargin="40" bottommargin="40">
+	<!-- You can load an underlying template and also define alternating pages -->
+	<pdf:templates stream="%PDFTEMPLATE">
+		<pdf:template importpage="1" pages="1"/>
+		<pdf:template importpage="2" pages="*"/>
+	</pdf:templates>
+	<!-- Define the styles -->
+	<pdf:styles>
+		<!-- Top and bottom border -->
+		<pdf:appearance id="bt" border="BT"/>
+		<!-- Bottom border -->
+		<pdf:appearance id="bb" border="B"/>
+		<!-- Align center -->
+		<pdf:appearance id="c" align="C"/>
+		<!-- Align right -->
+		<pdf:appearance id="r" align="R"/>
+		<!-- Align right with top border -->
+		<pdf:appearance id="rbt" align="R" border="BT"/>
+		<!-- Text color red -->
+		<pdf:appearance id="w" textcolor="666666"/>
+		<!-- Font size 10 -->
+		<pdf:font id="text" size="10"/>
+		<!-- Font size 8 -->
+		<pdf:font id="x" size="8"/>
+		<!-- Font size 10 with font weight bold -->
+		<pdf:font id="header" size="9" style="B"/>
+		<pdf:font id="col" size="9" />
+		<pdf:font id="title" size="12" style="B"/>
+	</pdf:styles>
+	<!-- The page header section is executed at the beginning of every page -->
+	<pdf:header>
+		<!-- Only show the header after page 1 -->
+		<if value1="%startbody" value2="1">
+			<pdf:linebreak offset="19" />
+			<pdf:block leftmargin="25" font="x">Invoice No. %TRANSACTIONNUM</pdf:block>
+			<pdf:block leftmargin="25" font="x">Date: %date_out</pdf:block>
+			<pdf:linebreak offset="8" />
+			<call sequence="table_header">
+				<param name="leftmargin">25</param>
+				<param name="rightmargin">20</param>
+			</call>
+		</if>
+	</pdf:header>
+	<!-- The page footer section is executed at the end of every page -->
+	<pdf:footer>
+		<pdf:static font="x" left="165" width="25" top="265" height="4" appearance="r">
+			<pdf:pageno />
+		</pdf:static>
+	</pdf:footer>
+	<!-- Your PDF body starts here -->
+	<pdf:body>
+		<set var="startbody">1</set>
+	    <pdf:linebreak offset="11"/>
+	    <pdf:block font="text" rightmargin="70">%CUSTOMER_NAME\n %CUSTOMER_CONTACT_ADDRESS\n %CUSTOMER_CONTACT_POSTALCODE %CUSTOMER_CONTACT_CITY</pdf:block>
+	    <pdf:linebreak offset="22"/>
+	    <!-- Display the document headline -->	    
+		<date:format format="Y-m-d" var="date_out">%DATE</date:format>
+		<pdf:block font="title" appearance="bb">Invoice No. %TRANSACTIONNUM, %date_out</pdf:block>			
+		
+		<!-- Define the colum width -->
+		<array:build var="col_width">
+			<array:item>10</array:item>
+			<array:item>90</array:item>
+			<array:item>20</array:item>
+			<array:item>24</array:item>
+			<array:item>25</array:item>
+		</array:build>
+		
+		<!-- Define a sequence for the item header -->
+		<sequence id="table_header">
+			<pdf:row leftmargin="%leftmargin" rightmargin="%rightmargin">
+				<pdf:col appearance="bt" font="header" width="%col_width[0]">#</pdf:col>
+				<pdf:col appearance="bt" font="header" width="%col_width[1]">Item</pdf:col>
+				<pdf:col appearance="bt" font="header" width="%col_width[2]">Amount</pdf:col>
+				<pdf:col appearance="rbt" font="header" width="%col_width[3]">Price</pdf:col>
+				<pdf:col appearance="rbt" font="header" width="%col_width[4]">Total</pdf:col>
+			</pdf:row>
+		</sequence>
+		<!-- The trim sequence will not only remove whitespaces, but also removes unnecessary tabs -->
+		<sequence id="trim">
+			<replace pattern="/\t/"><trim><eval>%value</eval></trim></replace>
+		</sequence>
+		
+		<!-- Display the intro text -->
+		<pdf:linebreak offset="10" />
+		<pdf:block font="text">
+			<call sequence="trim">
+				<param name="value">%intro</param>
+			</call>
+		</pdf:block>
+		<pdf:linebreak offset="10" />
+		
+		<call sequence="table_header" />
+		
+		<!-- Display all document items -->
+		<math:calc var="pos" />
+		<math:calc var="total" />
+		<foreach var_source="ITEMS" var_value="item">
+			<switch value="%item[type]">
+				<!-- Item is article -->
+				<case value="0">
+					<!-- Calculate the sums and add the row -->
+					<math:inc var="pos" />
+					<math:calc var="price">%item[sellingprice] * (100 - %item[discount]) / 100</math:calc>
+					<math:calc var="subtotal">%item[amount] * %price</math:calc>
+					<math:calc var="total">%total + %subtotal</math:calc>
+					<!-- Add the row -->
+					<pdf:multirow>
+						<pdf:col font="col" width="%col_width[0]">%pos</pdf:col>
+						<pdf:col font="col" width="%col_width[1]">%item[name]</pdf:col>
+						<pdf:col font="col" width="%col_width[2]">
+							<math:format countdec="1">%item[amount]</math:format>
+						</pdf:col>
+						<pdf:col appearance="r" font="col" width="%col_width[3]">
+							<math:format countdec="2">%price</math:format>
+						</pdf:col>
+						<pdf:col appearance="r" font="col" width="%col_width[4]">
+							<math:format countdec="2">%subtotal</math:format>
+						</pdf:col>
+					</pdf:multirow>
+				</case>
+				<!-- Item is a text item -->
+				<case value="1">
+					<!-- Switch between different text variants -->
+					<!-- In this example we will just display all text items the same -->
+					<switch value="%item[variant]">
+						<!-- Display continous text (Variant 0) -->
+						<case value="0">
+							<pdf:block font="text">%item[text]</pdf:block>
+						</case>
+						<!-- Display an annotation (Variant 1) -->
+						<case value="1">
+							<pdf:block font="text">%item[text]</pdf:block>
+						</case>
+						<!-- Display a subtitle (Variant 2) -->
+						<case value="2">
+							<pdf:block font="text">%item[text]</pdf:block>
+						</case>
+						<!-- Display a title (Variant 3) -->
+						<case value="3">
+							<pdf:block font="text">%item[text]</pdf:block>
+						</case>
+						<!-- Display a supertitle (Variant 4) -->
+						<case value="4">
+							<pdf:block font="text">%item[text]</pdf:block>
+						</case>
+					</switch>
+				</case>
+			</switch>
+		</foreach>
+		
+		<!-- Display the total sum -->
+		<pdf:row leftmargin="100">
+			<pdf:col font="header" appearance="bt" width="20">Total:</pdf:col>
+			<pdf:col font="header" appearance="rbt" width="49">
+				<math:format countdec="2">%total</math:format>
+			</pdf:col>
+		</pdf:row>
+		
+		<!-- Display the outro text -->
+		<pdf:linebreak offset="10" />
+		<pdf:block topmargin="10" font="text">
+			<call sequence="trim">
+				<param name="value">%outro</param>
+			</call>
+		</pdf:block>
+	</pdf:body>
+</pdf:document>
+<!-- Output the finished PDF stream -->
+<output>%pdf</output>
+</groupion:output>

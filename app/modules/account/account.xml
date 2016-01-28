@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xpage id="account" title="Account">
+	<view:include src="assets/lib/tymio/api/account.js" type="js" />
+	<view:include src="app/modules/account/account.js" type="js" />
+
+	<div class="p">
+
+	</div>
+</xpage>

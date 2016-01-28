@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doc>
+<sect3>
+	<title>Plugin API</title>
+	
+	<api source="plugin.php" level="4">
+	
+	</api>
+</sect3>
+</doc>

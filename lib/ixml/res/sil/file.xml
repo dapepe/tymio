@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE ixml SYSTEM "http://www.ixmldev.com/schema/ixml.dtd">
+<ixml>
+
+<global var="File"/>
+
+<class var="File">
+  <constructor> <!-- filename -->
+    <set var="this.filename">$filename</set>
+  </constructor>
+  
+  <method name="pathinfo">
+    <file:pathinfo var="return" filename="$this.filename"/>
+  </method>
+  
+  <method name="exists">
+    <file:exists var="return" filename="$this.filename"/>
+  </method>
+  
+  <method name="typeof">
+    <file:typeof var="return" filename="$this.filename"/>
+  </method>
+  
+  <method name="status">
+    <file:status var="return" filename="$this.filename"/>
+  </method>
+  
+  <method name="read">
+    <file:read var="return" filename="$this.filename"/>
+  </method>
+  
+  <method name="readStruct">
+    <file:read var_struct="return" filename="$this.filename"/>
+  </method>
+  
+  <method name="write"> <!-- content -->
+    <file:write filename="$this.filename">$content</file:write>
+  </method>
+  
+  <method name="writeStruct"> <!-- struct -->
+    <file:write var_struct="struct" filename="$this.filename"/>
+  </method>
+  
+  <method name="append"> <!-- content -->
+    <file:append filename="$this.filename">$content</file:append>
+  </method>
+  
+  <method name="delete">
+    <file:delete filename="$this.filename"/>
+  </method>
+  
+  <method name="rename"> <!-- filename -->
+    <file:rename oldname="$this.filename" newname="$filename"/>
+    <set var="this.filename">$filename</set>
+  </method>
+</class>
+
+</ixml>

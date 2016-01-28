@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<apidoc>
+	<head>
+		<author>AUTHOR</author>
+		<date>DATE</date>
+		<version>1.00</version>
+		<copyright>2011 - 2013 Zeyon GmbH &amp; Co. KG</copyright>
+		<title>TITLE</title>
+		<abstract>
+			THE CONTENTS OF THIS DOCUMENT IS CONFIDENTIAL. YOU ARE NOT ALLOWED TO COPY,
+			DISTRIBUTE OR QUOTE THIS DOCUMENT OR DISCLOSE ITS CONTENT WITHOUT THE WRITTEN
+			CONSENT OF ZFX GMBH OR ZEYON GMBH &amp; CO KG.
+		</abstract>
+	</head>
+	<body>
+		<sect1>
+		<title>Introduction</title>
+
+		<para>Content.</para>
+
+		<sect2>
+		<title>Including APIdoc in your project</title>
+
+		<programlisting language="php"><![CDATA[
+		// Include the libraries
+		include 'lib/xily/xily.config.php';
+		include 'lib/xily/xily.base.php';
+		include 'lib/xily/xily.array.php';
+		include 'lib/xily/xily.xml.php';
+
+		include 'lib/docbook/docbook.core.php';
+		include 'lib/docbook/docbook.html.php';
+		include 'lib/docbook/docbook.srcparser.php';
+		include 'lib/docbook/docbook.apidoc.php';
+
+		// Open your APIdoc index file and specify the HTML frame to use
+		$doc = new docbookAPIdoc('docs/index.xml', 1, file_get_contents('lib/docbook/html/apidoc.frame.html'));
+
+		// Specify the base directory for the source files and the documentation images
+		$doc -> setSCRPath('../../code/ZfxAutomation/ZfxAutomation/');
+		$doc -> setImgURL('img/');
+
+		// The Demo URL will be used for any demo requests
+		$doc -> setDemoURL('http://localhost:8080');
+
+		// You can also modify the wrapper for your APIdoc sections
+		$doc -> setWrapper('/*!', '*/');
+
+		// You will need Mootools if you want to use demo requests
+		$doc -> addInclude('<script src="./mootools/moo-1.3.0-core-yui.js" type="text/javascript" charset="UTF-8"></script>');
+		$doc -> addInclude('<script src="./mootools/moo-1.3.0.1-more-yui.js" type="text/javascript" charset="UTF-8"></script>');
+
+		// You will need syntax highligher if you want to have highlighted sourcecode.
+		// See: http://alexgorbatchev.com/SyntaxHighlighter/manual/installation.html
+		$doc -> addInclude('<script type="text/javascript" src="js/shCore.js"></script>');
+		$doc -> addInclude('<script type="text/javascript" src="js/shBrushJScript.js"></script>');
+		$doc -> addInclude('<script type="text/javascript" src="js/shBrushPhp.js"></script>');
+		$doc -> addInclude('<script type="text/javascript" src="js/shBrushCss.js"></script>');
+		$doc -> addInclude('<link href="css/shCore.css" rel="stylesheet" type="text/css" />');
+		$doc -> addInclude('<link href="css/shThemeDefault.css" rel="stylesheet" type="text/css" />');
+
+		die($doc -> parse());
+		]]></programlisting>
+
+		</sect2>
+
+		<sect2>
+		<title>Documentating API source files</title>
+
+		<para>In order to document your source code, add an APIdoc section at the location of your API task:</para>
+
+		<programlisting><![CDATA[
+		/*!
+		 * @cmd customers
+		 * @method any
+		 * @description Lists all customers assigned to the user
+		 * @param {bool} showextdata Display extensional data (default: 0)
+		 * @return {array} Array containing the list of customers ([{name, customernum, ID}, ...])
+		 * @demo
+		 * @see myreference
+		 */
+		]]></programlisting>
+
+		<para>You can then include your source file in your documentation.</para>
+
+		<api source="sourcefile.php" title="Project API" level="1">
+			<demo ref="details">
+				<string name="api" default="account" fixed="true" />
+				<string name="do" default="details" fixed="true" />
+				<string name="username" default="zfxsandbox002@sandbox" />
+				<string name="password" default="demo" />
+			</demo>
+			<see ref="myreference">
+				<para>You can reference additional content in your code by using the <emphasis>@see</emphasis> tag.</para>
+			</see>
+		</api>
+
+		</sect2>
+		</sect1>
+
+		<sect1>
+		<title>Other supported docbook element</title>
+
+		<sect2>
+		<title>Itemized lists</title>
+
+		<itemizedlist mark="bullet">
+			<listitem>
+				<para>Entry1</para>
+			</listitem>
+			<listitem>
+				<para>Entry2</para>
+			</listitem>
+		</itemizedlist>
+
+		</sect2>
+
+		<sect2>
+		<title>Ordered lists</title>
+
+		<orderedlist>
+			<listitem>
+				<para>Entry1</para>
+			</listitem>
+			<listitem>
+				<para>Entry2</para>
+			</listitem>
+		</orderedlist>
+
+		</sect2>
+
+		<sect2>
+		<title>Images</title>
+
+		<mediaobject>
+			<imageobject>
+				<imagedata fileref="" align="center"/>
+			</imageobject>
+			<caption>
+				<para></para>
+			</caption>
+		</mediaobject>
+
+		</sect2>
+
+		</sect1>
+	</body>
+</apidoc>

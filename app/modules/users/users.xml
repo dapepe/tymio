@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xpage id="users" title="Users">
+	<view:include src="assets/lib/tymio/api/property.js" type="js" />
+	<view:include src="assets/lib/tymio/api/user.js" type="js" />
+	<view:include src="app/modules/users/users.js" type="js" />
+
+	<select id="selDetailsDomain" />
+
+	<div class="p_l p_r">
+		<!-- ACTIONS -->
+		<div class="btn-toolbar form-horizontal">
+			<div class="input-prepend f_l m_r">
+				<span class="add-on"><i class="icon-search"/><s/>{{field.search}}:</span><input class="span2" id="txtSearch" type="text" />
+			</div>
+			<bs:select icon="map-marker" label="{{entity.domain.singular}}" class="f_l m_r" id="selFilterDomain" />
+			<div id="chkShowDel" class="f_l" />
+
+			<div id="btnOptions" class="f_r" />
+			<div class="clear" />
+		</div>
+
+		<div class="b_l b_r b_b">
+			<!-- TABLE -->
+			<div id="tabUsers" class="fullw" />
+		</div>
+	</div>
+</xpage>

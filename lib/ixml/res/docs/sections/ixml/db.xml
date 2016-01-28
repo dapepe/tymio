@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook V5.0//EN"
+"http://www.docbook.org/xml/5.0/dtd/docbook.dtd">
+<article xml:id="crm_en">
+<title>Tools and Validation</title>
+<info>
+	<author>
+		<personname>
+			<firstname>Peter</firstname>
+			<surname>Haider</surname>
+		</personname>
+	</author>
+	<edition>1.0</edition>
+	<copyright>
+		<year>2009</year>
+	</copyright>
+	<pubdate>2010-01-12</pubdate>
+</info>
+
+<!-- Document body starts here -->
+<sect1>
+<title>Development tools</title>
+
+<para>One nice aspect about developing XML-based applications is the fact that there are
+a lot of excellent XML editors and IDEs out there. </para>
+
+</sect1>
+
+</article>

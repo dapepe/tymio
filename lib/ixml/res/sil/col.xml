@@ -1,0 +1,335 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE ixml SYSTEM "http://www.ixmldev.com/schema/ixml.dtd">
+<ixml>
+
+<global var="COL"/>
+
+<class var="COL.Container">
+  <constructor> <!-- items -->
+    <assign var="this.items" var_source="items"/>
+  </constructor>
+  
+  <method name="copy">
+    <classinfo class="this" var="info"/>
+    <array:copy var="this.items" var_result="items"/>
+    
+    <new class="info.class" var="return">
+      <param var="items"/>
+    </new>
+  </method>
+  
+  <method name="count">
+    <array:length var="this.items" var_result="return"/>
+  </method>
+  
+  <method name="empty">
+    <is var="this.items" type="empty">
+      <true var="return"/>
+      
+      <else>
+        <false var="return"/>
+      </else>
+    </is>
+  </method>
+  
+  <method name="clear">
+    <unset var="this.items"/>
+  </method>
+</class>
+
+<class var="COL.Stack">
+  <extends class="COL.Container"/>
+  
+  <method name="top">
+    <assign var="return" var_source="this.items[$($this.count() - 1)]"/>
+  </method>
+  
+  <method name="push"> <!-- value -->
+    <assign var="this.items[]" var_source="value"/>
+  </method>
+  
+  <method name="pop">
+    <array:pop var="this.items" var_result="return"/>
+  </method>
+</class>
+
+<class var="COL.Queue">
+  <extends class="COL.Container"/>
+  
+  <method name="peek">
+    <assign var="return" var_source="this.items[0]"/>
+  </method>
+  
+  <method name="enqueue"> <!-- value -->
+    <assign var="this.items[]" var_source="value"/>
+  </method>
+  
+  <method name="dequeue">
+    <array:shift var="this.items" var_result="return"/>
+  </method>
+</class>
+
+<class var="COL.PriorityQueue">
+  <extends class="COL.Container"/>
+  
+  <method name="peek">
+    <assign var="return" var_source="this.items[0][1]"/>
+  </method>
+  
+  <method name="enqueue"> <!-- priority, value -->
+    <set var="key">0</set>
+    
+    <foreach var="this.items" var_key="key" var_value="item">
+      <if value1="$item[0]" func="&gt;" value2="$priority">
+        <break/>
+      </if>
+    </foreach>
+    
+    <array var="item">
+      <array>
+        <item>$priority</item>
+        <item var="value"/>
+      </array>
+    </array>
+    
+    <array:extract var="this.items" offset="$key" length="0" var_replacement="item"/>
+  </method>
+  
+  <method name="dequeue">
+    <array:shift var="this.items" var_result="return"/>
+    <assign var="return" var_source="return[1]"/>
+  </method>
+</class>
+
+<class var="COL.RingQueue">
+  <extends class="COL.Queue"/>
+  
+  <constructor> <!-- capacity -->
+    <set var="this.capacity">$($capacity)</set>
+  </constructor>
+  
+  <method name="enqueue"> <!-- value -->
+    <if value1="$this.count()" value2="$this.capacity">
+      <array:shift var="this.items"/>
+    </if>
+    
+    <assign var="this.items[]" var_source="value"/>
+  </method>
+</class>
+
+<class var="COL.Set">
+  <extends class="COL.Container"/>
+  
+  <method name="add"> <!-- value -->
+    <set var="this.items" key="$value"/>
+  </method>
+  
+  <method name="remove"> <!-- value -->
+    <unset var="this.items" key="$value"/>
+  </method>
+  
+  <method name="contains"> <!-- value -->
+    <is var="value" type="non-valid">
+      <set var="value">$return</set>
+    </is>
+  
+    <array:keyexists var="this.items" var_result="return">$value</array:keyexists>
+  </method>
+  
+  <method name="equals"/> <!-- set -->
+  
+  <method name="values">
+    <array:keys var="this.items" var_result="items"/>
+    
+    <new class="COL.List" var="return">
+      <param var="items"/>
+    </new>
+  </method>
+  
+  <method name="complement"> <!-- set -->
+    <array:complement var1="this.items" var2="set.items" type="keys"/>
+  </method>
+  
+  <method name="diff"> <!-- set -->
+    <array:diff var1="this.items" var2="set.items" type="keys"/>
+  </method>
+  
+  <method name="intersect"> <!-- set -->
+    <array:intersect var1="this.items" var2="set.items" type="keys"/>
+  </method>
+  
+  <method name="union"> <!-- set -->
+    <array:union var1="this.items" var2="set.items" type="key"/>
+  </method>
+  
+  <method name="sort"> <!-- type: asc/desc/nat-asc/nat-desc -->
+    <array:sort var="this.items" type="keys-$type"/>
+  </method>
+  
+  <method name="aggregate"> <!-- type -->
+    <is var="type" type="non-valid">
+      <set var="type">$return</set>
+    </is>
+    
+    <array:keys var="this.items" var_result="items"/>
+    <array:aggregate var="items" var_result="return" type="$type"/>
+  </method>
+</class>
+
+<class var="COL.Map">
+  <extends class="COL.Container"/>
+  
+  <constructor> <!-- items | keys, values -->
+    <is var="items" type="non-valid">
+      <array:assoc var="this.items" var_keys="keys" var_values="values"/>
+    </is>
+  </constructor>
+  
+  <method name="put"> <!-- key, value -->
+    <assign var="this.items" key="$key" var_source="value"/>
+  </method>
+  
+  <method name="get"> <!-- key -->
+    <is var="key" type="non-valid">
+      <set var="key">$return</set>
+    </is>
+    
+    <assign var="return" var_source="this.items" key_source="$key"/>
+  </method>
+  
+  <method name="remove"> <!-- key | value -->
+    <is var="key" type="non-valid">
+      <array:pos var="this.items" var_result="key">$value</array:pos>
+      
+      <is var="key" type="null">
+        <return/>
+      </is>
+    </is>
+    
+    <unset var="this.items" key="$key"/>
+  </method>
+  
+  <method name="contains"> <!-- key | value -->
+    <is var="key">
+      <array:keyexists var="this.items" var_result="return">$key</array:keyexists>
+      
+      <else>
+        <is var="value" type="non-valid">
+          <set var="value">$return</set>
+        </is>
+        
+        <array:pos var="this.items" var_result="return">$value</array:pos>
+        <cast var="return" type="bool"/>
+      </else>
+    </is>
+  </method>
+  
+  <method name="lookup"> <!-- value -->
+    <is var="value" type="non-valid">
+      <set var="value">$return</set>
+    </is>
+    
+    <array:pos var="this.items" var_result="return">$value</array:pos>
+  </method>
+  
+  <method name="equals"/> <!-- map -->
+  
+  <method name="keys">
+    <array:copy var="this.items" var_result="items"/>
+    
+    <new class="COL.Set" var="return">
+      <param var="items"/>
+    </new>
+  </method>
+  
+  <method name="values">
+    <array:copy var="this.items" var_result="items"/>
+    <array:reindex var="items"/>
+    
+    <new class="COL.List" var="return">
+      <param var="items"/>
+    </new>
+  </method>
+</class>
+
+<class var="COL.List">
+  <extends class="COL.Container"/>
+  
+  <method name="add"> <!-- value -->
+    <assign var="this.items[]" var_source="value"/>
+  </method>
+  
+  <method name="set"> <!-- index, value -->
+    <assign var="this.items[$index]" var_source="value"/>
+  </method>
+  
+  <method name="get"> <!-- index -->
+    <is var="index" type="non-valid">
+      <set var="index">$return</set>
+    </is>
+    
+    <assign var="return" var_source="this.items[$index]"/>
+  </method>
+  
+  <method name="remove"> <!-- index -->
+    <array:extract var="this.items" offset="$index" length="1"/>
+  </method>
+  
+  <method name="indexOf"> <!-- value -->
+    <is var="value" type="non-valid">
+      <set var="value">$return</set>
+    </is>
+    
+    <array:pos var="this.items" var_result="return">$value</array:pos>
+  </method>
+  
+  <method name="lastIndexOf"> <!-- value -->
+    <is var="value" type="non-valid">
+      <set var="value">$return</set>
+    </is>
+    
+    <array:pos var="this.items" var_result="return" type="last">$value</array:pos>
+  </method>
+  
+  <method name="first">
+    <assign var="return" var_source="this.items[0]"/>
+  </method>
+  
+  <method name="last">
+    <assign var="return" var_source="this.items[$($this.count() - 1)]"/>
+  </method>
+  
+  <method name="slice"> <!-- offset, length -->
+    <array:copy var="this.items" var_result="items" offset="$offset" length="$length"/>
+    
+    <new class="COL.List" var="return">
+      <param var="items"/>
+    </new>
+  </method>
+  
+  <method name="tail">
+    <call func="this.slice" var="return">
+      <param name="offset">1</param>
+    </call>
+  </method>
+  
+  <method name="concat"> <!-- list -->
+    <array:concat var="this.items" var_tail="list.items"/>
+  </method>
+  
+  <method name="reverse">
+    <array:reverse var="this.items"/>
+    <array:reindex var="this.items"/>
+  </method>
+  
+  <method name="unique">
+    <array:unique var="this.items"/>
+    <array:reindex var="this.items"/>
+  </method>
+  
+  <method name="sort"> <!-- type: asc/desc/nat-asc/nat-desc/rand -->
+    <array:sort var="this.items" type="$type"/>
+  </method>
+</class>
+
+</ixml>

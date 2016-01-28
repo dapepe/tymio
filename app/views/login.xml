@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xpage title="Login" id="login">
+	<div style="width: 290px; margin: 170px auto 0 auto;" class="well">
+		<form action="index.php" method="POST">
+			<input type="hidden" name="%{tokenName}" value="%{tokenValue}" />
+			<input type="hidden" name="return" value="%{return}" />
+
+			<div id="message" class="%{message.@class}">%{message}</div>
+			<label>{{field.username}}</label>
+			<input type="text" name="username" style="width: 280px;" autofocus="autofocus" />
+			<label>{{field.password}}</label>
+			<input type="password" name="password" style="width: 280px;" />
+			<div style="width: 290px; padding-top: 15px;">
+				<div class="f_l p2_t">
+					<input id="autologin" type="checkbox" name="autologin" /><label for="autologin" style="display:inline;"> {{view.login.stayloggedin}}</label>
+				</div>
+				<input type="submit" class="btn btn-large btn-primary f_r" value="Login" />
+				<div class="clear" />
+			</div>
+		</form>
+	</div>
+</xpage>

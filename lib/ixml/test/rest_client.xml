@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE ixml SYSTEM "http://www.ixmldev.com/ixml.dtd">
+<ixml>
+
+<rest:client url="http://127.0.0.1/ixml/test/rest_server.php">
+  <rest:bind var="getPerson" method="GET">person/:id</rest:bind>
+  <rest:bind var="setPerson" method="POST">/person/:id</rest:bind>
+  <rest:bind var="uploadPerson" method="PUT">person/:id</rest:bind>
+  <rest:bind var="deletePerson" method="DELETE">/person/:id</rest:bind>
+  <rest:bind var="undefined" type="raw">/undefined</rest:bind>
+</rest:client>
+
+<call func="getPerson" var="resGet">
+  <param name="id">bg</param>
+</call>
+
+<call func="setPerson" var="resSet">
+  <param name="id">bg</param>
+  <param name="lastname">Gates</param>
+  <param name="firstname">Bill</param>
+</call>
+
+<array var="data">
+  <item key="lastname">Gates</item>
+  <item key="firstname">Bill</item>
+</array>
+
+<call func="uploadPerson" var="resUpload">
+  <param name="id">bg</param>
+  <param><encode:json var="data"/></param>
+</call>
+
+<call func="deletePerson" var="resDelete">
+  <param name="id">bg</param>
+</call>
+
+<call func="undefined" var="resUndefined"/>
+
+<debug:dump/>
+
+</ixml>

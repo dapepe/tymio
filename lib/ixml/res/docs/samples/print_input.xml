@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<groupion:input>
+	<texteditor id="intro" height="150">
+Dear Sir/Madam ...,
+
+referring to your requirements and in connection with our general terms and conditions we would like to submit the following order. All prices are alleged in Euro.
+	</texteditor>
+	<texteditor id="outro" height="150">
+This offer has a validity of 30 days and only applies to the full acceptance of the contract work affected by you.
+
+We hope that our offer meets your requirements. If there are any further questions, please do not hesitate to contact us.
+
+Yours sincerely
+	</texteditor>
+</groupion:input>

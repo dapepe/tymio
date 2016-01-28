@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xpage title="Layout" id="layout">
+	<view:include src="app/modules/layout/layout.js" type="js" />
+
+<!--  	
+<div style="padding: 8px 0;" class="well">
+	<ul class="nav nav-list">
+		<li class="nav-header">List header</li>
+		<li class="active"><a href="#"><i class="icon-white icon-home"></i> Home</a></li>
+		<li><a href="#"><i class="icon-book"></i> Library</a></li>
+		<li><a href="#"><i class="icon-pencil"></i> Applications</a></li>
+		<li class="nav-header">Another list header</li>
+		<li><a href="#"><i class="icon-user"></i> Profile</a></li>
+		<li><a href="#"><i class="icon-cog"></i> Settings</a></li>
+		<li class="divider"></li>
+		<li><a href="#"><i class="icon-flag"></i> Help</a></li>
+	</ul>
+</div>
+-->
+
+	<div style="padding: 0 20px">
+		<div id="popop">
+			<p>Hallo Welt!</p>
+		</div>
+		
+		<div style="width: 800px">
+			<div id="tabs" class="m_t">
+				<div id="tab0">
+					<div>
+						
+						<div class="f_r">
+							<div id="monthpicker" />
+							<input type="button" id="btnShowPopup" value="Show popup" class="btn btn-success m_t" />
+							<div id="checkbtn" class="m_t" />
+							<div class="btn-toolbar">
+							<div id="menubutton" class="m_t" />
+							</div>
+						</div>
+						
+						<div class="f_l">
+							<label>Date</label>
+							<div id="datepicker" />
+							Timestamp: <input type="text" id="txtTimestamp" /><br />
+							<input type="button" id="btnDatePickerSet" value="Set TS" class="btn" />
+						</div>
+						<div class="f_l m_l">
+							<label>Time</label>
+							<div id="timebox" />
+							<label>Enter time:</label>
+							<input type="text" style="width: 100px" id="txtTimeboxTime" name="txtTimeboxTime" value="34873" />
+							<label>Unit:</label>
+							<select id="txtTimeboxUnit">
+								<option value="seconds">Seconds</option>
+								<option value="minutes">Minutes</option>
+								<option value="hours">Hours</option>
+							</select>
+							<label>Precision:</label>
+							<select id="txtTimeboxPrecision">
+								<option value="0">0</option>
+								<option value="1">1</option>
+								<option value="2">2</option>
+								<option value="3">3</option>
+								<option value="4">4</option>
+								<option value="5">5</option>
+							</select><br />
+							<input type="button" id="btnTimeboxSet" value="Set" class="btn" />
+							<input type="button" id="btnTimeboxGet" value="Get" class="btn btn-primary" />
+						</div>
+						<div class="clear" />
+					</div>
+				</div>
+				<div id="tab1">
+					<div id="myTable" class="table-container" />
+					<div class="form-actions">
+						<input type="button" id="btnTableSet" value="Set data" class="btn btn-primary m_l f_l" />
+						<input type="button" id="btnTableEmpty" value="Empty table" class="btn btn-info m_l f_l" />
+						<input type="button" id="btnAddData" value="Add More Data" class="btn btn-success m_l f_l" />
+						<div class="clear" />
+					</div>
+				</div>
+				<div id="tab2">
+					<label>Message</label>
+					<textarea id="txtMessageText" style="height: 100px; width: 500px;">Hallo Welt!</textarea>
+					
+					<label>Message class</label>
+					<select id="txtMessageType">
+						<option value="info">Info</option>
+						<option value="error">Error</option>
+						<option value="success">Success</option>
+					</select>
+					
+					<input type="button" id="btnAddMessage" value="Add message" />
+					<input type="button" id="btnAddMessageBlend" value="Add message (with blend)" />
+					<input type="button" id="btnClear" value="Clear all windows" />
+					<input type="button" id="btnStatusBar" value="Show status bar" />
+					<input type="button" id="btnHideStatus" value="Hide status bar" />
+					
+					<div id="calendar" />
+				</div>
+				<div id="tab3">
+					<label>gx.bootstrap.Select</label>
+					<div id="divSelect"></div>
+					<input type="button" id="btnSelectValue" value="Get value" class="m" />
+					<input type="button" id="btnSelectReset" value="Reset" class="m_t" />
+					<div class="clear" />
+					<label>gx.bootstrap.Checklist</label>
+					<div id="divChecklist"></div>
+					Label: <input type="text" style="width: 150px" id="txtChecklistLabel" /> | 
+					Value: <input type="text" style="width: 50px" id="txtChecklistValue" />
+					<input type="button" id="btnChecklistSetValue" value="Set values" class="m" />
+					<input type="button" id="btnChecklistGetValue" value="Get value" class="m" />
+				</div>
+				<div id="tab4">
+					<div id="fieldset" />
+				</div>
+			</div>
+		</div>
+	</div>
+</xpage>

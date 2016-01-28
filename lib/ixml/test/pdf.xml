@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE ixml SYSTEM "http://www.ixmldev.com/ixml.dtd">
+<ixml>
+
+<header>Content-type: application/pdf</header>
+
+<output>
+  <pdf:document>
+    <pdf:section>
+      <pdf:templates filename="pdf.pdf">
+        <pdf:template/>
+      </pdf:templates>
+    </pdf:section>
+    
+    <pdf:section leftmargin="20" rightmargin="20" topmargin="20">
+      <pdf:header>
+        <pdf:inline y="10">Test Inline Header</pdf:inline>
+      </pdf:header>
+      
+      <pdf:footer>
+        <pdf:inline y="240">Test Inline Footer</pdf:inline>
+      </pdf:footer>
+      
+      <pdf:body>
+        <pdf:inline>Test Inline Body 1</pdf:inline>
+        <pdf:pagebreak/>
+        
+        <pdf:style dir="rtl">
+          <pdf:inline>Test Inline Body 2</pdf:inline>
+        </pdf:style>
+      </pdf:body>
+    </pdf:section>
+  </pdf:document>
+</output>
+
+</ixml>

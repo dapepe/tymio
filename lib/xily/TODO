@@ -1,0 +1,22 @@
+CHG: Remove xilyBean inclusion from config.ini
+CHG: Add name spaces Xily\Bean
+
+[bean]
+dir[] = "lib/xily/beans/"
+relative = 1
+open[] = "div"
+open[] = "iframe"
+open[] = "script"
+open[] = "textarea"
+
+; ====================== Log settings ======================
+; log: If defined, all errors and messages will be written into the log file
+; mail: System messages will be send to the specified Email-Adress
+; debug: If on, messages from xilyBase::probe() will be displayed
+; exclude[]: List of classes to exclude from debugging
+
+[debug]
+log = "error.log"
+mail = 0
+console = 0
+exclude[] = "xilyXML"

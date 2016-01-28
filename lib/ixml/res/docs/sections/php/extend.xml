@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook V5.0//EN"
+"http://www.docbook.org/xml/5.0/dtd/docbook.dtd">
+<article xml:id="crm_en">
+<title>Extend iXML with custom commands</title>
+<info>
+	<author>
+		<personname>
+			<firstname>Benjamin</firstname>
+			<surname>Coutu</surname>
+		</personname>
+	</author>
+	<edition>1.0</edition>
+	<copyright>
+		<year>2012</year>
+	</copyright>
+	<pubdate>2012-11-02</pubdate>
+</info>
+
+<!-- Document body starts here -->
+<sect1>
+<title>How to add custom commands to iXML engine</title>
+
+<para>You may add custom commands to iXML by extending the iXML base class in the following way:</para>
+
+<programlisting language="php"><![CDATA[
+namespace iXml;
+
+require './lib/ixml/base.php';
+
+class MyXml extends iXml {
+  // Overload schema initialization
+  protected function initSchema() {
+    parent::initSchema(); // Make sure to call the parent's equivalent method
+    
+    // Extend schema with new commands
+    $this -> schema += [
+      'MY:OUTPUT' => [
+        \Zeyon\SIGN_CDATA => false
+      ],
+      'MY:SETVAR1' => [
+        \Zeyon\SIGN_VAR = 'VAR',
+        \Zeyon\SIGN_CDATA => false
+      ],
+      'MY:SETVAR2' => [
+        \Zeyon\SIGN_CDATA => false,
+        \Zeyon\SIGN_STORE => 'VAR'
+      ],
+      'MY:SETVAR3' => [
+        \Zeyon\SIGN_VAR = 'VAR',
+        \Zeyon\SIGN_CDATA => false
+      ]
+    ];
+  }
+  
+  // Declare MY:OUTPUT command
+  protected function _MY_OUTPUT($elem) {
+    echo 'My command outputs: '.$elem[\Zeyon\SIGN_CDATA];
+  }
+  
+  // Declare MY:SETVAR1 command
+  protected function _MY_SETVAR1($elem) {
+    $result = 'My command explicitly sets and returns variable: '.$elem[\Zeyon\SIGN_CDATA];
+  
+    $var = $elem['VAR'] AND $this -> setVar($var, $result);
+      
+    return $result;
+  }
+  
+  // Declare MY:SETVAR2 command
+  protected function _MY_SETVAR2($elem) {
+    return 'My command implicitly sets and returns variable: '.$elem[\Zeyon\SIGN_CDATA];
+  }
+  
+  // Declare MY:SETVAR3 command
+  protected function _MY_SETVAR3($elem) {
+    $var = $elem['VAR'] AND $this -> setVar($var, 'My command explicitly sets but does not return variable: '.$elem[\Zeyon\SIGN_CDATA]);
+  }
+}
+
+(new MyXml($code)) -> exec();
+]]></programlisting>
+
+</sect1>
+
+</article>

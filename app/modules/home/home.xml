@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xpage id="home" title="Home">
+	<view:include src="app/modules/home/home.js" type="js" />
+	
+	<div class="p">
+	
+	</div>
+</xpage>

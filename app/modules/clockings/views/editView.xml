@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<div id="editView">
+	<div class="title">
+		<div class="f_l dyn_title" id="editHeader">
+			<span id="editTitle">Bearbeiten</span>
+		</div>
+		<input type="button" class="f_r m2_l" value="Abbrechen" id="editBtnClose" />
+		<input type="button" class="f_r m2_l bold" value="Speichern" id="editBtnSave" />
+		<input type="button" class="f_r m2_l" value="Entfernen" id="editBtnRemove" />
+		<div class="f_r" id="editBtnCheck" />
+		<div class="f_r" id="editBtnApprove" />
+		<div class="clear"></div>
+	</div>
+	<table class="view m_t">
+		<tr>
+			<td>
+				<label>Benutzer:</label>
+				<div id="editUser" style="width:205px;"></div>
+				<table class="view m_t">
+					<tr>
+						<td style="width: 100px;">
+							<label>Pause:</label>
+							<div class="f_l" id="editBreak"></div>
+							<div class="f_l m_l" id="editBreakSuggest"></div>
+							<div class="clear"></div>
+						</td>
+						<td>
+							<label>Typ:</label>
+							<select id="editType">
+								<option value="0">Reguläre AZ</option>
+								<option value="1">Ü-Abbau</option>
+								<option value="2">Ü-Abbau (halbtags)</option>
+								<option value="3">Urlaub</option>
+								<option value="4">Urlaub (halbtags)</option>
+								<option value="5">Krankheit</option>
+								<option value="9">Berufsschule</option>
+							</select>
+						</td>
+					</tr>
+				</table>
+			</td>
+			<td>
+				<label>Start:</label>
+				<div id="editDateStart"></div>
+				<label class="m_t">Ende:</label>
+				<div id="editDateEnd"></div>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2">
+				<table class="view m_t">
+					<tr>
+						<td valign="top">
+							<label>Gleitzeit:</label>
+							<div id="editFlexitime"></div>
+							<div id="editFlexitimeSuggest"></div>
+						</td>
+						<td valign="top">
+							<label>Überstunden:</label>
+							<div id="editOvertime"></div>
+							<div id="editOvertimeSuggest"></div>
+						</td>
+						<td valign="top">
+							<label>Abgelehnt:</label>
+							<div id="editDenied"></div>
+							<div id="editDeniedSuggest"></div>
+						</td>
+						<td valign="top">
+							<label>Reguläre AZ:</label>
+							<div id="editRegular"></div>
+						</td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2">
+				<label class="m_t">Kommentar:</label>
+				<textarea style="height: 100px; width: 100%;" id="editComment"></textarea>
+			</td>
+		</tr>
+	</table>
+</div>

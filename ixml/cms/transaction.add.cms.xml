@@ -1,0 +1,2018 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ixml>
+	<global var="UNIT_FACTORS" />
+	<array var="UNIT_FACTORS">
+		<item key="seconds">1</item>
+		<item key="minutes">60</item>
+		<item key="hours">3600</item>
+		<item key="days">86400</item>
+	</array>
+
+	<global var="CLOCKING" />
+	<array var="CLOCKING">
+		<item key="APPROVAL_STATUS_PRELIMINARY">0</item>
+		<item key="APPROVAL_STATUS_REQUIRED"   >1</item>
+		<item key="APPROVAL_STATUS_DENIED"     >2</item>
+		<item key="APPROVAL_STATUS_CONFIRMED"  >3</item>
+		<item key="APPROVAL_STATUS_AS_IS"      >4</item>
+	</array>
+
+	<!--
+		"_DATA":
+		- "user": { ... }      // The user object
+		- "clockings": [ ... ]
+		- "booking_types": { identifier: { "Id": ..., "AccountId": ..., "Identifier": ..., "Label": ..., "Unit": ... }, ... }
+		- "bookings": {}        // Receives the bookings to be created
+		- "transactions": {}    // Receives the transactions to be created
+	-->
+
+	<!--
+		@param array holiday
+		@return void
+	-->
+	<global var="dumpHoliday" />
+	<function var="dumpHoliday">
+		<debug:output><t>Holiday #$holiday.Id, </t><date:format format="D, Y-m-d">$holiday.Date</date:format><t> $holiday.Name</t></debug:output>
+	</function>
+
+	<!--
+		@param array holidaysByDate
+		@return void
+	-->
+	<global var="dumpHolidays" />
+	<function var="dumpHolidays">
+		<foreach var="holidaysByDate" var_value="holidaysOnDate">
+			<foreach var="holidaysOnDate" var_value="holiday">
+				<call func="dumpHoliday">
+					<param name="holiday" var="holiday" />
+				</call>
+			</foreach>
+		</foreach>
+	</function>
+
+	<!--
+		@param array clocking
+		@return string
+	-->
+	<global var="clockingToString" />
+	<function var="clockingToString">
+		<date:format format="Y-m-d" var="startDate">$clocking.Start</date:format>
+		<date:format format="Y-m-d" var="endDate">$clocking.End</date:format>
+		<if value1="startDate" value2="endDate">
+			<set var="endFormat">H:i:s</set>
+		<else>
+			<set var="endFormat">D, Y-m-d H:i:s</set>
+		</else>
+		</if>
+
+		<set var="return">
+			<t>Clocking #$clocking.Id, </t>
+			<date:format format="D, Y-m-d H:i:s">$clocking.Start</date:format>
+			<t> - </t>
+			<date:format format="$endFormat">$clocking.End</date:format>
+			<t> [</t>
+			<duration>$($clocking.End - $clocking.Start)</duration>
+			<t>, Break </t><duration>$clocking.Breaktime</duration>
+			<t>], $clocking.Type.Label, User #$clocking.UserId, "$clocking.Comment"</t>
+		</set>
+	</function>
+
+	<!--
+		@param array clocking
+		@return void
+	-->
+	<global var="dumpClocking" />
+	<function var="dumpClocking">
+		<debug:output><call func="clockingToString"><param name="clocking" var="clocking" /></call></debug:output>
+	</function>
+
+	<!--
+		@param array clockings
+		@return void
+	-->
+	<global var="dumpClockings" />
+	<function var="dumpClockings">
+		<is var="clockings" type="non-array">
+			<debug:output>[No clockings defined]</debug:output>
+			<return />
+		</is>
+
+		<foreach var="clockings" var_value="clocking">
+			<call func="dumpClocking">
+				<param name="clocking" var="clocking" />
+			</call>
+		</foreach>
+	</function>
+
+	<set var="bookingUid">0</set>
+<!--
+ {
+     "user": {
+         "Id": 4,
+         "AccountId": 32,
+         "DomainId": 31,
+         "Deleted": 0,
+         "Name": "mmuster",
+         "Firstname": "Max",
+         "Lastname": "Muster",
+         "Phone": "",
+         "ManagerOf": null,
+         "IsAdmin": 0,
+         "Email": "mmuster@muster.de",
+         "Number": null
+     },
+     "clockings": [{
+         "Id": 68930,
+         "UserId": 4,
+         "TypeId": 2,
+         "Creationdate": 1343654361,
+         "Start": 1343426400,
+         "End": 1343772000,
+         "Breaktime": 0,
+         "Comment": "",
+         "ApprovalStatus": 1,
+         "Deleted": false,
+         "Frozen": true,
+         "Type": {
+             "Id": 2,
+             "AccountId": 32,
+             "Identifier": "reduce_overtime",
+             "Label": "\u00dc-Abbau",
+             "WholeDay": true
+         }
+     }],
+     "booking_types": {
+         "test": {
+             "Id": 1,
+             "AccountId": 32,
+             "Identifier": "test",
+             "Label": "test",
+             "Unit": "days"
+         }
+     },
+     "bookings": [],
+     "transactions": []
+ }
+ -->
+
+	<!--
+		- Check clockings, skip those that were denied and fail if there are
+		  clockings that need explicit approval.
+		- Sort out whole-day clockings because those may overlap.
+		- Sort clockings by start date
+		- Query holidays in the range of the clockings
+		- Process whole-day clockings:
+			- Create one transaction for each clocking entry
+		- Group non-whole-day clockings by week (clockings spanning multiple weeks should appear in each week)
+		- Process non-whole-day clockings for each week:
+			- Limit clockings to the current year
+			- Group clockings by day (clockings spanning multiple days should appear on each day)
+			- Process clockings for each day:
+				- Calculate actual work time of the current week
+					- Collect bookings whose transaction dates are in the current week
+					- Add effective work time to existing bookings
+				- Calculate expected work time for the current week
+					- Query HoursPerWeek property
+					- HoursPerWeek property - holidays - days off
+					- Book expected work time as regular work time to current transaction
+				- Create transaction
+				- Add up clockings to get real work time
+					- Use only the part that belongs to the current day
+						- If there is a break, assume it to be on the day with the most time from the clocking
+					- Interruptions between clockings of the same day count as implicit breaks
+						- Determine total effective break time
+					- > 9 hours => minimum break is 45 minutes => flag as proposal if not in clockings
+					- > 6 hours => minimum break is 30 minutes => flag as proposal if not in clockings
+				- Create separate booking for break
+				- If day is a Sunday or a holiday, create additional booking(s) with the 1x real work time (amounts to 2x the work time)
+				- Else if the day is a Saturday, create additional booking(s) with the 0.5x real work time (amounts to 1.5x the work time)
+				- Else the effective work time equals the real work time
+				- Check for other clockings without a transaction in current week
+					- Load clockings of the current week without any transactions
+					- Warn if there are any, allow to proceed or to abort (produce a special error so the UI can prompt and retry with a special flag set)
+				- Subtract actual from expected work time
+					- Expected - actual > 2 => book delta as overtime to current transaction
+					- Otherwise book delta as flexitime to current transaction
+				- Fail if flexitime amounts to more than 200 hours plus and the user is not an admin
+	-->
+
+	<!--
+		Yields 1 if the clocking is a whole-day entry, otherwise 0, in an array.
+
+		@param Clocking item
+		@return array An array containing either 0 or 1.
+	-->
+	<global var="groupByWholeDay" />
+	<function var="groupByWholeDay">
+		<is var="item.Type.WholeDay" type="empty">
+			<set var="return[]">0</set>
+		<else>
+			<set var="return[]">1</set>
+		</else>
+		</is>
+	</function>
+
+	<!--
+		Yields all months ("YYYY-MM") a clocking belongs to.
+
+		@param Clocking item
+		@return array An array with keys for the clocking.
+	-->
+	<global var="groupByMonth" />
+	<function var="groupByMonth">
+		<array var="return" />
+
+		<!-- Assign clocking to each month -->
+
+		<date:format format="Y-m" var="currentMonth">$item.Start</date:format>
+		<set var="currentTimestamp">$item.Start</set>
+
+		<while value1="$currentTimestamp" value2="$item.End" func="&lt;=">
+			<set var="return[]">$currentMonth</set>
+
+			<date:parse2 var="currentTimestamp" ref="$currentTimestamp">first day of next month</date:parse2>
+			<date:format format="Y-m" var="currentMonth">$currentTimestamp</date:format>
+		</while>
+	</function>
+
+	<!--
+		Yields all weeks ("[yyyy]W[ww]") a clocking belongs to.
+
+		@param Clocking item
+		@return array An array with keys for the clocking.
+	-->
+	<global var="groupByWeek" />
+	<function var="groupByWeek">
+		<array var="return" />
+
+		<is var="item.Type.WholeDay" type="empty">
+			<!-- Assign clocking to each week -->
+			<!-- Check if start and end dates are in different years -->
+
+			<date:format format="o\WW" var="currentWeek">$item.Start</date:format>
+			<set var="currentTimestamp">$item.Start</set>
+
+			<while value1="$currentTimestamp" value2="$item.End" func="&lt;=">
+				<set var="return[]">$currentWeek</set>
+				<date:parse2 var="currentTimestamp" ref="$currentTimestamp">Monday next week</date:parse2>
+				<date:format format="o\WW" var="currentWeek">$currentTimestamp</date:format>
+			</while>
+
+		<else>
+			<!-- Use start week for whole-day clockings -->
+			<date:format format="o\WW" var="return[]">$item.Start</date:format>
+
+		</else>
+		</is>
+	</function>
+
+	<!--
+		Yields the date ("YYYY-MM-DD") a holiday belongs to as an array.
+
+		@param Holiday item
+		@return array An array with the holiday's date as the only element
+	-->
+	<global var="groupHolidaysByDate" />
+	<function var="groupHolidaysByDate">
+		<date:format var="return[]" format="Y-m-d">$item.Date</date:format>
+	</function>
+
+	<!--
+		Yields all dates ("YYYY-MM-DD") a clocking or a transaction belongs to.
+
+		@param Clocking|Transaction item If the item has a "Type" property,
+			it is assumed to be a clocking, otherwise it is assumed to be a
+			transaction. For whole-day clockings and transactions, the end date
+			is inclusive, for non-whole-day clockings it is excluded, i.e.
+			a whole-day clocking from 2013-07-09 to 2013-07-10 will yield
+			"2013-07-09" and "2013-07-10" while a non-whole-day clocking from
+			2013-07-09 00:00:00 to 2013-07-10 00:00:00 will only yield
+			"2013-07-09".
+		@param string week The year and week in the format [yyyy]W[ww], or empty.
+		@return array An array with dates in the format "YYYY-MM-DD".
+	-->
+	<global var="groupByDate" />
+	<function var="groupByDate">
+		<array var="return" />
+
+		<!-- Assign clocking to each day -->
+		<!-- Restrict to current week -->
+
+		<date:format format="Y-m-d" var="currentDate">$item.Start</date:format>
+		<set var="currentTimestamp">$item.Start</set>
+
+		<set var="comparison">&lt;=</set>
+		<is var="item.Type">
+			<is var="item.Type.WholeDay" type="empty">
+				<set var="comparison">&lt;</set>
+
+				<if value1="$item.Start" value2="$item.End">
+					<date:format format="o\WW" var="currentWeek">$currentTimestamp</date:format>
+					<if value1="$currentWeek" value2="$week">
+						<set var="return[]">$currentDate</set>
+					<elseif value1="$week">
+						<set var="return[]">$currentDate</set>
+					</elseif>
+					<elseis var="week" type="null">
+						<set var="return[]">$currentDate</set>
+					</elseis>
+					</if>
+
+					<return />
+				</if>
+			</is>
+		</is>
+
+		<while value1="$currentTimestamp" value2="$item.End" func="$comparison">
+			<date:format format="o\WW" var="currentWeek">$currentTimestamp</date:format>
+			<if value1="$currentWeek" value2="$week">
+				<set var="return[]">$currentDate</set>
+			<elseif value1="$week">
+				<set var="return[]">$currentDate</set>
+			</elseif>
+			<elseis var="week" type="null">
+				<set var="return[]">$currentDate</set>
+			</elseis>
+			</if>
+
+			<date:parse2 var="currentTimestamp" ref="$currentTimestamp">tomorrow</date:parse2>
+			<date:format format="Y-m-d" var="currentDate">$currentTimestamp</date:format>
+		</while>
+	</function>
+
+	<!--
+		Fetches transactions in the specified time span.
+
+		@param int start
+		@param int end
+		@return array An array of matching transactions
+	-->
+	<global var="getTransactions" />
+	<function var="getTransactions">
+		<!-- Retrieve persisted transactions -->
+		<api name="transaction" do="list" var="data">
+			<param name="user" var="_DATA.user.Id" />
+			<param name="start" var="start" />
+			<param name="end" var="end" />
+		</api>
+		<assign var="return" var_source="data.result" />
+
+		<!-- Add unpersisted matches from "_DATA.transactions" -->
+		<foreach var="_DATA.transactions" var_value="transaction">
+			<if value1="$transaction.Start" value2="$end" func="&gt;">
+				<next />
+			<elseif value1="$transaction.End" value2="$start" func="&lt;">
+				<next />
+			</elseif>
+			</if>
+
+			<assign var="return[]" var_source="transaction" />
+		</foreach>
+	</function>
+
+	<!--
+		@param bool wholeDay
+		@param int start UNIX timestamp with the start date.
+		@param int end UNIX timestamp with the end date.
+		@return int The clocking's effective duration without breaks.
+	-->
+	<global var="getClockingTime" />
+	<function var="getClockingTime">
+		<!--
+			Check if the clocking is a whole-day entry and derive its
+			effective clocking time from a tymio property value in that case.
+		-->
+		<is var="wholeDay" type="empty">
+			<!-- Non-whole-day entry -->
+			<bookingtime var="return" start="$start" end="$end" unit="seconds" />
+		<else>
+			<!-- Whole-day entry -->
+			<bookingtime var="return" start="$start" end="$end" unit="seconds" />
+			<!-- !!! TODO: Calculate days and multiply with the day work time property -->
+		</else>
+		</is>
+	</function>
+
+	<!--
+		Creates a (non-whole-day) booking.
+
+		@param string comment
+		@param int start UNIX timestamp with the start date to show in the comment.
+		@param int end UNIX timestamp with the end date to show in the comment.
+		@param BookingType type
+		@param int value The value in seconds
+		@return Booking
+	-->
+	<global var="createBooking" />
+	<function var="createBooking">
+		<date:format format="Y-m-d" var="startDate">$start</date:format>
+		<date:format format="Y-m-d" var="endDate">$end</date:format>
+
+		<if value1="$comment">
+			<set var="prefixedComment"></set>
+		<else>
+			<set var="prefixedComment">: $comment</set>
+		</else>
+		</if>
+
+		<array var="return">
+			<item key="Label">
+				<if value1="$start">
+					<!-- Omit date in comment -->
+					<t>$comment</t>
+				<elseif value1="$startDate" value2="$endDate">
+					<date:format var="date" format="H:i">$start</date:format><t> - </t><date:format var="date" format="H:i">$end</date:format><t>$prefixedComment</t>
+				</elseif>
+				<else>
+					<date:format var="date" format="Y-m-d H:i">$start</date:format><t> - </t><date:format var="date" format="Y-m-d H:i">$end</date:format><t>$prefixedComment</t>
+				</else>
+				</if>
+			</item>
+			<item key="BookingTypeId">$type.Id</item>
+			<item key="Value"><bookingtime round="floor" start="0" end="$value" unit="$type.Unit" /></item>
+		</array>
+
+		<debug:output>createBooking: $return.Value $type.Unit ($value seconds) as $type.Label [$type.Identifier]: $return.Label</debug:output>
+	</function>
+
+	<!--
+		Computes the regular work time for the day.
+
+		@param string day The current day in the format "YYYY-MM-DD".
+		@param int remainingWeekWorkTime Week work time in seconds.
+		@param array transactions An array of the day's transactions
+		@return int The day's remaining work time in seconds.
+	-->
+	<global var="getRegularDayWorkTime" />
+	<function var="getRegularDayWorkTime">
+		<!--
+			Day work time is basically the hours per day, or the remaining
+			time to reach the week's work time, whichever is less.
+		-->
+		<env var="hoursPerDay" key="HoursPerDay" user="$_DATA.user.Id" />
+		<set var="return">$($hoursPerDay * 3600)</set>
+		<if value1="$return" value2="$remainingWeekWorkTime" func="&gt;=">
+			<debug:output>getRegularDayWorkTime: $day: $($remainingWeekWorkTime / 3600) hours ($remainingWeekWorkTime seconds) required; regular day work time $hoursPerDay hours ($return seconds)</debug:output>
+			<set var="return">$remainingWeekWorkTime</set>
+			<return />
+		</if>
+
+		<call func="getWorkTime" var="workTime">
+			<param name="type">$_DATA.booking_types.regular</param>
+			<param name="transactions" var="transactions" />
+		</call>
+
+		<debug:output>getRegularDayWorkTime: $day: $($return - $workTime) = $hoursPerDay hours / day ($return seconds) required - work time $($workTime / 3600) hours ($workTime seconds)</debug:output>
+
+		<set var="return">$($return - $workTime)</set>
+	</function>
+
+	<!--
+		Determines the break for the clocking on the specified day.
+
+		The clocking's break is assumed to be taken on the first day with the
+		largest (daily) part of work time, i.e. on the start date's day or on
+		the day after which is either the end day or has 24 hours, making it
+		the first longest day.
+
+		TRIVIA:
+		The statement above may not hold if there is a clock change on the
+		second day which makes it a 23-hour day, for example.
+		There is currently no support for daylight saving changes.
+
+		For example, if a clocking starts on 2012-01-01 20:00:00 and ends on
+		2012-01-02 01:00:00, the break will fall on 2012-01-01.
+
+		For a clocking ranging from 2012-01-01 20:00:00 to 2012-01-03 01:00:00,
+		the break would be on the 24-hour-work-day 2012-01-02.
+
+		@param string day The current day in the format "YYYY-MM-DD".
+		@param Clocking clocking
+		@return int The break in seconds
+	-->
+	<global var="getBreaktime" />
+	<function var="getBreaktime">
+		<!-- Assume break to be on start date -->
+		<set var="return">$clocking.Breaktime</set>
+
+		<date:format format="Y-m-d" var="startDay">$clocking.Start</date:format>
+		<date:format format="Y-m-d" var="endDay">$clocking.End</date:format>
+
+		<if value1="$startDay" value2="$endDay">
+			<!-- Start and end are on the same day -->
+			<return />
+		</if>
+
+		<!-- Check if the midnight after the start date is nearer to start or end date -->
+		<date:parse2 var="secondDayDate" ref="$clocking.Start">tomorrow</date:parse2>
+		<if value1="$($secondDayDate - $clocking.Start)" value2="$($clocking.End - $secondDayDate)" func="&gt;=">
+			<!-- Start day has most of the time -->
+			<if value1="$startDay" value2="$day" func="!=">
+				<!-- Set break to 0 as specified day is not the start date -->
+				<set var="return">0</set>
+			</if>
+			<return />
+		</if>
+
+		<!-- Check if the current day falls on the second day -->
+		<date:format format="Y-m-d" var="secondDay">$secondDayDate</date:format>
+		<if value1="$secondDay" value2="$day" func="!=">
+			<!-- Set break to 0 as specified day is not the second day -->
+			<set var="return">0</set>
+		</if>
+	</function>
+
+	<!--
+		Determines the missing daily break time required by law.
+
+		Assumes and requires that the specified clockings do not overlap.
+
+		@param array clockings The day's (partial) clockings with the properties
+		    "Start", "End" and "Breaktime".
+		@param int workTime The total work time.
+		@return int The missing required break time in seconds.
+	-->
+	<global var="getSuggestedBreaktime" />
+	<function var="getSuggestedBreaktime">
+		<date:range var="clockings" var_result="clockingRange" />
+
+		<set var="debugText"></set>
+
+		<set var="explicitBreaktime">0</set>
+		<set var="worktime">0</set>
+
+		<foreach var="clockings" var_value="clocking">
+			<bookingtime var="clockingTime" start="$clocking.Start" end="$clocking.End" unit="seconds" />
+
+			<set var="explicitBreaktime">$($explicitBreaktime + $clocking.Breaktime)</set>
+			<set var="worktime">$($worktime + $clockingTime)</set>
+			<set var="netWorktime">$($netWorktime + $clockingTime - $clocking.Breaktime)</set>
+
+			<set var="debugText">
+				<t>$debugText  </t>
+				<call func="clockingToString"><param name="clocking" var="clocking" /></call>
+				<t> = </t><duration>$clockingTime</duration><t>, cumulated net work time = </t><duration>$netWorktime</duration><t>&#0013;</t>
+			</set>
+		</foreach>
+
+		<!--
+			Add time between clockings to total break time.
+			This time is computed as [total work time range] - [work time].
+		-->
+		<bookingtime var="worktimeSpan" start="$clockingRange.Start" end="$clockingRange.End" unit="seconds" />
+		<set var="implicitBreaktime">$($worktimeSpan - $worktime)</set>
+		<set var="breaktime">$($explicitBreaktime + $implicitBreaktime)</set>
+
+		<if value1="$netWorktime" value2="$(3600 * 6)" func="&lt;=">
+			<set var="return">0</set>
+		<elseif value1="$netWorktime" value2="$(3600 * 9)" func="&lt;=">
+			<set var="return">$(30 * 60 - $breaktime)</set>
+		</elseif>
+		<else>
+			<set var="return">$(45 * 60 - $breaktime)</set>
+		</else>
+		</if>
+
+		<if value1="$return" value2="0" func="&lt;">
+			<set var="return">0</set>
+		</if>
+
+		<debug:output>
+			<t>getSuggestedBreaktime(</t>
+				<t>clockings </t><duration>$worktimeSpan</duration>
+				<t>, worktime </t><duration>$worktime</duration>
+				<t>, net worktime </t><duration>$netWorktime</duration>
+				<t>, break </t><duration>$breaktime</duration>
+				<t>, explicit break </t><duration>$explicitBreaktime</duration>
+				<t>, implicit break </t><duration>$implicitBreaktime</duration>
+			<t>) = </t>
+			<duration>$return</duration>
+			<t>&#0013;$debugText</t>
+		</debug:output>
+	</function>
+
+	<global var="createPremium" />
+	<function var="createPremium">
+		<array var="return">
+			<item key="Label">$comment</item>
+			<item key="BookingTypeId">$type.Id</item>
+			<item key="Value"><bookingtime round="floor" start="0" end="$value" unit="$type.Unit" /></item>
+		</array>
+
+		<debug:output>createPremium: $return.Value $type.Unit ($value seconds) as $type.Label [$type.Identifier]: $return.Label</debug:output>
+	</function>
+
+	<!--
+		Creates bookings for a day.
+
+		@param string day The current day in the format "YYYY-MM-DD".
+		@param bool isHoliday
+		@param bool isWeekend
+		@param int remainingWeekWorkTime Week work time in seconds.
+		@param array dayTransactions An array of the day's transactions
+		@param array clockings The clockings to create a booking for.
+		@param int start UNIX timestamp marking the earliest date to use.
+		@param int end UNIX timestamp marking the latest date to use.
+		@return array An array with two properties:
+		    remainingWeekWorkTime: The remaining week work time
+		    bookings: An array of bookings
+	-->
+	<global var="createDayBookings" />
+	<function var="createDayBookings">
+		<debug:output>createDayBookings: $remainingWeekWorkTime remaining week work time</debug:output>
+		<call func="dumpClockings">
+			<param name="clockings" var="clockings" />
+		</call>
+
+		<!-- Calculate hours required for the day to determine booking type -->
+
+		<array var="return">
+			<item key="remainingWeekWorkTime">$remainingWeekWorkTime</item>
+			<array var="return" key="bookings" />
+		</array>
+
+		<call func="getRegularDayWorkTime" var="dayWorkTime">
+			<param name="day">$day</param>
+			<param name="remainingWeekWorkTime" var="remainingWeekWorkTime" />
+			<param name="transactions" var="transactions" />
+		</call>
+
+		<debug:output>Day work time for $day: $dayWorkTime</debug:output>
+
+		<env var="flexitimeLimit" key="FlexitimeLimit" user="$_DATA.user.Id" />
+		<debug:output>Flexitime Limit: $flexitimeLimit seconds</debug:output>
+
+		<!-- Initialize variable to compute required total break time -->
+		<set var="totalBreak">0</set>
+
+		<set var="totalNetBookingTime">0</set>
+		<array var="partialClockings" />
+		<foreach var="clockings" var_value="clocking">
+			<!-- Ignore clockings that were denied -->
+			<if value1="$clocking.ApprovalStatus" value2="$CLOCKING.APPROVAL_STATUS_DENIED">
+				<debug:output>
+					<t>Skipping denied clocking </t>
+					<call func="dumpClocking">
+						<param name="clocking" var="clocking" />
+					</call>
+				</debug:output>
+				<next />
+			</if>
+
+			<!--
+				Add up clockings to get real work time
+				- Use only the part that belongs to the current day
+			-->
+
+			<call func="dumpClocking">
+				<param name="clocking" var="clocking" />
+			</call>
+
+			<array var="partialClocking">
+				<item key="ApprovalStatus">$clocking.ApprovalStatus</item>
+				<item key="Comment">$clocking.Comment</item>
+			</array>
+			<assign var="partialClocking.Type" var_source="clocking.Type" />
+
+			<!-- Determine effective start and end dates for the day -->
+			<if value1="$clocking.Start" value2="$start" func="&gt;">
+				<set var="partialClocking.Start">$clocking.Start</set>
+			<else>
+				<set var="partialClocking.Start">$start</set>
+			</else>
+			</if>
+			<if value1="$clocking.End" value2="$end" func="&lt;">
+				<set var="partialClocking.End">$clocking.End</set>
+			<else>
+				<set var="partialClocking.End">$end</set>
+			</else>
+			</if>
+
+			<!-- Calculate gross work time for the day including break -->
+			<call func="getClockingTime" var="partialClocking.ClockingTime">
+				<param name="wholeDay" var="partialClocking.Type.WholeDay" />
+				<param name="start" var="partialClocking.Start" />
+				<param name="end" var="partialClocking.End" />
+			</call>
+			<debug:output><t>getClockingTime[whole day: $partialClocking.Type.WholeDay]: $partialClocking.ClockingTime = </t><call func="clockingToString"><param name="clocking" var="partialClocking" /></call></debug:output>
+
+			<!-- Calculate break time for the clocking on the current day -->
+			<call func="getBreaktime" var="break">
+				<param name="day" var="day" />
+				<param name="clocking" var="clocking" />
+			</call>
+
+			<!-- Update data for total break time calculation -->
+			<set var="totalBreak">$($totalBreak + $break)</set>
+			<set var="partialClocking.Breaktime">$break</set>
+
+			<set var="totalNetBookingTime">$($totalNetBookingTime + $partialClocking.ClockingTime - $break)</set>
+
+			<assign var="partialClockings[]" var_source="partialClocking" />
+		</foreach>
+
+		<!-- Determine suggested break to add if total break time is insufficient -->
+		<call func="getSuggestedBreaktime" var="suggestedBreak">
+			<param name="clockings" var="partialClockings" />
+		</call>
+
+		<set var="isSunday">0</set>
+		<set var="isSaturday">0</set>
+
+		<!-- Set dayWorkTime to 0 if current day is a whole-day absence, a weekend or holiday -->
+
+		<is var="isHoliday" type="non-empty">
+			<debug:output>$day is a holiday</debug:output>
+			<set var="dayWorkTime">0</set>
+		</is>
+
+		<is var="isWeekend" type="non-empty">
+			<set var="dayWorkTime">0</set>
+
+			<!-- Check for Saturdays and Sundays -->
+			<date:parse var="date">$day</date:parse>
+			<date:format var="weekDay" format="w">$date</date:format>
+			<switch value="$($weekDay % 7)">
+				<case value="0"><debug:output>$day is a Sunday [week day $weekDay]</debug:output><set var="isSunday">1</set></case>
+				<case value="6"><debug:output>$day is a Saturday [week day $weekDay]</debug:output><set var="isSaturday">1</set></case>
+			</switch>
+		</is>
+
+		<!-- Check for Saturdays and Sundays -->
+		<set var="premiumTime">0</set>
+		<is var="isHoliday" type="non-empty">
+			<!-- Work time factor 2: Book net booking time again -->
+			<set var="premiumTime">$totalNetBookingTime</set>
+			<set var="premiumTypeText">[Feiertagszuschlag]</set>
+			<debug:output>$day Holiday premium: $totalNetBookingTime =&gt; $premiumTime</debug:output>
+		<elseis var="isSunday" type="non-empty">
+			<!-- Work time factor 2: Book net booking time again -->
+			<set var="premiumTime">$totalNetBookingTime</set>
+			<set var="premiumTypeText">[Sonntagszuschlag]</set>
+			<debug:output>$day Sunday premium: $totalNetBookingTime =&gt; $premiumTime</debug:output>
+		</elseis>
+		<elseis var="isSaturday" type="non-empty">
+			<!-- Work time factor 1.5: Add half of the net booking time -->
+			<set var="premiumTime">$($totalNetBookingTime * 0.5)</set>
+			<set var="premiumTypeText">[Samstagszuschlag]</set>
+			<debug:output>$day Saturday premium: $totalNetBookingTime * 0.5 =&gt; $premiumTime</debug:output>
+		</elseis>
+		</is>
+
+		<foreach var="partialClockings" var_value="partialClocking">
+			<!-- "clockingTime" specifies the work time with break -->
+			<set var="clockingTime">$partialClocking.ClockingTime</set>
+
+			<!-- Calculate break time for the clocking on the current day -->
+			<set var="break">$partialClocking.Breaktime</set>
+
+			<!-- Book regular work time -->
+			<if value1="$dayWorkTime" value2="0" func="&gt;">
+				<set var="bookingTime">$clockingTime</set>
+				<set var="netBookingTime">$($bookingTime - $break)</set>
+
+				<if value1="$($netBookingTime - $suggestedBreak)" value2="$dayWorkTime" func="&gt;">
+					<!-- Use only the part that fits in the remaining day's work time -->
+					<set var="bookingTime">$($dayWorkTime + $break + $suggestedBreak)</set>
+					<set var="netBookingTime">$dayWorkTime</set>
+
+					<!-- Correct day work time -->
+					<set var="dayWorkTime">$($dayWorkTime - $suggestedBreak)</set>
+				</if>
+
+				<call func="createBooking" var="return[bookings][]">
+					<param name="comment" var="partialClocking.Comment" />
+					<param name="start" var="partialClocking.Start" />
+					<param name="end" var="partialClocking.End" />
+					<param name="type" var="_DATA.booking_types.regular" />
+					<param name="value">$bookingTime</param>
+				</call>
+
+				<if value1="$break" value2="0" func="!=">
+					<call func="createBooking" var="return[bookings][]">
+						<param name="comment">[Pause] $partialClocking.Comment</param>
+						<param name="start" var="partialClocking.Start" />
+						<param name="end" var="partialClocking.End" />
+						<param name="type" var="_DATA.booking_types.regular" />
+						<param name="value">-$break</param>
+					</call>
+					<set var="break">0</set> <!-- Prevent break from being booked again -->
+				</if>
+
+				<!--
+					Add suggested break booking if total break time is
+					insufficient and if it fits into the current clocking.
+				-->
+				<if value1="$($netBookingTime - $suggestedBreak)" value2="0" func="&gt;">
+					<if value1="$suggestedBreak" value2="0" func="&gt;">
+						<call func="createBooking" var="return[bookings][]">
+							<param name="comment">[Gesetzliche Pause]</param>
+							<param name="start"></param>
+							<param name="type" var="_DATA.booking_types.regular" />
+							<param name="value">-$suggestedBreak</param>
+						</call>
+
+						<set var="netBookingTime">$($netBookingTime - $suggestedBreak)</set>
+						<set var="suggestedBreak">0</set>
+					</if>
+				</if>
+
+				<set var="return.remainingWeekWorkTime">$($return.remainingWeekWorkTime - $netBookingTime)</set>
+
+				<set var="totalNetWorktime">$($totalNetWorktime + $netBookingTime)</set>
+
+				<set var="clockingTime">$($clockingTime - $bookingTime)</set>
+				<set var="dayWorkTime">$($dayWorkTime - $netBookingTime)</set>
+			</if>
+
+			<debug:output>ClockingTime: $clockingTime</debug:output>
+
+			<!-- Book flexitime -->
+			<if value1="$clockingTime" value2="0" func="!=">
+				<if value1="$flexitimeLimit" value2="0" func="&gt;">
+					<if value1="$clockingTime" value2="$flexitimeLimit" func="&lt;=">
+						<set var="bookingTime">$clockingTime</set>
+						<set var="netBookingTime">$($bookingTime - $break)</set>
+						<if value1="$netBookingTime" value2="$flexitimeLimit" func="&gt;">
+							<!-- Use only the part that fits in the remaining day's work time -->
+							<set var="bookingTime">$($flexitimeLimit + $break)</set>
+						</if>
+
+						<call func="createBooking" var="return[bookings][]">
+							<param name="comment" var="partialClocking.Comment" />
+							<param name="start" var="partialClocking.Start" />
+							<param name="end" var="partialClocking.End" />
+							<param name="type" var="_DATA.booking_types.flexitime" />
+							<param name="value">$bookingTime</param>
+						</call>
+
+						<if value1="$break" value2="0" func="!=">
+							<call func="createBooking" var="return[bookings][]">
+								<param name="comment">[Pause] $partialClocking.Comment</param>
+								<param name="start" var="partialClocking.Start" />
+								<param name="end" var="partialClocking.End" />
+								<param name="type" var="_DATA.booking_types.flexitime" />
+								<param name="value">-$break</param>
+							</call>
+							<set var="break">0</set> <!-- Prevent break from being booked again -->
+						</if>
+
+						<!--
+							Add suggested break booking if total break time is
+							insufficient and if it fits into the current clocking.
+						-->
+						<if value1="$($netBookingTime - $suggestedBreak)" value2="0" func="&gt;">
+							<if value1="$suggestedBreak" value2="0" func="&gt;">
+								<set var="netBookingTime">$($netBookingTime - $suggestedBreak)</set>
+								<call func="createBooking" var="return[bookings][]">
+									<param name="comment">[Gesetzliche Pause]</param>
+									<param name="start"></param>
+									<param name="type" var="_DATA.booking_types.flexitime" />
+									<param name="value">-$suggestedBreak</param>
+								</call>
+
+								<set var="netBookingTime">$($netBookingTime - $suggestedBreak)</set>
+								<set var="suggestedBreak">0</set>
+							</if>
+						</if>
+
+						<set var="totalNetWorktime">$($totalNetWorktime + $netBookingTime)</set>
+
+						<set var="clockingTime">$($clockingTime - $bookingTime)</set>
+						<set var="flexitimeLimit">$($flexitimeLimit - $netBookingTime)</set>
+					</if>
+				</if>
+			</if>
+
+			<!-- Book overtime -->
+			<if value1="$clockingTime" value2="0" func="&gt;">
+				<call func="createBooking" var="return[bookings][]">
+					<param name="comment" var="partialClocking.Comment" />
+					<param name="start" var="partialClocking.Start" />
+					<param name="end" var="partialClocking.End" />
+					<param name="type" var="_DATA.booking_types.overtime" />
+					<param name="value">$clockingTime</param>
+				</call>
+
+				<if value1="$break" value2="0" func="!=">
+					<call func="createBooking" var="return[bookings][]">
+						<param name="comment">[Pause] $partialClocking.Comment</param>
+						<param name="start" var="partialClocking.Start" />
+						<param name="end" var="partialClocking.End" />
+						<param name="type" var="_DATA.booking_types.overtime" />
+						<param name="value">-$break</param>
+					</call>
+					<set var="break">0</set> <!-- Prevent break from being booked again -->
+				</if>
+
+				<!--
+					Add suggested break booking if total break time is
+					insufficient and if it fits into the current clocking.
+				-->
+				<if value1="$($netBookingTime - $suggestedBreak)" value2="0" func="&gt;">
+					<if value1="$suggestedBreak" value2="0" func="&gt;">
+						<set var="netBookingTime">$($netBookingTime - $suggestedBreak)</set>
+						<call func="createBooking" var="return[bookings][]">
+							<param name="comment">[Gesetzliche Pause]</param>
+							<param name="start"></param>
+							<param name="type" var="_DATA.booking_types.overtime" />
+							<param name="value">-$suggestedBreak</param>
+						</call>
+
+						<set var="netBookingTime">$($netBookingTime - $suggestedBreak)</set>
+						<set var="suggestedBreak">0</set>
+					</if>
+				</if>
+
+				<set var="totalNetWorktime">$($totalNetWorktime + $clockingTime - $break)</set>
+
+				<set var="clockingTime">0</set>
+			</if>
+		</foreach>
+
+		<!-- Book weekend premium time -->
+		<debug:output>Premium time for $day: $premiumTypeText: $premiumTime</debug:output>
+		<if value1="$premiumTime" value2="0" func="&gt;">
+			<if value1="$premiumTime" value2="$dayWorkTime" func="&gt;">
+				<!--
+					Book the part that fits in the remaining day's work time as
+					regular work time, book remainder as overtime.
+				-->
+
+				<if value1="$dayWorkTime" value2="0" func="!=">
+					<call func="createPremium" var="premium">
+						<param name="netBookingTime" var="netBookingTime" />
+						<param name="comment">$premiumTypeText $partialClocking.Comment</param>
+						<param name="type" var="_DATA.booking_types.regular" />
+						<param name="value">$dayWorkTime</param>
+					</call>
+					<assign var="return[bookings][]" var_source="premium" />
+				</if>
+
+				<call func="createPremium" var="premium">
+					<param name="netBookingTime" var="netBookingTime" />
+					<param name="comment">$premiumTypeText $partialClocking.Comment</param>
+					<param name="type" var="_DATA.booking_types.overtime" />
+					<param name="value">$($premiumTime - $dayWorkTime)</param>
+				</call>
+				<assign var="return[bookings][]" var_source="premium" />
+
+				<set var="dayWorkTime">0</set>
+
+			<else>
+				<call func="createPremium" var="premium">
+					<param name="netBookingTime" var="netBookingTime" />
+					<param name="comment">$premiumTypeText $partialClocking.Comment</param>
+					<param name="type" var="_DATA.booking_types.regular" />
+					<param name="value">$premiumTime</param>
+				</call>
+				<assign var="return[bookings][]" var_source="premium" />
+
+				<set var="dayWorkTime">$($dayWorkTime - $premiumTime)</set>
+			</else>
+			</if>
+		</if>
+
+		<debug:output>Day work time remaining for $day: $dayWorkTime</debug:output>
+
+		<!-- Book missing work time as negative flexitime -->
+		<if value1="$dayWorkTime" value2="0" func="&gt;">
+			<date:range var="clockings" var_result="clockingRange" />
+			<call func="createBooking" var="return[bookings][]">
+				<param name="comment">[Gleitzeit]</param>
+				<param name="start" var="clockingRange.Start" />
+				<param name="end" var="clockingRange.End" />
+				<param name="type" var="_DATA.booking_types.flexitime" />
+				<param name="value">-$dayWorkTime</param>
+			</call>
+		</if>
+	</function>
+
+	<!--
+		- Create transaction
+		- Add up clockings to get real work time
+			- Ignore clockings that were denied
+			- Use only the part that belongs to the current day
+				- If there is a break, assume it to be on the day with the most time from the clocking
+			- Interruptions between clockings of the same day count as implicit breaks
+				- Determine total effective break time
+			- > 9 hours => minimum break is 45 minutes => flag as proposal if not in clockings
+			- > 6 hours => minimum break is 30 minutes => flag as proposal if not in clockings
+		- Create separate booking for break
+		- If day is a Sunday or a holiday, create additional booking(s) with 1x the real work time (amounts to 2x the work time)
+		- Else if the day is a Saturday, create additional booking(s) with 0.5x the real work time (amounts to 1.5x the work time)
+		- Else the effective work time equals the real work time
+		- Check for other clockings without a transaction in current week
+			- Load clockings of the current week without any transactions
+			- Warn if there are any, allow to proceed or to abort (produce a special error so the UI can prompt and retry with a special flag set)
+		- Calculate actual work time of the current week
+			- Collect bookings whose transaction dates are in the current week
+			- Add effective work time to existing bookings
+		- Calculate expected work time for the current week
+			- Query HoursPerWeek property
+			- HoursPerWeek property - holidays - days off
+			- Book expected work time as regular work time to current transaction
+		- Subtract actual from expected work time
+			- Expected - actual > 2 => book delta as overtime to current transaction
+			- Otherwise book delta as flexitime to current transaction
+		- Fail if flexitime amounts to more than 200 hours plus and the user is not an admin
+
+		@param bool isHoliday
+		@param int remainingWeekWorkTime The remaining work time for the week in seconds
+		@param string day The current day in the format "YYYY-MM-DD".
+		@param array dayTransactions Transactions for the day.
+		@param array clockings The clockings of the day.
+		@return Transaction
+	-->
+	<global var="bookDay" />
+	<function var="bookDay">
+		<array:length var="clockings" var_result="clockingCount" />
+		<if value1="$clockingCount" value2="0">
+			<return />
+		</if>
+
+		<if value1="$day">
+			<debug:output>bookDay: day is empty</debug:output>
+		<else>
+			<debug:output>bookDay: $day</debug:output>
+		</else>
+		</if>
+
+		<is var="isHoliday" type="non-empty">
+			<debug:output>bookDay: day is a holiday</debug:output>
+		<else>
+			<debug:output>bookDay: day is not a holiday</debug:output>
+		</else>
+		</is>
+
+		<date:parse var="date">$day</date:parse>
+
+		<!-- Check if day falls on a weekend -->
+		<date:format var="weekDay" format="w">$date</date:format>
+		<if value1="$($weekDay % 6)" value2="0">
+			<set var="isWeekend">1</set>
+			<debug:output>bookDay: day is a weekend</debug:output>
+		<else>
+			<set var="isWeekend">0</set>
+			<debug:output>bookDay: day is not a weekend</debug:output>
+		</else>
+		</if>
+
+		<call func="dumpClockings">
+			<param name="clockings" var="clockings" />
+		</call>
+
+		<date:range var="clockings" var_result="clockingRange" />
+
+		<debug:output>
+			<t>bookDay clockingRange: </t>
+			<date:format format="Y-m-d H:i:s">$clockingRange.Start</date:format>
+			<t> - </t>
+			<date:format format="Y-m-d H:i:s">$clockingRange.End</date:format>
+		</debug:output>
+
+		<!-- Limit start and end dates to current day -->
+		<date:format format="Y-m-d" var="startDay">$clockingRange.Start</date:format>
+		<date:format format="Y-m-d" var="endDay">$clockingRange.End</date:format>
+		<if value1="$startDay" value2="$day" func="&lt;">
+			<date:parse var="clockingRange.Start">$day</date:parse>
+			<debug:output>
+				<t>Using partial range: Changed start date to </t>
+				<date:format format="Y-m-d H:i:s">$clockingRange.Start</date:format>
+			</debug:output>
+		<elseif value1="$startDay" value2="$day" func="&gt;">
+			<error>Invalid start date for day $day: $startDay - $endDay</error>
+		</elseif>
+		</if>
+		<if value1="$endDay" value2="$day" func="&gt;">
+			<date:parse2 var="clockingRange.End" ref="$date">tomorrow</date:parse2>
+			<debug:output>
+				<t>Using partial range: Changed end date to </t>
+				<date:format format="Y-m-d H:i:s">$clockingRange.End</date:format>
+			</debug:output>
+		<elseif value1="$endDay" value2="$day" func="&lt;">
+			<error>Invalid end date for day $day: $startDay - $endDay</error>
+		</elseif>
+		</if>
+
+		<!-- Create transaction for the day -->
+		<array var="return">
+			<item key="Start">$clockingRange.Start</item>
+			<item key="End">$clockingRange.End</item>
+		</array>
+
+		<array var="clockingComments" />
+
+		<foreach var="clockings" var_value="clocking">
+			<!-- Link clockings with transaction -->
+			<set var="return[Clockings][]">$clocking.Id</set>
+
+			<!-- Assemble transaction comment -->
+			<if value1="$clocking.Comment" func="!=">
+				<set var="clockingComments[]">$clocking.Comment</set>
+			</if>
+		</foreach>
+
+		<array:length var="clockingComments" var_result="clockingCommentsCount" />
+		<if value1="$clockingCommentsCount" value2="0" func="&gt;">
+			<array:join var="clockingComments" var_result="transactionComment" delimiter="; " />
+		<else>
+			<set var="transactionComment">$day</set>
+		</else>
+		</if>
+
+		<set var="return.Comment">$transactionComment</set>
+
+		<call func="createDayBookings" var="result">
+			<param name="isHoliday" var="isHoliday" />
+			<param name="isWeekend" var="isWeekend" />
+			<param name="remainingWeekWorkTime" var="remainingWeekWorkTime" />
+			<param name="day">$day</param>
+			<param name="dayTransactions" var="dayTransactions" />
+			<param name="clockings" var="clockings" />
+			<param name="start" var="clockingRange.Start" />
+			<param name="end" var="clockingRange.End" />
+		</call>
+
+		<assign var="return.Bookings" var_source="result.bookings" />
+	</function>
+
+	<!--
+		!!! TODO: Warn if a transaction spans multiple days
+
+		@param BookingType type
+		@param array transactions An array with transactions of the week
+		@return int Cumulated work time in the specified booking type's unit
+	-->
+	<global var="getWorkTime" />
+	<function var="getWorkTime">
+		<!-- Calculate current week work time from specified booking type only -->
+		<set var="return">0</set>
+		<foreach var="transactions" var_value="transaction">
+			<foreach var="transaction.Bookings" var_value="booking">
+				<if value1="$booking.BookingTypeId" value2="$type.Id">
+					<debug:output>Found transaction #$transaction.Id "$transaction.Comment", booking $type.Identifier $booking.Value</debug:output>
+					<set var="return">$($return + $booking.Value)</set>
+				</if>
+			</foreach>
+		</foreach>
+	</function>
+
+	<!--
+		!!! TODO: Warn if a transaction spans multiple days
+
+		@param BookingType type
+		@param array transactions An array with transactions of the week
+		@param string month Optional. The current month in the format "[yyyy]-[mm]".
+		@return int Cumulated work time in the specified booking type's unit
+	-->
+	<global var="getFlexiWorkTime" />
+	<function var="getFlexiWorkTime">
+		<!-- Calculate current week work time from specified booking type only -->
+		<set var="return">0</set>
+		<foreach var="transactions" var_value="transaction">
+			<is var="month" type="non-empty">
+				<date:format format="Y-m" var="startMonth">$transaction.Start</date:format>
+				<if value1="$startMonth" value2="$month" func="!=">
+					<debug:output>getFlexiWorkTime: Ignoring transaction $transaction.Start [$startMonth] - $transaction.End for month $month</debug:output>
+					<next />
+				</if>
+
+				<date:format format="Y-m" var="endMonth">$transaction.End</date:format>
+				<if value1="$endMonth" value2="$month" func="!=">
+					<debug:output>getFlexiWorkTime: Ignoring transaction $transaction.Start - $transaction.End [$endMonth] for month $month</debug:output>
+					<next />
+				</if>
+			</is>
+
+			<foreach var="transaction.Bookings" var_value="booking">
+				<if value1="$booking.BookingTypeId" value2="$_DATA.booking_types.regular.Id">
+					<debug:output>Found transaction #$transaction.Id "$transaction.Comment", booking $type.Identifier $booking.Value</debug:output>
+					<set var="return">$($return + $booking.Value)</set>
+				<elseif value1="$booking.BookingTypeId" value2="$_DATA.booking_types.flexitime.Id">
+					<if value1="$booking.Value" value2="0" func="&lt;">
+						<debug:output>Found transaction #$transaction.Id "$transaction.Comment", booking $type.Identifier $booking.Value (using negated value)</debug:output>
+						<set var="return">$($return - $booking.Value)</set>
+					</if>
+				</elseif>
+				</if>
+			</foreach>
+		</foreach>
+		<debug:output>getFlexiWorkTime result = $return</debug:output>
+	</function>
+
+	<global var="NON_VACATION_ABSENCE_TYPES" />
+	<array var="NON_VACATION_ABSENCE_TYPES">
+		<item key="$_DATA.booking_types.sick_leave.Id">1</item>
+		<item key="$_DATA.booking_types.parental_leave.Id">1</item>
+		<item key="$_DATA.booking_types.education.Id">1</item>
+	</array>
+
+	<!--
+		Checks if the specified transactions contain a whole-day absence booking that is not a vacation.
+
+		@param array transactions An array of transactions.
+		@return int Returns 1 if a non-vacation absence booking was found, otherwise 0.
+	-->
+	<global var="isNonVacationAbsence" />
+	<function var="isNonVacationAbsence">
+		<foreach var="transactions" var_value="transaction">
+			<foreach var="transaction.Bookings" var_value="booking">
+				<array:keyexists var="NON_VACATION_ABSENCE_TYPES" var_result="keyExists">$booking.BookingTypeId</array:keyexists>
+				<is var="keyExists" type="true">
+					<set var="return">1</set>
+					<return />
+				</is>
+			</foreach>
+		</foreach>
+
+		<set var="return">0</set>
+	</function>
+
+	<!--
+		Checks if the specified transactions contain a sick leave booking.
+
+		@param array transactions An array of transactions.
+		@return int Returns 1 if a sick leave booking was found, otherwise 0.
+	-->
+	<global var="isSickLeave" />
+	<function var="isSickLeave">
+		<foreach var="transactions" var_value="transaction">
+			<foreach var="transaction.Bookings" var_value="booking">
+				<if value1="$booking.BookingTypeId" value2="$_DATA.booking_types.sick_leave.Id">
+					<set var="return">1</set>
+					<return />
+				</if>
+			</foreach>
+		</foreach>
+
+		<set var="return">0</set>
+	</function>
+
+	<!--
+		Returns overtime reduction booked by the specified transactions.
+
+		@param array transactions An array of transactions.
+		@return int The overtime.
+	-->
+	<global var="getOvertimeReduction" />
+	<function var="getOvertimeReduction">
+		<set var="return">0</set>
+
+		<foreach var="transactions" var_value="transaction">
+			<foreach var="transaction.Bookings" var_value="booking">
+				<if value1="$booking.Value" value2="0" func="&lt;">
+					<if value1="$booking.BookingTypeId" value2="$_DATA.booking_types.overtime.Id">
+						<set var="return">$($return - $booking.Value)</set>
+					</if>
+				</if>
+			</foreach>
+		</foreach>
+	</function>
+
+	<!--
+		Returns the number of vacation days booked by the specified transactions.
+
+		@param array transactions An array of transactions.
+		@param array processedTransactionIdMap
+		@return int Returns the number of vacation days (half day = 0.5) or 0.
+	-->
+	<global var="getVacationDays" />
+	<function var="getVacationDays">
+		<set var="return">0</set>
+
+		<foreach var="transactions" var_value="transaction">
+			<if value1="$processedTransactionIdMap[$transaction.Id]" value2="1">
+				<next />
+			</if>
+
+			<set var="processedTransactionIdMap[$transaction.Id]">1</set>
+
+			<foreach var="transaction.Bookings" var_value="booking">
+				<if value1="$booking.BookingTypeId" value2="$_DATA.booking_types.vacation.Id">
+					<duration unit="days" from="$_DATA.booking_types.vacation.Unit" decimals="1" mode="simple" var="vacationDays">$booking.Value</duration>
+					<set var="return">$($return + $vacationDays)</set>
+				</if>
+			</foreach>
+		</foreach>
+	</function>
+
+	<!--
+		Calculates the required work time for the specified week.
+
+		@param int start A UNIX timestamp marking the week's start date (inclusive).
+		@param int end A UNIX timestamp marking the week's end date (exclusive).
+		@param array holidaysByDate
+		@param array transactionsByDay
+		@param string month Optional. If specified, restricts the calculation to
+		    the specified month (given in the format "[yyyy]-[mm]").
+		@return int The week's required work time in the regular work time booking type's unit.
+	-->
+	<global var="getRequiredWeekWorkTime" />
+	<function var="getRequiredWeekWorkTime">
+		<env var="hoursPerWeek" key="HoursPerWeek" user="$_DATA.user.Id" />
+		<debug:dump var="hoursPerWeek" />
+
+		<bookingtime var="return" start="0" end="$($hoursPerWeek * 3600)" unit="$_DATA.booking_types.regular.Unit" />
+		<debug:output>Hours per week: $hoursPerWeek = $return $_DATA.booking_types.regular.Unit</debug:output>
+
+		<debug:output>
+			<t>getRequiredWeekWorkTime: [week $week] Checking days between </t>
+			<date:format format="Y-m-d">$start</date:format>
+			<t> and </t>
+			<date:format format="Y-m-d">$end</date:format>
+		</debug:output>
+
+		<env var="daysPerWeek" key="DaysPerWeek" user="$_DATA.user.Id" />
+
+		<env var="hoursPerDay" key="HoursPerDay" user="$_DATA.user.Id" />
+		<bookingtime var="dayWorktime" start="0" end="$($hoursPerDay * 3600)" unit="$_DATA.booking_types.regular.Unit" />
+		<debug:output>getRequiredWeekWorkTime: Daily work time is $dayWorktime $_DATA.booking_types.regular.Unit</debug:output>
+
+		<array var="processedTransactionIdMap" />
+
+		<!-- Number of days to work during the week -->
+		<set var="requiredWorkDays">0</set>
+
+		<set var="holidayCount">0</set>
+
+		<while value1="$start" value2="$end" func="&lt;">
+			<!-- Subtract holidays and vacation days -->
+			<date:format format="Y-m-d" var="startDay">$start</date:format>
+			<date:format format="w" var="weekDay">$start</date:format>
+
+			<if value1="$($weekDay % 6)" value2="0">
+				<!-- Weekend; ignore -->
+				<debug:output>  $startDay is a weekend (week day $weekDay)</debug:output>
+				<date:parse2 var="start" ref="$start">tomorrow</date:parse2>
+				<next />
+			<elseis var="holidaysByDate[$startDay]" type="non-empty">
+				<debug:output>  $startDay is a holiday</debug:output>
+				<set var="holidayCount">$($holidayCount + 1)</set>
+				<date:parse2 var="start" ref="$start">tomorrow</date:parse2>
+				<next />
+			</elseis>
+			<elseif value1="$transactionsByDay[$startDay]" func="!=">
+				<call func="isNonVacationAbsence" var="absenceFlag">
+					<param name="transactions" var="transactionsByDay[$startDay]" />
+				</call>
+				<is var="absenceFlag" type="non-empty">
+					<debug:output>  $startDay is marked as a non-vacation absence, subtracting $dayWorktime from required work time $return = $($return - $dayWorktime)</debug:output>
+					<set var="return">$($return - $dayWorktime)</set>
+					<date:parse2 var="start" ref="$start">tomorrow</date:parse2>
+					<next />
+				</is>
+
+				<call func="getOvertimeReduction" var="overtimeReduction">
+					<param name="transactions" var="transactionsByDay[$startDay]" />
+				</call>
+				<is var="overtimeReduction" type="non-empty">
+					<debug:output>  $startDay is marked as overtime reduction, subtracting $overtimeReduction from required work time $return = $($return - $overtimeReduction)</debug:output>
+					<set var="return">$($return - $overtimeReduction)</set>
+					<date:parse2 var="start" ref="$start">tomorrow</date:parse2>
+					<next />
+				</is>
+
+				<call func="getVacationDays" var="vacationDays">
+					<param name="transactions" var="transactionsByDay[$startDay]" />
+					<param name="processedTransactionIdMap" var="processedTransactionIdMap" />
+				</call>
+				<is var="vacationDays" type="non-empty">
+					<debug:output>  $startDay has $vacationDays vacation days, subtracting $($vacationDays * $dayWorktime) from required work time $return = $($return - $vacationDays * $dayWorktime)</debug:output>
+					<set var="return">$($return - $vacationDays * $dayWorktime)</set>
+					<date:parse2 var="start" ref="$start">tomorrow</date:parse2>
+					<next />
+				</is>
+			</elseif>
+			</if>
+
+			<set var="increaseWorkDays">1</set>
+
+			<is var="month" type="non-empty">
+				<date:format format="Y-m" var="thisMonth">$start</date:format>
+				<if value1="$thisMonth" value2="$month" func="!=">
+					<set var="increaseWorkDays">0</set>
+					<debug:output>getRequiredWeekWorkTime: Ignoring $startDay for month $month</debug:output>
+					<set var="return">$($return - $dayWorktime)</set>
+				</if>
+			</is>
+
+			<if value1="$increaseWorkDays" value2="1">
+				<set var="requiredWorkDays">$($requiredWorkDays + 1)</set>
+			</if>
+
+			<date:parse2 var="start" ref="$start">tomorrow</date:parse2>
+		</while>
+
+		<!-- Subtract holidays -->
+		<if value1="$daysPerWeek" value2="$requiredWorkDays" func="&gt;">
+			<set var="oldResult">$return</set>
+			<set var="return">$($return - $dayWorktime * ($daysPerWeek - $requiredWorkDays))</set>
+			<debug:output>  Subtracting holidays: $requiredWorkDays work days, $daysPerWeek required, $return required work time => $return remaining work time</debug:output>
+		</if>
+
+		<debug:output>getRequiredWeekWorkTime: $return $_DATA.booking_types.regular.Unit without holidays, absences and vacation</debug:output>
+	</function>
+
+	<!--
+		@param int remainingWeekWorkTime
+		@param int start
+		@param int end
+		@param array clockings
+		@return Transaction
+	-->
+	<global var="createWeekFlexitimeTransactions" />
+	<function var="createWeekFlexitimeTransactions">
+		<!-- Create transaction -->
+		<array var="return">
+			<item key="Start">$start</item>
+			<item key="End"><date:parse2 ref="$($end - 1)">today</date:parse2></item> <!-- End day YYYY-MM-DD 00:00:00 does not belong to the week, subtract 1 second and get day before at midnight -->
+			<item key="Comment">[Wochengleitzeit]</item>
+		</array>
+
+		<foreach var="clockings" var_value="clocking">
+			<!-- Link clockings with transaction -->
+			<set var="return[Clockings][]">$clocking.Id</set>
+		</foreach>
+
+		<call func="createBooking" var="return[Bookings][]">
+			<param name="comment">[Wochengleitzeit]</param>
+			<param name="start"></param> <!-- No start and end dates in comment -->
+			<param name="type" var="_DATA.booking_types.flexitime" />
+			<param name="value">-$remainingWeekWorkTime</param>
+		</call>
+	</function>
+
+	<!--
+		Books non-whole-day clockings of a week.
+
+		@param string week The year and the week number ("[yyyy]W[ww]").
+		@param array clockings The clockings in the specified week.
+		@param array holidaysByDate
+		@return void
+	-->
+	<global var="bookWeek" />
+	<function var="bookWeek">
+		<!-- Group clockings by day (clockings spanning multiple days should appear on each day) -->
+		<array:group var="clockings" var_result="clockingsByMonth" keyfunc="groupByMonth" />
+
+		<foreach var="clockingsByMonth" var_key="clockingMonth" var_value="monthClockings">
+			<call func="bookWeekInMonth">
+				<param name="month" var="clockingMonth" />
+				<param name="week" var="week" />
+				<param name="clockings" var="monthClockings" />
+				<param name="holidaysByDate" var="holidaysByDate" />
+			</call>
+		</foreach>
+	</function>
+
+	<!--
+		Limits the start and end dates to the specified month.
+
+		@param string month The month in the format "[yyyy]-[mm]".
+		@param int start
+		@param int end
+		@return array Returns an array with these elements:
+		    "Start":
+			"End"  : The UNIX timestamp of the end day.
+	-->
+	<global var="limitTimespanToMonth" />
+	<function var="limitTimespanToMonth">
+		<array var="return">
+			<item key="Start">$start</item>
+			<item key="End">$end</item>
+		</array>
+
+		<date:parse var="firstOfMonth">$month-01</date:parse>
+
+		<set var="changeCount">0</set>
+
+		<date:format format="Y-m" var="startMonth">$start</date:format>
+		<if value1="$startMonth" value2="$month" func="!=">
+			<set var="return.Start">$firstOfMonth</set>
+			<set var="changeCount">1</set>
+		</if>
+
+		<date:format format="Y-m" var="endMonth">$end</date:format>
+		<if value1="$endMonth" value2="$month" func="!=">
+			<date:parse var="return.End">$month next month</date:parse>
+			<set var="changeCount">$($changeCount + 1)</set>
+		</if>
+
+		<date:format format="Y-m-d" var="startText">$start</date:format>
+		<date:format format="Y-m-d" var="endText">$end</date:format>
+		<date:format format="Y-m-d" var="newStartText">$return.Start</date:format>
+		<date:format format="Y-m-d" var="newEndText">$return.End</date:format>
+		<debug:output>limitTimespanToMonth(month = $month, $startText - $endText): ($newStartText - $newEndText)</debug:output>
+
+		<if value1="$changeCount" value2="1" func="&gt;">
+			<error>Start $startText and end date $endText must not be both outside specified month $month.</error>
+		</if>
+	</function>
+
+	<!--
+		Books non-whole-day clockings of a week in a particular month.
+
+		@param string month The current year and month ("[yyyy]-[mm]").
+		@param string week The year and the week number ("[yyyy]W[ww]").
+		@param array clockings The clockings in the specified week.
+		@param array holidaysByDate
+		@return void
+	-->
+	<global var="bookWeekInMonth" />
+	<function var="bookWeekInMonth">
+		<array:length var="clockings" var_result="clockingCount" />
+		<if value1="$clockingCount" value2="0">
+			<return />
+		</if>
+
+		<if value1="$week">
+			<debug:output>&#0010;bookWeekInMonth: week is empty</debug:output>
+		<else>
+			<debug:output>&#0010;bookWeekInMonth: week = $week</debug:output>
+		</else>
+		</if>
+
+		<call func="dumpClockings">
+			<param name="clockings" var="clockings" />
+		</call>
+
+		<date:parse var="weekStartDate">$week</date:parse>
+		<date:parse var="weekEndDate"><t>+1 week </t><date:format format="Y-m-d">$weekStartDate</date:format></date:parse>
+		<debug:output>
+			<t>bookWeek from </t>
+			<date:format format="Y-m-d">$weekStartDate</date:format>
+			<t> to </t>
+			<date:format format="Y-m-d">$weekEndDate</date:format>
+		</debug:output>
+
+		<call func="getTransactions" var="weekTransactions">
+			<param name="start" var="weekStartDate" />
+			<param name="end" var="weekEndDate" />
+		</call>
+
+		<!-- Group transactions by day (transactions spanning multiple days should appear on each day) -->
+		<array:group var="weekTransactions" var_result="transactionsByDay" keyfunc="groupByDate">
+			<param name="week" var="week" />
+		</array:group>
+
+		<!-- Group clockings by day (clockings spanning multiple days should appear on each day) -->
+		<array:group var="clockings" var_result="clockingsByDay" keyfunc="groupByDate">
+			<param name="week" var="week" />
+		</array:group>
+
+		<!-- Calculate total required work time for the week -->
+		<call func="getRequiredWeekWorkTime" var="requiredWeekWorkTime">
+			<param name="month" var="month" />
+			<param name="start" var="weekStartDate" />
+			<param name="end" var="weekEndDate" />
+			<param name="holidaysByDate" var="holidaysByDate" />
+			<param name="transactionsByDay" var="transactionsByDay" />
+		</call>
+
+		<foreach var="clockingsByDay" var_key="currentDay" var_value="dayClockings">
+			<!-- Calculate remaining work time for the week (may be negative) -->
+			<call func="getFlexiWorkTime" var="actualWeekWorkTime">
+				<param name="transactions" var="weekTransactions" />
+				<param name="month" var="month" />
+			</call>
+			<debug:output><t>getFlexiWorkTime: week $week, return = $actualWeekWorkTime, transactions.length = </t><array:length var="weekTransactions" /></debug:output>
+			<debug:output>Actual week work time: $actualWeekWorkTime $_DATA.booking_types.regular.Unit</debug:output>
+			<debug:output>Remaining week work time: $($requiredWeekWorkTime - $actualWeekWorkTime) $_DATA.booking_types.regular.Unit (factor $UNIT_FACTORS[$_DATA.booking_types.regular.Unit])</debug:output>
+
+			<debug:output>Holiday on $currentDay:</debug:output>
+			<debug:dump var="holidaysByDate[$currentDay]" />
+
+			<call func="bookDay" var="transaction">
+				<if value1="$holidaysByDate[$currentDay]">
+					<param name="isHoliday">0</param>
+				<else>
+					<param name="isHoliday">1</param>
+				</else>
+				</if>
+				<param name="remainingWeekWorkTime">$(($requiredWeekWorkTime - $actualWeekWorkTime) * $UNIT_FACTORS[$_DATA.booking_types.regular.Unit])</param>
+				<param name="day" var="currentDay" />
+				<param name="dayTransactions" var="transactionsByDay[$currentDay]" />
+				<param name="clockings" var="dayClockings" />
+			</call>
+
+			<assign var="_DATA[transactions][]" var_source="transaction" />
+
+			<!-- Add to current week's transactions to compute actual work time -->
+			<assign var="weekTransactions[]" var_source="transaction" />
+		</foreach>
+
+		<debug:output>END LOOP</debug:output>
+
+		<call func="getFlexiWorkTime" var="actualWeekWorkTime">
+			<param name="transactions" var="weekTransactions" />
+			<param name="month" var="month" />
+		</call>
+		<set var="remainingWeekWorkTime">$(($requiredWeekWorkTime - $actualWeekWorkTime) * $UNIT_FACTORS[$_DATA.booking_types.regular.Unit])</set>
+
+		<debug:output><t>getFlexiWorkTime: week $week, return = $actualWeekWorkTime, transactions.length = </t><array:length var="weekTransactions" /></debug:output>
+		<debug:output>Actual week work time: $actualWeekWorkTime $_DATA.booking_types.regular.Unit</debug:output>
+		<debug:output>Remaining week work time: $($requiredWeekWorkTime - $actualWeekWorkTime) $_DATA.booking_types.regular.Unit (factor $UNIT_FACTORS[$_DATA.booking_types.regular.Unit])</debug:output>
+
+		<debug:output>
+			<t>bookWeek missing flexitime for week </t>
+			<date:format format="Y-m-d">$weekStartDate</date:format>
+			<t> to </t>
+			<date:format format="Y-m-d">$($weekEndDate - 1)</date:format> <!-- Subtract 1 second to get previous day [YYYY-MM-DD 00:00:00 - 1 second] -->
+			<t>: $remainingWeekWorkTime</t>
+		</debug:output>
+
+		<call func="limitTimespanToMonth" var="partialWeek">
+			<param name="month" var="month" />
+			<param name="start" var="weekStartDate" />
+			<param name="end" var="weekEndDate" />
+		</call>
+
+		<if value1="$remainingWeekWorkTime" value2="0" func="!=">
+			<call func="createWeekFlexitimeTransactions" var="transaction">
+				<param name="remainingWeekWorkTime" var="remainingWeekWorkTime" />
+				<param name="start" var="partialWeek.Start" />
+				<param name="end" var="partialWeek.End" />
+				<param name="clockings" var="clockings" />
+			</call>
+
+			<assign var="_DATA[transactions][]" var_source="transaction" />
+
+			<!-- Add to current week's transactions to compute actual work time -->
+			<assign var="weekTransactions[]" var_source="transaction" />
+		</if>
+	</function>
+
+	<!--
+		Returns the latest end time of all clockings.
+
+		@param array clockings The clockings in the specified week.
+		@return int
+	-->
+	<global var="getClockingEnd" />
+	<function var="getClockingEnd">
+		<debug:output>getClockingEnd: </debug:output>
+		<call func="dumpClockings">
+			<param name="clockings" var="clockings" />
+		</call>
+
+		<null var="return" />
+		<foreach var="clockings" var_value="clocking">
+			<is var="return" type="null">
+				<set var="return">$clocking.End</set>
+			<elseif value1="$clocking.End" value2="$return" func="&gt;">
+				<set var="return">$clocking.End</set>
+			</elseif>
+			</is>
+		</foreach>
+		<debug:output><t>getClockingEnd: </t><date:format format="Y-m-d H:i:s">$return</date:format><t></t></debug:output>
+	</function>
+
+	<!--
+		@param string comment
+		@param int clockingPartStart
+		@param int clockingPartEnd
+		@param BookingType bookingType
+		@param float typeFactor
+		@return Booking
+	-->
+	<global var="createWholeDayBooking" />
+	<function var="createWholeDayBooking">
+		<date:format format="Y-m-d" var="startDate">$clockingPartStart</date:format>
+		<date:format format="Y-m-d" var="endDate">$clockingPartEnd</date:format>
+
+		<array var="return">
+			<item key="BookingTypeId">$bookingType.Id</item>
+			<item key="Label">
+				<if value1="$startDate" value2="$endDate">
+					<date:format var="date" format="D, Y-m-d">$clockingPartStart</date:format>
+				<else>
+					<date:format var="date" format="D, Y-m-d">$clockingPartStart</date:format><t> - </t><date:format var="date" format="D, Y-m-d">$clockingPartEnd</date:format>
+				</else>
+				</if>
+				<if value1="$comment" func="!=">
+					<t>: $comment</t>
+				</if>
+			</item>
+			<date:days start="$clockingPartStart" end="$($clockingPartEnd + 86400)" var="clockingDays" />
+
+			<debug:output>*** DAYS: $clockingDays</debug:output>
+
+			<item key="Value">$($clockingDays * $typeFactor)</item>
+		</array>
+	</function>
+
+	<global var="bookWholeDayClockings" />
+	<function var="bookWholeDayClockings">
+		<debug:output>bookWholeDayClockings</debug:output>
+		<call func="dumpClockings">
+			<param name="clockings" var="clockings" />
+		</call>
+
+		<is var="clockings" type="non-array">
+			<debug:output>[Return]</debug:output>
+			<return />
+		</is>
+
+		<!-- Do nothing if there are no clockings -->
+		<array:length var="clockings" var_result="clockingCount" />
+		<if value1="$clockingCount" value2="0">
+			<return />
+		</if>
+
+		<!-- Group clockings by day (clockings spanning multiple days should appear on each day) -->
+		<array:group var="clockings" var_result="clockingsByMonth" keyfunc="groupByMonth" />
+
+		<foreach var="clockingsByMonth" var_key="clockingMonth" var_value="monthClockings">
+			<foreach var="monthClockings" var_value="clocking">
+				<!-- Create one transaction for each month a clocking spans -->
+
+				<set var="clockingText">
+					<call func="dumpClocking">
+						<param name="clocking" var="clocking" />
+					</call>
+				</set>
+				<debug:output>Whole-day clocking $clockingText [$clockingMonth]</debug:output>
+
+				<!-- Determine first of month -->
+				<date:parse var="clockingPartStart">$clockingMonth-01</date:parse>
+				<if value1="$clockingPartStart" value2="$clocking.Start" func="&lt;">
+					<set var="clockingPartStart">$clocking.Start</set>
+				</if>
+
+				<date:parse var="clockingPartEnd"><date:format format="Y-m-t">$clockingPartStart</date:format></date:parse>
+				<if value1="$clockingPartEnd" value2="$clocking.End" func="&gt;">
+					<set var="clockingPartEnd">$clocking.End</set>
+				</if>
+
+				<debug:output><t>Range: </t><date:format format="Y-m-d">$clockingPartStart</date:format><t> - </t><date:format format="Y-m-d">$clockingPartEnd</date:format></debug:output>
+
+				<!-- Create transaction with the clocking and bookings -->
+				<array var="transaction">
+					<item key="Start">$clockingPartStart</item>
+					<item key="End">$clockingPartEnd</item>
+					<item key="Comment">$clockingText</item>
+				</array>
+
+				<!-- Link clocking to transaction -->
+				<set var="transaction[Clockings][]">$clocking.Id</set>
+
+				<!-- Create matching bookings -->
+
+				<env key="BookingType.$clocking.Type.Identifier%.Map" var="typeIdentifier" user="$_DATA.user.Id" />
+				<env key="BookingType.$clocking.Type.Identifier%.Factor" var="typeFactor" user="$_DATA.user.Id" />
+				<env key="BookingType.$clocking.Type.Identifier%.OnWeekends" var="includeWeekends" user="$_DATA.user.Id" />
+				<env key="BookingType.$clocking.Type.Identifier%.OnHolidays" var="includeHolidays" user="$_DATA.user.Id" />
+
+				<if value1="$typeFactor">
+					<set var="typeFactor">1</set>
+				<elseis var="typeFactor" type="null">
+					<set var="typeFactor">1</set>
+				</elseis>
+				</if>
+
+				<debug:output>Clocking type "$clocking.Type.Identifier" =&gt; booking type "$typeIdentifier"</debug:output>
+				<debug:output>Booking time factor "$typeFactor"</debug:output>
+
+				<if value1="$typeIdentifier">
+					<error>Could not find appropriate booking type for clocking type "$clocking.Type.Identifier" (mapping: BookingType.$clocking.Type.Identifier%.Map).</error>
+
+				<elseif value1="$_DATA.booking_types[$typeIdentifier]">
+					<next />
+				</elseif>
+				</if>
+
+				<assign var="bookingType" var_source="_DATA.booking_types[$typeIdentifier]" />
+
+				<!-- Create booking from clocking -->
+				<call func="createWholeDayBooking" var="booking">
+					<param name="comment" var="clocking.Comment" />
+					<param name="clockingPartStart" var="clockingPartStart" />
+					<param name="clockingPartEnd" var="clockingPartEnd" />
+					<param name="bookingType" var="bookingType" />
+					<param name="typeFactor" var="typeFactor" />
+				</call>
+				<assign var="transaction[Bookings][]" var_source="booking" />
+
+				<!--
+					Add corrective bookings to subtract weekends and holidays
+					unless the clocking's approval status is "as is".
+				-->
+				<if value1="$clocking.ApprovalStatus" value2="$CLOCKING.APPROVAL_STATUS_AS_IS" func="!=">
+					<set var="weekendCount">0</set>
+					<set var="holidayCount">0</set>
+
+					<set var="currentTimestamp">$clockingPartStart</set>
+					<while value1="$currentTimestamp" value2="$clockingPartEnd" func="&lt;=">
+						<date:format var="clockingDate" format="Y-m-d">$currentTimestamp</date:format>
+						<debug:output>Checking for weekend / holiday on $clockingDate.</debug:output>
+
+						<is var="includeWeekends" type="empty">
+							<date:format var="currentDay" format="w">$currentTimestamp</date:format>
+							<if value1="$($currentDay % 6)" value2="0">
+								<debug:output><t>Skipping weekend on </t><date:format format="D">$currentTimestamp</date:format><t>, $clockingDate.</t></debug:output>
+								<set var="weekendCount">$($weekendCount + 1)</set>
+
+								<!-- Skip holiday check to avoid booking same day twice -->
+								<set var="currentTimestamp">$($currentTimestamp + 86400)</set>
+								<next />
+							</if>
+						</is>
+
+						<is var="includeHolidays" type="empty">
+							<if value1="$holidaysByDate[$clockingDate]" func="!=">
+								<debug:output>Skipping holiday "$holidaysByDate[$clockingDate][0][Name]" on $clockingDate.</debug:output>
+								<set var="holidayCount">$($holidayCount + 1)</set>
+							<elseif value1="$clockingDate" value2="`^\d{4}-12-(24|31)$$`" func="~">
+								<debug:output>Adding half-holiday on $clockingDate.</debug:output>
+								<set var="holidayCount">$($holidayCount + 0.5)</set>
+							</elseif>
+							</if>
+						</is>
+
+						<set var="currentTimestamp">$($currentTimestamp + 86400)</set>
+					</while>
+
+					<debug:output>Found $weekendCount weekend days and $holidayCount holidays.</debug:output>
+
+					<if value1="$weekendCount" value2="0" func="&gt;">
+						<array var="weekendBooking">
+							<item key="BookingTypeId">$bookingType.Id</item>
+							<item key="Label">Wochenende ($weekendCount Tage)</item>
+							<item key="Value">$(-$weekendCount * $typeFactor)</item>
+						</array>
+						<assign var="transaction[Bookings][]" var_source="weekendBooking" />
+					</if>
+
+					<if value1="$holidayCount" value2="0" func="&gt;">
+						<array var="holidayBooking">
+							<item key="BookingTypeId">$bookingType.Id</item>
+							<item key="Label">Feiertage ($holidayCount Tage)</item>
+							<item key="Value">$(-$holidayCount * $typeFactor)</item>
+						</array>
+						<assign var="transaction[Bookings][]" var_source="holidayBooking" />
+					</if>
+				</if>
+
+				<assign var="_DATA[transactions][]" var_source="transaction" />
+			</foreach>
+		</foreach>
+	</function>
+
+	<global var="bookNonWholeDayClockings" />
+	<function var="bookNonWholeDayClockings">
+		<debug:output>bookNonWholeDayClockings</debug:output>
+		<call func="dumpClockings">
+			<param name="clockings" var="clockings" />
+		</call>
+
+		<!-- Do nothing if there are no clockings -->
+		<array:length var="clockings" var_result="clockingCount" />
+		<if value1="$clockingCount" value2="0">
+			<debug:output>bookNonWholeDayClockings: No items.</debug:output>
+			<return />
+		</if>
+
+		<!-- Process clockings for each week -->
+
+		<!-- Group clockings by week (clockings spanning multiple weeks should appear in each week) -->
+		<array:group var="clockings" var_result="clockings" keyfunc="groupByWeek" />
+
+		<foreach var="clockings" var_key="currentWeek" var_value="weekClockings">
+			<call func="bookWeek">
+				<param name="week" var="currentWeek" />
+				<param name="clockings" var="weekClockings" />
+				<param name="holidaysByDate" var="holidaysByDate" />
+			</call>
+
+			<date:format var="endWeek" format="W">$clocking.End</date:format>
+			<if value1="$endWeek" value2="$currentWeek" func="!=">
+			</if>
+		</foreach>
+	</function>
+
+	<!-- Filter clockings that are not applicable -->
+	<global var="filterInapplicableClockings" />
+	<function var="filterInapplicableClockings">
+		<array var="return" />
+
+		<foreach var="clockings" var_key="clockingIndex" var_value="clocking">
+			<!--
+				Check clockings and skip those that were denied and fail if there
+				are clockings that need explicit approval.
+			-->
+			<debug:output>
+				<t>Approval status for </t>
+				<call func="clockingToString"><param name="clocking" var="clocking" /></call>
+				<t>: $clocking.ApprovalStatus</t>
+			</debug:output>
+			<switch value="$clocking.ApprovalStatus">
+				<case value="$CLOCKING.APPROVAL_STATUS_PRELIMINARY">
+					<debug:output>  PRELIMINARY</debug:output>
+					<assign var="return[]" var_source="clocking" />
+				</case>
+				<case value="$CLOCKING.APPROVAL_STATUS_REQUIRED">
+					<debug:output>  REQUIRED</debug:output>
+					<if value1="$clocking.Booked" value2="0">
+						<debug:output>  Not yet booked</debug:output>
+						<error><t>Clocking must be approved first.</t></error>
+						<error><call func="clockingToString"><param name="clocking" var="clocking" /></call><t> must be approved first.</t></error>
+					<else>
+						<assign var="return[]" var_source="clocking" />
+					</else>
+					</if>
+				</case>
+				<case value="$CLOCKING.APPROVAL_STATUS_DENIED">
+					<debug:output>  DENIED</debug:output>
+					<assign var="return[]" var_source="clocking" />
+				</case>
+				<case value="$CLOCKING.APPROVAL_STATUS_CONFIRMED">
+					<debug:output>  CONFIRMED</debug:output>
+					<assign var="return[]" var_source="clocking" />
+				</case>
+				<case value="$CLOCKING.APPROVAL_STATUS_AS_IS">
+					<debug:output>  AS_IS</debug:output>
+					<assign var ="return[]" var_source="clocking" />
+				</case>
+				<default>
+					<error><call func="clockingToString"><param name="clocking" var="clocking" /></call><t> (index $clockingIndex) has unknown status $clocking.ApprovalStatus.</t></error>
+				</default>
+			</switch>
+		</foreach>
+	</function>
+
+	<global var="main" />
+	<function var="main">
+		<call func="dumpClockings">
+			<param name="clockings" var="clockings" />
+		</call>
+
+		<call func="filterInapplicableClockings" var="clockings">
+			<param name="clockings" var="clockings" />
+		</call>
+
+		<!-- Do nothing if there are no clockings -->
+		<array:length var="clockings" var_result="clockingCount" />
+		<if value1="$clockingCount" value2="0">
+			<return />
+		</if>
+
+		<!-- Sort clockings by start date. It is assumed that there are no overlapping non-whole-day clockings -->
+		<array:sort var="clockings" var_result="clockings" key="Start" type="nat-asc" />
+
+		<call func="getClockingEnd" var="clockingEnd">
+			<param name="clockings" var="clockings" />
+		</call>
+
+		<debug:output>Clockings sorted by start date: </debug:output>
+		<call func="dumpClockings">
+			<param name="clockings" var="clockings" />
+		</call>
+
+		<debug:output><t>Clockings end: </t><date:format format="Y-m-d H:i:s">$clockingEnd</date:format></debug:output>
+
+		<!-- Fetch holidays a month before to include start of the week and first day of month -->
+		<date:parse2 var="holidayStart" ref="$clockings[0][Start]">-1 month</date:parse2>
+
+		<!-- Fetch holidays until end of the week, last day of month, whatever is later -->
+		<date:parse2 var="holidayEnd" ref="$clockingEnd">next month</date:parse2>
+		<!-- Query holidays -->
+		<api name="holiday" do="list" var="holidayData">
+			<param name="domain" var="_DATA.user.DomainId" />
+			<param name="start" var="holidayStart" />
+			<param name="end" var="holidayEnd" /> <!-- Holidays timestamps use [YYYY-mm-dd 00:00:00 UTC] as dates -->
+		</api>
+
+		<array:group var="holidayData.result" var_result="holidaysByDate" keyfunc="groupHolidaysByDate" />
+
+		<debug:output><t>Holidays from </t><date:format format="Y-m-d">$holidayStart</date:format><t> to </t><date:format format="Y-m-d">$holidayEnd</date:format><t>: </t></debug:output>
+		<call func="dumpHolidays">
+			<param name="holidaysByDate" var="holidaysByDate" />
+		</call>
+
+		<!-- Group clockings by whole-day flag -->
+		<array:group var="clockings" var_result="clockingsByWholeDay" keyfunc="groupByWholeDay" />
+
+		<debug:dump var="clockingsByWholeDay[0]" />
+
+		<!--
+			Book whole-day clockings first as non-whole-day clockings are calculated
+			from the work hours per week which include whole-day clockings
+		-->
+		<call func="bookWholeDayClockings">
+			<param name="holidaysByDate" var="holidaysByDate" />
+			<param name="clockings" var="clockingsByWholeDay[1]" />
+		</call>
+
+		<call func="bookNonWholeDayClockings">
+			<param name="holidaysByDate" var="holidaysByDate" />
+			<param name="clockings" var="clockingsByWholeDay[0]" />
+		</call>
+
+		<debug:output>--- DONE ---</debug:output>
+	</function>
+
+	<call func="main">
+		<param name="clockings" var="_DATA.clockings" />
+	</call>
+</ixml>

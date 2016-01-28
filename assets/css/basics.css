@@ -1,0 +1,169 @@
+*:active, *:focus { outline-style:none; }
+
+a { cursor: pointer; }
+
+textarea { resize: none; }
+
+form {
+  margin:0;
+  padding:0;
+}
+
+img[onclick] { cursor:pointer; }
+
+table.view {
+  border-collapse:collapse;
+  width:100%;
+}
+table.view th[onclick] { cursor:pointer; }
+table.view img { vertical-align:middle; }
+td.empty, th.empty {
+  text-align:center;
+  width:1%;
+}
+td.empty *, th.empty * {
+  display:block;
+  margin-left:auto;
+  margin-right:auto;
+}
+
+label {
+  display:block;
+  font-weight:bold;
+  margin-bottom:3px;
+}
+.a_c { text-align:center !important; }
+.a_l { text-align:left !important; }
+.a_r { text-align:right !important; }
+.a_b { vertical-align:bottom !important; }
+.a_m { vertical-align:middle !important; }
+.a_t { vertical-align:top !important; }
+
+a.a_m { vertical-align:baseline; }
+a.a_m img { vertical-align:middle; }
+
+.ab_c, .ab_c > * {
+  margin-left:auto;
+  margin-right:auto;
+}
+.ab_l, .ab_l > * {
+  margin-left:0;
+  margin-right:auto;
+}
+.ab_r, .ab_r > * {
+  margin-left:auto;
+  margin-right:0;
+}
+
+.b   { border:1px solid #E1E1E8; }
+.b_b { border-bottom:1px solid #E1E1E8; }
+.b_l { border-left:1px solid #E1E1E8; }
+.b_r { border-right:1px solid #E1E1E8; }
+.b_t { border-top:1px solid #E1E1E8; }
+
+.b_bb { border-bottom:3px double #C0C0C0; }
+.b_tt { border-top:3px double #C0C0C0; }
+
+.b2   { border:1px solid #DADADA; }
+.b2_b { border-bottom:1px solid #DADADA; }
+.b2_l { border-left:1px solid #DADADA; }
+.b2_r { border-right:1px solid #DADADA; }
+.b2_t { border-top:1px solid #DADADA; }
+
+.b2_bb { border-bottom:4px solid #DADADA; }
+.b2_tt { border-top:4px solid #DADADA; }
+
+.b3   { border:1px solid #EDEDED; }
+.b3_b { border-bottom:1px solid #EDEDED; }
+.b3_l { border-left:1px solid #EDEDED; }
+.b3_r { border-right:1px solid #EDEDED; }
+.b3_t { border-top:1px solid #EDEDED; }
+
+.bg  { background-color:#FAFAFA; }
+.bg2 { background-color:#F5F5F5; }
+.bg3 { background-color:#EAEAEA; }
+
+.bg_f { background:white url("groupion/bg_f.png") repeat-x top; }
+.bg_h { background:#4A524D url("groupion/bg_h.png") repeat-x top; }
+.bg_s { background:white url("groupion/bg_s.png") repeat-x top; }
+.bg_o { background:#FAFAFA url("groupion/bg_o.png") repeat-x top; }
+
+.c { background-color:white; }
+
+.f_l { float:left; }
+.f_r { float:right; }
+
+.clear { clear:both; }
+
+.m   { margin:10px; }
+.m_b { margin-bottom:10px; }
+.m_l { margin-left:10px; }
+.m_r { margin-right:10px; }
+.m_t { margin-top:10px; }
+
+.m2   { margin:5px; }
+.m2_b { margin-bottom:5px; }
+.m2_l { margin-left:5px; }
+.m2_r { margin-right:5px; }
+.m2_t { margin-top:5px; }
+
+.m3   { margin:3px; }
+.m3_b { margin-bottom:3px; }
+.m3_l { margin-left:3px; }
+.m3_r { margin-right:3px; }
+.m3_t { margin-top:3px; }
+
+.mm { margin:5px 10px; }
+
+.p { padding:10px !important; }
+.p_b { padding-bottom:10px !important; }
+.p_l { padding-left:10px !important; }
+.p_r { padding-right:10px !important; }
+.p_t { padding-top:10px !important; }
+
+.p2 { padding:5px !important; }
+.p2_b { padding-bottom:5px !important; }
+.p2_l { padding-left:5px !important; }
+.p2_r { padding-right:5px !important; }
+.p2_t { padding-top:5px !important; }
+
+.p3 { padding:3px !important; }
+.p3_b { padding-bottom:3px !important; }
+.p3_l { padding-left:3px !important; }
+.p3_r { padding-right:3px !important; }
+.p3_t { padding-top:3px !important; }
+
+.pp { padding:5px 10px !important; }
+
+.t { font-size:15px; }
+.l { font-size:12px; }
+.x { font-size:10px; }
+
+.bold { font-weight:bold; }
+.ital { font-style:italic; }
+.strk, tr.strk td { text-decoration:line-through; }
+.ulin { text-decoration:underline; }
+
+.g { color:#606060 !important; }
+
+a.g:hover {
+  color:#8A3030 !important;
+  text-decoration:underline;
+}
+
+.block, .blocklist a { display:block; }
+
+.eb:hover { border-color:#303070 !important; }
+.em:hover { background-color:#E4E7F0 !important; }
+
+table.fullw { width:100%; }
+
+.nowrap { white-space:nowrap; }
+
+.ofauto { overflow: auto; }
+
+.ellipsis {
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}

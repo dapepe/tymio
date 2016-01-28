@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xpage title="{{entity.transaction.plural}}" id="transactions">
+	<view:include src="assets/lib/tymio/api/clocking.js" type="js" />
+	<view:include src="assets/lib/tymio/api/holiday.js" type="js" />
+	<view:include src="assets/lib/tymio/api/plugin.js" type="js" />
+	<view:include src="assets/lib/tymio/api/transaction.js" type="js" />
+	<view:include src="assets/lib/tymio/api/user.js" type="js" />
+	<view:include src="app/modules/transactions/transactiontable.js" type="js" />
+	<view:include src="app/modules/transactions/transactionpopup.js" type="js" />
+	<view:include src="app/modules/transactions/transactionwizard.js" type="js" />
+	<view:include src="app/modules/transactions/transactions.js" type="js" />
+
+	<!-- POPUP DETAILS -->
+	<div id="tabTransactionDetails" class="form-inline">
+		<table style="width:100%;"><tbody><tr>
+			<td style="width:300px; vertical-align:top;">
+				<div><label>Benutzer: <span id="transaction_edit_user"></span></label></div>
+				<div id="transaction_edit_start" />
+				<div class="clear p2" />
+				<div id="transaction_edit_end" />
+			</td>
+			<td style="padding-right:10px; vertical-align:top;">
+				<label>Kommentar</label>
+				<textarea id="transaction_edit_comment" style="width:100%;" />
+			</td>
+		</tr></tbody></table>
+
+		<div class="clear m_b" />
+
+		<table style="width:100%;"><tbody><tr>
+			<td style="width:50%; padding-right:4px; vertical-align: top;">
+				<label>Zeiten</label>
+				<div id="transaction_edit_clockings" class="simple_table" />
+			</td>
+			<td style="padding-left:4px; vertical-align: top;">
+				<label>Buchungen</label>
+				<div id="transaction_edit_bookings" class="simple_table" />
+			</td>
+		</tr></tbody></table>
+	</div>
+
+	<!-- REBOOK POPUP DETAILS -->
+	<div id="rebook_popup_details" class="form-inline">
+		<div class="f_l">
+			<div id="rebook_user" />
+			<div class="clear p2" />
+			<div id="rebook_from_type" />
+			<div class="clear p2" />
+			<div id="rebook_to_type" />
+		</div>
+
+		<div class="f_r">
+			<div id="rebook_start" class="f_r" />
+			<div class="clear p2" />
+			<div id="rebook_end" class="f_r" />
+			<div class="clear p2" />
+			<div class="f_r input-prepend">
+				<span class="dialog_label add-on"><i class="icon-clock"></i> Dauer</span>
+				<input id="rebook_duration" type="text" class="span2 text-right" style="width: 160px;" />
+			</div>
+		</div>
+
+		<div class="clear" />
+
+		<label class="m_t">Kommentar</label>
+		<textarea id="rebook_comment" class="comment_box" />
+	</div>
+
+	<div class="p_l p_r">
+		<!-- ACTIONS -->
+		<div class="btn-toolbar form-horizontal">
+			<div id="mprRange" class="f_l m_r"/>
+			<div id="selUser" class="f_l m_r" />
+			<div id="chkShowDel" class="f_l" />
+
+			<div id="btnNewTransaction" class="f_r btn primary m_l"><i class="icon-plus"></i>{{action.add}}</div>
+			<div id="btnOptions" class="f_r" />
+			<div class="clear" />
+		</div>
+
+		<div class="b_l b_r b_b">
+			<!-- TABLE -->
+			<div id="tabTransaction" class="fullw" />
+		</div>
+	</div>
+</xpage>

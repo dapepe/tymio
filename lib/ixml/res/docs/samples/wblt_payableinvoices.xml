@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<groupion:ixml>
+
+<!-- Get all payable invoices -->
+
+<db:select var_result="invoices" type="assoc">
+	<db:fields>
+		<db:field>ID</db:field>
+		<db:field>date</db:field>
+		<db:field>transactionnum</db:field>
+		<db:field>netamount</db:field>
+	</db:fields>
+	<db:table>CRM_BILLING_TRANSACTIONS</db:table>
+	<db:where>
+		<!-- Use the customer's ID as select filter -->
+		<db:where_is field="customer">%ID</db:where_is>
+		<db:where_is field="type">3</db:where_is>
+		<db:where type="OR">
+			<!-- Status: Active -->
+			<db:where_is field="status">1</db:where_is>
+			<!-- Status: Partially Payed -->
+			<db:where_is field="status">14</db:where_is>
+			<!-- Status: Dunning -->
+			<db:where_is field="status">17</db:where_is>
+		</db:where>
+	</db:where>
+</db:select>
+
+<output><![CDATA[
+<!DOCTYPE html>
+<html>
+<head>
+<title>Groupion</title>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=8">
+<link href="./res/extras/css/weblet.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="b">
+	<table class="view">
+		<tr>
+			<th>Invoicenum</th><th class="b_l">Date</th><th class="b_l">Netamount</th>
+		</tr>
+]]></output>
+
+<array:length var="invoices" var_result="len" />
+<if value1="%len" value2="0">
+	<output><![CDATA[
+		<tr class="em">
+			<td colspan="3" style="text-align: center; font-style: italic;">No payable invoices</td>
+		</tr>
+	]]></output>
+<else>
+	<foreach var="invoices" var_value="invoice">
+		<date:format format="Y-m-d" var="date">%invoice[date]</date:format>
+		<math:format countdec="2" var="netamount">%invoice[netamount]</math:format>
+		<output><![CDATA[
+			<tr class="em%even%">
+				<td>%invoice[transactionnum]</td>
+				<td>%date</td>
+				<td class="a_r">%netamount</td>
+			</tr>
+		]]></output>
+		<if value1="%even">
+			<set var="even"> bg</set>
+			<else>
+				<set var="even" />
+			</else>
+		</if>
+	</foreach>
+</else>
+</if>
+
+<output><![CDATA[
+	</table>
+</div> 
+</body>
+</html>
+]]></output>
+
+</groupion:ixml>

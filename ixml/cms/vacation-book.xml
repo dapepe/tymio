@@ -1,0 +1,441 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ixml>
+
+<global var="SERVER_URL" />
+<env type="server" var="SERVER_URL" key="SCRIPT_NAME" />
+
+<global var="getFullName" />
+<function var="getFullName">
+	<trim var="name">$user.Firstname $user.Lastname</trim>
+
+	<if value1="$name">
+		<trim var="name">$user.Name</trim>
+	</if>
+
+	<set var="return">$name</set>
+</function>
+
+<global var="loadClocking" />
+<function var="loadClocking">
+	<api name="clocking" do="details" var="result">
+		<param name="id" var="clockingId" />
+	</api>
+
+	<is var="result.error" type="valid">
+		<error>$result.error</error>
+	</is>
+	<assign var="return" var_source="result.result" />
+
+	<if value1="$types[$return.TypeId][Identifier]" value2="vacation" func="!=">
+		<error>Der Arbeitszeiteintrag ist kein Urlaub, sondern hat den Typ $types[$return.TypeId][Label].</error>
+	</if>
+
+	<api name="user" do="details" var="result">
+		<param name="id" var="return.UserId" />
+	</api>
+
+	<is var="result.error" type="valid">
+		<error>$result.error</error>
+	</is>
+	<assign var="return.User" var_source="result.result" />
+</function>
+
+<global var="redirectTo" />
+<!--
+	@param string url
+-->
+<function var="redirectTo">
+	<header>Location: $url</header>
+	<html:entities var="escapedUrl">$url</html:entities>
+	<output><![CDATA[<html>
+	<head>
+		<meta http-equiv="refresh" content="0; url=$escapedUrl" />
+	</head>
+	</html>]]></output>
+	<exit />
+</function>
+
+<global var="showConfirmationDialog" />
+<!--
+	@param array clocking
+-->
+<function var="showConfirmationDialog">
+	<call func="getFullName" var="userName">
+		<param name="user" var="clocking.User" />
+	</call>
+
+	<date:format localize="1" format="D, d.m.Y" var="startDay">$clocking.Start</date:format>
+	<date:format localize="1" format="D, d.m.Y" var="endDay">$clocking.End</date:format>
+
+	<if value1="$startDay" value2="$endDay">
+		<set var="timeSpan">$startDay</set>
+		<set var="subject">Urlaubsantrag für $userName am $startDay</set>
+	<else>
+		<set var="timeSpan">$startDay bis $endDay</set>
+		<set var="subject">Urlaubsantrag für $userName vom $startDay bis $endDay</set>
+	</else>
+	</if>
+
+	<output><![CDATA[<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+		<head>
+			<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+			<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+			<title>tymio - Urlaubsgenehmigung</title>
+
+			<script type="text/javascript" src="../../index.php?_lang=de"></script>
+
+			<!-- MooTools -->
+			<script type="text/javascript" src="../../assets/lib/mootools/mootools-core-1.4.5-yc.js"></script>
+			<script type="text/javascript" src="../../assets/lib/mootools/mootools-more-1.4.0.1-yc.js"></script>
+			<script type="text/javascript" src="../../assets/lib/mootools-extras/mootools-util.js"></script>
+
+			<!-- Promises -->
+			<script language="JavaScript" type="text/javascript" src="../../assets/lib/promises/externals/functools/FuncTools.js"></script>
+			<script type="text/javascript" src="../../assets/lib/promises/Promises.js"></script>
+			<script type="text/javascript" src="../../assets/lib/tymio/promises.js"></script>
+
+			<!-- Bootstrap -->
+			<link media="all" rel="stylesheet" type="text/css" href="../../assets/lib/bootstrap/css/bootstrap.css" />
+
+			<!-- Gx CSS Resource -->
+			<!--
+			<link media="all" rel="stylesheet/less" type="text/css" href="../../assets/lib/gx/css/core.less" />
+			<link media="all" rel="stylesheet/less" type="text/css" href="../../assets/lib/gx/css/ui.less" />
+			<link media="all" rel="stylesheet/less" type="text/css" href="../../assets/lib/gx/css/com.less" />
+			<link media="all" rel="stylesheet/less" type="text/css" href="../../assets/lib/gx/css/zeyos.less" />
+			-->
+
+			<!-- Gx JavaScript Resources -->
+			<script type="text/javascript" src="../../assets/lib/gx/js/gx.js"></script>
+			<script type="text/javascript" src="../../assets/lib/gx/js/core/core.js"></script>
+			<script type="text/javascript" src="../../assets/lib/gx/js/core/Settings/Settings.js"></script>
+			<script type="text/javascript" src="../../assets/lib/gx/js/core/Parse/Parse.js"></script>
+			<script type="text/javascript" src="../../assets/lib/gx/js/ui/ui.js"></script>
+			<script type="text/javascript" src="../../assets/lib/gx/js/ui/Container/Container.js"></script>
+			<script type="text/javascript" src="../../assets/lib/gx/js/ui/Blend/Blend.js"></script>
+			<script type="text/javascript" src="../../assets/lib/gx/js/ui/Collapse/Collapse.js"></script>
+			<script type="text/javascript" src="../../assets/lib/gx/js/ui/HGroup/HGroup.js"></script>
+			<script type="text/javascript" src="../../assets/lib/gx/js/ui/Hud/Hud.js"></script>
+			<script type="text/javascript" src="../../assets/lib/gx/js/ui/List/List.js"></script>
+			<script type="text/javascript" src="../../assets/lib/gx/js/ui/Popup/Popup.js"></script>
+			<script type="text/javascript" src="../../assets/lib/gx/js/com/com.js"></script>
+			<script type="text/javascript" src="../../assets/lib/gx/js/com/Client/Client.js"></script>
+			<script type="text/javascript" src="../../assets/lib/gx/js/com/DatePicker/DatePicker.js"></script>
+			<script type="text/javascript" src="../../assets/lib/gx/js/com/InPlaceEditor/InPlaceEditor.js"></script>
+			<script type="text/javascript" src="../../assets/lib/gx/js/com/Message/Message.js"></script>
+			<script type="text/javascript" src="../../assets/lib/gx/js/com/Notification/Notification.js"></script>
+			<script type="text/javascript" src="../../assets/lib/gx/js/com/ProgressBar/ProgressBar.js"></script>
+			<script type="text/javascript" src="../../assets/lib/gx/js/com/Select/Select.js"></script>
+			<script type="text/javascript" src="../../assets/lib/gx/js/com/Statusbar/Statusbar.js"></script>
+			<script type="text/javascript" src="../../assets/lib/gx/js/com/TimePicker/TimePicker.js"></script>
+
+			<script type="text/javascript" src="../../assets/lib/gx/js/zeyos/zeyos.js"></script>
+			<script type="text/javascript" src="../../assets/lib/gx/js/zeyos/Checklist/Checklist.js"></script>
+			<script type="text/javascript" src="../../assets/lib/gx/js/zeyos/Client/Client.js"></script>
+			<script type="text/javascript" src="../../assets/lib/gx/js/zeyos/Datebox/Datebox.js"></script>
+			<script type="text/javascript" src="../../assets/lib/gx/js/zeyos/Groupbox/Groupbox.js"></script>
+			<script type="text/javascript" src="../../assets/lib/gx/js/zeyos/Msgbox/Msgbox.js"></script>
+			<script type="text/javascript" src="../../assets/lib/gx/js/zeyos/Popup/Popup.js"></script>
+			<script type="text/javascript" src="../../assets/lib/gx/js/zeyos/Select/Select.js"></script>
+			<script type="text/javascript" src="../../assets/lib/gx/js/zeyos/Tabbox/Tabbox.js"></script>
+			<script type="text/javascript" src="../../assets/lib/gx/js/zeyos/Table/Table.js"></script>
+			<script type="text/javascript" src="../../assets/lib/gx/js/zeyos/Timebox/Timebox.js"></script>
+
+			<!-- Datepicker -->
+			<script src="../../assets/lib/datepicker/src/Locale.en-US.DatePicker.js" type="text/javascript"></script>
+			<script src="../../assets/lib/datepicker/src/Locale.de-DE.DatePicker.js" type="text/javascript"></script>
+			<script src="../../assets/lib/datepicker/src/Picker.js" type="text/javascript"></script>
+			<script src="../../assets/lib/datepicker/src/Picker.Attach.js" type="text/javascript"></script>
+			<script src="../../assets/lib/datepicker/src/Picker.Date.js" type="text/javascript"></script>
+			<link href="../../assets/lib/datepicker/src/datepicker_jqui/datepicker_jqui.css" rel="stylesheet">
+
+			<!-- New Scripts -->
+			<script type="text/javascript" src="../../assets/lib/gx/js/bootstrap/bootstrap.js"></script>
+
+			<script type="text/javascript" src="../../assets/lib/gx/js/bootstrap/MonthPicker/MonthPicker.js"></script>
+			<script type="text/javascript" src="../../assets/lib/gx/js/bootstrap/DatePicker/DatePicker.js"></script>
+
+			<script type="text/javascript" src="../../assets/lib/gx/js/com/Tabbox/Tabbox.js"></script>
+			<script type="text/javascript" src="../../assets/lib/gx/js/bootstrap/Tabbox/Tabbox.js"></script>
+
+			<script type="text/javascript" src="../../assets/lib/gx/js/com/Table/Table.js"></script>
+			<script type="text/javascript" src="../../assets/lib/gx/js/bootstrap/Table/Table.js"></script>
+
+			<script type="text/javascript" src="../../assets/lib/gx/js/bootstrap/Popup/Popup.js"></script>
+
+			<script type="text/javascript" src="../../assets/lib/gx/js/bootstrap/Message/Message.js"></script>
+
+			<script type="text/javascript" src="../../assets/lib/gx/js/bootstrap/Select/Select-2.3.js"></script>
+
+			<script type="text/javascript" src="../../assets/lib/gx/js/bootstrap/Checklist/Checklist.js"></script>
+
+			<script type="text/javascript" src="../../assets/lib/gx/js/bootstrap/Field/Field.js"></script>
+			<script type="text/javascript" src="../../assets/lib/gx/js/bootstrap/Form/Form.js"></script>
+			<script type="text/javascript" src="../../assets/lib/gx/js/bootstrap/Fieldset/Fieldset.js"></script>
+
+			<script type="text/javascript" src="../../assets/lib/gx/js/bootstrap/CheckButton/CheckButton.js"></script>
+			<script type="text/javascript" src="../../assets/lib/gx/js/bootstrap/MenuButton/MenuButton.js"></script>
+
+			<script type="text/javascript" src="../../assets/lib/gx/js/com/Timebox/Timebox.js"></script>
+			<script type="text/javascript" src="../../assets/lib/gx/js/bootstrap/Timebox/Timebox.js"></script>
+
+			<script type="text/javascript" src="../../assets/lib/tymio/util.js"></script>
+			<script type="text/javascript" src="../../assets/lib/tymio/factories.js"></script>
+			<script type="text/javascript" src="../../assets/lib/tymio/init.js"></script>
+
+			<link media="all" rel="stylesheet/less" type="text/css" href="../../assets/lib/gx/fonts/fico/fico.less" />
+
+			<!-- Load LESS for live conversion -->
+			<script type="text/javascript" src="../../assets/lib/less/less-1.3.0.min.js"></script>
+		</head>
+		<body>
+			<div class="container">
+				<form action="$SERVER_URL/reply/$clocking.Id" method="post">
+					<div>
+						<input type="hidden" name="api" value="plugin" />
+						<input type="hidden" name="do" value="execute" />
+						<input type="hidden" name="id" value="vacation-book" />
+					</div>
+					<fieldset>
+						<legend>$subject</legend>
+
+						<label for="reason">Begründung</label>
+						<input id="reason" type="text" name="reason" value="" autofocus="autofocus" />
+
+						<div>
+							<input type="submit" class="btn btn-success" name="accept" value="Genehmigen" />
+							<input id="reject" type="submit" class="btn btn-danger" name="reject" value="Ablehnen" />
+						</div>
+					</fieldset>
+				</form>
+			</div>
+			<script type="text/javascript">
+			<!--
+				function rejectClick(event) {
+					if ( $$('reason').value.trim() != '' )
+						return;
+
+					if ( !confirm('Sie sollten die Ablehnung begründen. Möchten Sie ohne Begründung ablehnen ?') )
+						event.stop();
+				}
+
+				window.addEvent('domready', function () {
+					$$('reject').addEvent('click', rejectClick);
+				});
+			//-->
+			</script>
+		</body>
+	</html>]]></output>
+</function>
+
+<global var="mailNotify" />
+<!--
+	@param array clocking
+	@param string reason
+	@param bool accepted 1 if vacation request was booked, 0 if it was denied.
+-->
+<function var="mailNotify">
+	<!-- Do not notify if user accepts or rejects their own request -->
+	<if value1="$_AUTH_USER.Id" value2="$clocking.UserId">
+		<return />
+	</if>
+
+	<call func="getFullName" var="userName">
+		<param name="user" var="_USER" />
+	</call>
+
+	<call func="getFullName" var="authUserName">
+		<param name="user" var="_AUTH_USER" />
+	</call>
+
+	<date:format localize="1" format="D, d.m.Y" var="startDay">$clocking.Start</date:format>
+	<date:format localize="1" format="D, d.m.Y" var="endDay">$clocking.End</date:format>
+
+	<is var="reason" type="empty">
+		<set var="statusBody" />
+	<else>
+		<set var="statusBody">&#0013;&#0010;$reason</set>
+	</else>
+	</is>
+
+	<is var="accepted" type="empty">
+		<set var="statusSubject">Abgelehnt</set>
+		<set var="statusBody">Es tut uns leid, aber der Urlaubsantrag wurde von $authUserName abgelehnt.$statusBody</set>
+	<else>
+		<set var="statusSubject">Bewilligt</set>
+		<set var="statusBody">Der Urlaubsantrag wurde von $authUserName bewilligt.$statusBody&#0013;&#0010;&#0013;&#0010;Einen schönen Urlaub !</set>
+	</else>
+	</is>
+
+	<if value1="$startDay" value2="$endDay">
+		<set var="timeSpan">$startDay</set>
+		<set var="subject">$statusSubject: Urlaubsantrag für $userName am $startDay</set>
+	<else>
+		<set var="timeSpan">$startDay bis $endDay</set>
+		<set var="subject">$statusSubject: Urlaubsantrag für $userName vom $startDay bis $endDay</set>
+	</else>
+	</if>
+
+	<encode:base64 var="subject">$subject</encode:base64>
+	<set var="subject">=?UTF-8?B?$subject?=</set>
+
+	<mail:send>
+		<mail:header><![CDATA[
+From: noreply@tymio.local
+X-To: $userName <$_USER.Email>
+Subject: $subject, $userName <$_USER.Email>
+Content-Type: text/plain; charset=UTF-8
+]]></mail:header>
+		<mail:body>
+			<t>$statusBody
+
+Zeitraum: $timeSpan
+</t>
+		</mail:body>
+	</mail:send>
+</function>
+
+<global var="acceptVacation" />
+<!--
+	@param array clocking
+	@param string reason
+-->
+<function var="acceptVacation">
+	<db:transaction>
+		<!-- Mark clocking as confirmed -->
+		<set var="clocking.ApprovalStatus">3</set> <!-- APPROVAL_STATUS_CONFIRMED -->
+
+		<api name="clocking" do="update" var="result">
+			<param name="id" var="clocking.Id" />
+			<param name="data" var="clocking" />
+		</api>
+
+		<is var="result.result" type="empty">
+			<error>Urlaubsantrag konnte nicht aktualisiert werden ($result.error).</error>
+		</is>
+
+		<!-- Create booking and transaction -->
+		<array var="clockings">
+			<item var="clocking.Id" />
+		</array>
+
+		<api name="transaction" do="add" var="result">
+			<param name="clockings" var="clockings" />
+			<param name="commit">1</param>
+		</api>
+	</db:transaction>
+
+	<call func="mailNotify">
+		<param name="clocking" var="clocking" />
+		<param name="reason" var="reason" />
+		<param name="accepted">1</param>
+	</call>
+
+	<call func="redirectTo">
+		<param name="url">$SERVER_URL?view=offtime</param>
+	</call>
+</function>
+
+<global var="rejectVacation" />
+<!--
+	@param array clocking
+	@param string reason
+-->
+<function var="rejectVacation">
+	<!-- Mark clocking as rejected -->
+	<set var="clocking.ApprovalStatus">2</set> <!-- APPROVAL_STATUS_DENIED -->
+
+	<api name="clocking" do="update" var="result">
+		<param name="id" var="clocking.Id" />
+		<param name="data" var="clocking" />
+	</api>
+
+	<is var="result.result" type="empty">
+		<error>Urlaubsantrag konnte nicht aktualisiert werden ($result.error).</error>
+	</is>
+
+	<call func="mailNotify">
+		<param name="clocking" var="clocking" />
+		<param name="reason" var="reason" />
+		<param name="accepted">0</param>
+	</call>
+
+	<call func="redirectTo">
+		<param name="url">$SERVER_URL?view=offtime</param>
+	</call>
+</function>
+
+<api name="clocking" do="types" var="typesResult">
+	<param name="wholeDayOnly">1</param>
+</api>
+
+<global var="CLOCKING_TYPES" />
+<array var="CLOCKING_TYPES" />
+<foreach var="typesResult.result" var_value="clockingType">
+	<assign var="CLOCKING_TYPES[$clockingType.Id]" var_source="clockingType" />
+</foreach>
+
+<rest:server>
+	<rest:resource route="/reply/:clockingId" method="POST">
+
+		<call func="loadClocking" var="clocking">
+			<param name="clockingId" var="clockingId" />
+			<param name="types" var="CLOCKING_TYPES" />
+		</call>
+
+		<is var="accept" type="non-empty">
+			<call func="acceptVacation">
+				<param name="clocking" var="clocking" />
+				<param name="reason" var="reason" />
+			</call>
+			<exit />
+		</is>
+
+		<is var="reject" type="non-empty">
+			<is var="reason" type="empty">
+				<call func="redirectTo">
+					<param name="url">$SERVER_URL/confirm/$clockingId?api=plugin&amp;do=execute&amp;id=vacation-book</param>
+				</call>
+			</is>
+
+			<call func="rejectVacation">
+				<param name="clocking" var="clocking" />
+				<param name="reason" var="reason" />
+			</call>
+			<exit />
+		</is>
+	</rest:resource>
+
+	<rest:resource route="/confirm/:clockingId" method="GET">
+		<call func="loadClocking" var="clocking">
+			<param name="clockingId" var="clockingId" />
+			<param name="types" var="CLOCKING_TYPES" />
+		</call>
+
+		<is var="clocking.Booked" type="non-empty">
+			<!-- Already booked -->
+			<call func="redirectTo">
+				<param name="url">$SERVER_URL?view=offtime</param>
+			</call>
+			<exit />
+		</is>
+
+		<call func="showConfirmationDialog">
+			<param name="clocking" var="clocking" />
+		</call>
+		<exit />
+	</rest:resource>
+</rest:server>
+
+<array var="result">
+	<item key="error">Invalid request.</item>
+</array>
+<output>
+	<header>HTTP/1.0 404 Not Found</header>
+	<header>Content-Type: application/json</header>
+	<encode:json var="result" />
+</output>
+
+</ixml>

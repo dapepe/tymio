@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xpage id="settings" title="Settings">
+	<view:include src="assets/lib/tymio/api/account.js" type="js" />
+	<view:include src="assets/lib/tymio/api/property.js" type="js" />
+	<view:include src="app/modules/settings/settings.js" type="js" />
+
+	<div class="p">
+		<div id="tabbox">
+		</div>
+		<div class="form-actions">
+			<button id="save" type="button" class="btn btn-primary">{{action.save}}</button>
+		</div>
+	</div>
+</xpage>

@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xpage title="Clockings" id="clockings">
+	<br /><br /><br />
+
+	<include src="app/modules/clockings/views/editBooking.xml" />
+	<include src="app/modules/clockings/views/addAbsence.xml" />
+	<include src="app/modules/clockings/views/editView.xml" />
+	<include src="app/modules/clockings/views/transView.xml" />
+
+	<view:include src="app/modules/clockings/clocking.js" type="js" />
+
+	<!--
+	<view:include src="app/modules/clockings/clocking.css" type="css" />
+	-->
+
+	<div id="tabs" class="m_t">
+		<div id="tab0">
+			<div class="p_t">
+				<div class="f_l m_l m_r">
+					<label>Gesamtleistung:</label>
+					<div id="lblTotal"></div>
+				</div>
+				<div class="f_l m_l m_r">
+					<label>Gleitzeit:</label>
+					<div id="lblFlexitime"></div>
+				</div>
+				<div class="f_l m_l m_r">
+					<label>Gleitzeitabbau:</label>
+					<div id="lblFlexitimeMin"></div>
+				</div>
+				<div class="f_l m_l m_r">
+					<label>Überstunden:</label>
+					<div id="lblOvertime"></div>
+				</div>
+				<div class="f_l m_l m_r">
+					<label>Überstundenabbau:</label>
+					<div id="lblOvertimeMin"></div>
+				</div>
+				<div class="f_l m_l m_r">
+					<label>Urlaub:</label>
+					<div id="lblVacation">-</div>
+				</div>
+				<div id="statusFrame" class="unchecked b bg">
+					<span id="statusLabel">Nicht angemeldet</span>
+					<input type="button" id="statusBtn" value="Anmelden" class="m_l" />
+				</div>
+			</div>
+			<div class="clear"></div>
+			<!-- <div class="section m_t"><label>Alle Arbeitszeiten</label></div> -->
+			<div class="bg3 p2 b_b">
+				<div class="p2_b" style="padding-top: 1em">
+					<div id="txtClockingUsers" class="f_l m2_r"></div>
+					<input id="btnClockingReset" type="button" value="Alle" class="f_l m2_r" />
+					<select id="txtClockingShowBooked" class="f_l m2_r">
+						<option value="">Alle anzeigen</option>
+						<option value="1">Nur Gebuchte zeigen</option>
+						<option value="2">Gebuchte ausblenden</option>
+					</select>
+					<div class="f_l m2_r"><input type="checkbox" id="chkClockingShowDel" /> Gelöschte anzeigen</div>
+					<span class="paging f_r">
+						<a id="btnClockingBack">&lt;</a><select id="txtClockingMonth" class="bold">%monthlist</select><input type="text" id="txtClockingYear" value="%year" style="width: 40px;" /><a id="btnClockingNext">&gt;</a>
+					</span>
+					<div class="clear"></div>
+				</div>
+				<div id="tabClocking" style="background: #FFF; height: 400px; overflow: auto;" class="b"></div>
+				<div class="p2_t">
+					<input id="btnClockingView" type="button" class="btn" value="Anzeigen" />
+					<input id="btnClockingNew" type="button" value="Neu" class="bold btn" />
+					<input id="btnClockingCalc" type="button" class="btn" value="Automatisch Eintragen" disabled="true" />
+					<input id="btnClockingBackup" type="button" class="btn" value="Backup" />
+					<input id="btnAbsenceAdd" type="button" class="btn" value="Abwesenheit eintragen" />
+<!-- 					<input id="btnClockingView" type="button" class="m2_r" value="Anzeigen" />
+					<input id="btnClockingNew" type="button" value="Neu" class="bold m2_r" />
+					<input id="btnClockingCalc" type="button" class="m2_r" value="Automatisch Eintragen" disabled="true" />
+					<input id="btnClockingBackup" type="button" class="m2_r" value="Backup" />
+					<input id="btnAbsenceAdd" type="button" value="Abwesenheit eintragen" class="f_l m2_r" /> -->
+				</div>
+			</div>
+		</div>
+		<div id="tab1">
+<!-- 			<div class="section m_t"><label>Alle Transaktionen</label></div>
+ -->			<div class="bg3 p2 b_b">
+				<div class="p2_b">
+					<div id="txtTransUsers" class="f_l m2_r"></div>
+					<input id="btnTransReset" type="button" value="Alle" class="f_l m2_r" />
+					<div class="clear"></div>
+				</div>
+				<div id="tabTrans" style="background: #FFF; height: 400px; overflow: auto;" class="b"></div>
+				<div class="p2_t">
+					<input id="btnTransNew" type="button" value="Neu" class="bold m2_r" />
+					<input id="btnTransView" type="button" value="Anzeigen" />
+				</div>
+			</div>
+		</div>
+		<div id="tab2">
+			<div class="section m_t"><label>Abwesenheit</label></div>
+			<div class="bg3 p2 b_b">
+				<div class="p2_b">
+					<div id="txtAbsenceUsers" class="f_l m2_r"></div>
+						<input id="btnAbsenceReset" type="button" value="Alle" class="f_l m2_r" />
+					<!-- <span class="f_l" id="txtDateHeading"></span> -->
+					<span class="paging f_r">
+						<a id="btnDateBack">&lt;</a><select id="txtDateMonth" class="bold">%monthlist</select><input type="text" id="txtDateYear" value="2012" style="width: 40px;" /><a id="btnDateNext">&gt;</a>
+					</span>
+					<div class="clear"></div>
+				</div>
+ 				<div id="tabVacation" style="background: #FFF; height: 400px; overflow: auto;" class="b">
+					<table class="view">
+						<thead>
+							<tr>
+								<th width="14.28571%">Montag</th>
+								<th width="14.28571%" class="b_l">Dienstag</th>
+								<th width="14.28571%" class="b_l">Mittwoch</th>
+								<th width="14.28571%" class="b_l">Donnerstag</th>
+								<th width="14.28571%" class="b_l">Freitag</th>
+								<th width="14.28571%" class="b_l">Samstag</th>
+								<th width="14.28571%" class="b_l">Sonntag</th>
+							</tr>
+						</thead>
+						<tbody id="tabVacationBody"></tbody>
+					</table>
+				</div>
+				<div class="p2_t">
+					<input id="btnVacationNew" type="button" value="Neu" class="bold m2_r" />
+				</div>
+			</div>
+		</div>
+		<div id="tab3">
+			<div class="section m_t"><label>Statistik</label></div>
+			<div class="bg3 p2 b_b">
+				<div class="p2_b">
+					<div id="txtStatUsers" class="f_l m2_r"></div>
+							<input id="btnStatReset" type="button" value="Alle" class="f_l m2_r" />
+					<span class="paging f_r">
+						<a id="btnDateStatBack">&lt;</a><select id="txtDateStatMonth" class="bold">%monthlist</select><input type="text" id="txtDateStatYear" value="%year" style="width: 40px;" /><a id="btnDateStatNext">&gt;</a>
+					</span>
+					<div class="clear"></div>
+				</div>
+				<div id="tabStat" style="background: #FFF; height: 400px; overflow: auto;" class="b clear">
+					<table id="statData" style="display:none;">
+						<thead>
+							<tr>
+								<td>Arbeitszeit</td>
+								<td>Aufgaben</td>
+							</tr>
+						</thead>
+						<tbody id="statDataBody"></tbody>
+						<tfoot id="statDataFoot"></tfoot>
+					</table>
+				</div>
+			</div>
+		</div>
+		<div id="tab4">
+			<div class="section m_t"><label>Konto</label></div>
+			<div class="bg3 p2 b_b">
+				<div class="p2_b">
+					<div id="txtAccountUsers" class="f_l m2_r"></div>
+					<select id="selAccountType">
+							<option value="0">Arbeitszeit</option>
+							<option value="1">Gleitzeit</option>
+							<option value="2">Überstunden</option>
+							<option value="3">Urlaub</option>
+						</select>
+					<span class="paging f_r">
+						<a id="btnDateAccountBack">&lt;</a><input type="text" id="txtDateAccountYear" value="%year" style="width: 40px;" /><a id="btnDateAccountNext">&gt;</a>
+					</span>
+					<div class="clear"></div>
+				</div>
+				<div id="tabAccount" style="background: #FFF; height: 400px; overflow: auto;" class="b">
+				</div>
+				<div class="saldo"><label id="accountCredit">&amp;mdash;</label></div>
+				<div class="saldo"><label id="accountDebit">&amp;mdash;</label></div>
+				<div class="clear"></div>
+				<div id="accountAddBar">
+					<fieldset class="addBar" style="width: 19em">
+						<legend class="bold">Datum:</legend>
+						<div id="txtAccountNewDate"></div>
+					</fieldset>
+					<fieldset class="addBar">
+						<legend class="bold">Kommentar:</legend>
+						<textarea id="txtAccountNewComment"></textarea>
+					</fieldset>
+					<fieldset class="addBar">
+						<legend class="bold">Zu:</legend>
+						<input type="text" id="txtAccountNewValue"></input>
+					</fieldset>
+					<fieldset class="addBar buttonbox">
+						<legend></legend>
+						<input type="button" id="txtAccountNewSubmit" value="Hinzufügen"></input>
+					</fieldset>
+				</div>
+			</div>
+		</div>
+	</div>
+</xpage>

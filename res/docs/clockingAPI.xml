@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doc>
+<sect3>
+	<title>Clocking API</title>
+
+	<api source="clocking.php" level="4">
+
+	<demo ref="list">
+		<string name="api" default="clocking" fixed="true" />
+		<string name="do" default="list" fixed="true" />
+		<string name="month" default="{{MONTH}}" />
+		<string name="year" default="{{YEAR}}" />
+		<string name="username" default="{{USERNAME}}" optional="true" />
+		<string name="showDel" default="{{SHOWDEL}}" optional="true" />
+		<string name="showBooked" default="{{SHOWBOOKED}}" optional="true" />
+		<string name="ordermode" default="{{ORDERMODE}}" optional="true" />
+		<string name="orderBy" default="{{ORDERBY}}" optional="true" />
+	</demo>
+
+	<demo ref="add">
+		<string name="api" default="clocking" fixed="true" />
+		<string name="do" default="add" fixed="true" />
+		<string name="username" default="{{USERNAME}}" />
+		<string name="start" default="{{MONTH}}" />
+		<string name="end" default="{{YEAR}}" optional="true" />
+		<string name="type" default="{{TYPE}}" />
+		<string name="comment" default="{{COMMENT}}" optional="true" active="false" />
+		<string name="break" default="{{BREAK}}" optional="true" active="false" />
+		<string name="flexitime" default="{{FLEXITIME}}" optional="true" active="false" />
+		<string name="overtime" default="{{OVERTIME}}" optional="true" active="false" />
+		<string name="denied" default="{{DENIED}}" optional="true" active="false" />
+		<string name="checked" default="{{CHECKED}}" optional="true" active="false" />
+	</demo>
+
+	<demo ref="update">
+		<string name="api" default="clocking" fixed="true" />
+		<string name="do" default="update" fixed="true" />
+		<string name="start" default="{{MONTH}}" />
+		<string name="end" default="{{YEAR}}" optional="true" />
+		<string name="username" default="{{USERNAME}}" />
+		<string name="comment" default="{{COMMENT}}" optional="true" active="false" />
+		<string name="break" default="{{BREAK}}" optional="true" active="false" />
+		<string name="flexitime" default="{{FLEXITIME}}" optional="true" active="false" />
+		<string name="overtime" default="{{OVERTIME}}" optional="true" active="false" />
+		<string name="denied" default="{{DENIED}}" optional="true" active="false" />
+		<string name="checked" default="{{CHECKED}}" optional="true" active="false" />
+	</demo>
+
+	<demo ref="delete">
+		<string name="api" default="clocking" fixed="true" />
+		<string name="do" default="delete" fixed="true" />
+		<string name="id" default="{{ID}}" />
+	</demo>
+
+	</api>
+</sect3>
+</doc>

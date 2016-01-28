@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE ixml SYSTEM "http://www.ixmldev/schema/ixml.dtd">
+<ixml>
+
+<include filename="../res/sil/utl.xml" once="once"/>
+<include filename="../res/sil/col.xml" once="once"/>
+
+<new class="COL.Stack" var="stack"/>
+
+<call func="stack.push">
+  <param name="value">Test</param>
+</call>
+
+<set var="stack_count">$stack.count()</set>
+<set var="stack_top">$stack.top()</set>
+<set var="stack_pop">$stack.pop()</set>
+<set var="stack_empty">$stack.empty()</set>
+
+<new class="COL.Queue" var="queue"/>
+
+<call func="queue.enqueue">
+  <param name="value">Test1</param>
+</call>
+
+<call func="queue.enqueue">
+  <param name="value">Test2</param>
+</call>
+
+<set var="queue_peek">$queue.peek()</set>
+<set var="queue_dequeue">$queue.dequeue()</set>
+
+<new class="COL.Set" var="set"/>
+
+<call func="set.add">
+  <param name="value">Test1</param>
+</call>
+
+<call func="set.add">
+  <param name="value">Test2</param>
+</call>
+
+<call func="set.add">
+  <param name="value">Test1</param>
+</call>
+
+<call func="set.add">
+  <param name="value">Test3</param>
+</call>
+
+<call func="set.remove">
+  <param name="value">Test2</param>
+</call>
+
+<set var="set_contains">$set.contains(Test1)</set>
+
+<call func="set.values" var="set_values"/>
+
+<call func="set.sort">
+  <param name="type">desc</param>
+</call>
+
+<debug:dump/>
+
+</ixml>

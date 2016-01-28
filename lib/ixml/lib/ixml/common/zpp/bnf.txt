@@ -1,0 +1,93 @@
+num       = / [+-]? ( ( \d*\.\d+ | \d+\.\d* ) ( [eE][+-]?\d+ )? | [1-9]\d* | 0 ( [xX][a-fA-F\d]+ | b[01]+ )? ) /
+str       = ? string escape sequence ?
+
+name      = / [a-zA-Z_]\w* /
+name_cl   = name ":"
+
+code      = { stat }
+blk       = "{" code "}"
+enc       = "(" exp ")"
+
+var       = ( "$" | "@" ) name { key }
+key       = "." name | "[" [ exp ] "]"
+
+stat      = blk | if | switch | loop | do | try | del | jmp | misc | [ ret ] [ exp ] ";"
+
+if        = "if" enc [ else ]
+
+else      = "else" stat
+
+switch    = "switch" enc "{" { case } "}"
+case      = ( "case" exp | "default" ) ( ":" code | blk )
+
+loop      = ( while | foreach | for ) stat
+while     = "while" enc
+foreach   = "foreach" "(" exp [ "," [ var ":" ] var ] ")"
+for       = "for" "(" [ exp ] ";" [ exp ] ";" [ exp ] ")"
+
+do        = "do" stat while ";"
+
+try       = "try" stat [ catch ] [ else ] [ finally ]
+catch     = "catch" [ "(" [ var ] ")" ] stat
+finally   = "finally" stat
+
+del       = "delete" var { "," var } ";"
+
+jmp       = ( "break" | "continue" ) [ num ] ";"
+
+misc      = ( "echo" | "expand" | "throw" ) exp ";"
+
+ret       = "exit" | "return"
+
+exp       = assign | cond
+
+assign    = [ unary ] var ( "=" | "*=" | "/=" | "+=" | "-=" | "\=" | "<<=" | ">>=" | "&=" | "^=" | "|=" ) exp
+
+cast      = "<" ( "bool" | "int" | "float" | "string" | "array" ) ">"
+unary     = "+" | "-" | "~" | "!" | "clone" | cast
+
+cond      = lor [ "?" [ lor ] ":" cond ]
+
+mul       = simple { ( "*" | "/" | "%" ) simple }
+add       = mul { ( "+" | "-" | "\" ) mul }
+sh        = add { ( "<<" | ">>" ) add }
+cmp       = sh ( "<" | ">" | "<=" | ">=" ) sh
+eq        = cmp { ( "===" | "!==" | "==" | "!=" | "=*" | "!*" | "=~" | "!~" | "=_" | "!_" | "=_*" | "!_*" | "=^" | "!^" | "=^*" | "!^*" | "=$" | "!$" | "=$^" | "!$^" ) cmp }
+and       = eq { "&" eq }
+xor       = and { "^" and }
+or        = xor { "|" xor }
+land      = or { "&&" or }
+lor       = land { "||" land }
+
+simple    = enc | pre | post | new | func | macro | class | const | num | str | array | nat | unary simple
+
+pre       = incdec var
+
+post      = var [ ( incdec | param | "->" nat ) ]
+
+incdec    = "++" | "--"
+
+param     = "(" param_x { "," param_x } ")"
+param_x   = [ name_cl ] exp
+
+nat       = name param
+
+new       = "new" var param
+
+arg       = "(" [ arg_x { "," arg_x } ] ")"
+arg_x     = name [ ":" exp ]
+
+func      = "function" [ arg ] [ use ] blk [ param ]
+use       = "use" "(" [ use_x { "," use_x } ] ")"
+use_x     = [ name_cl ] var
+
+macro     = "macro" blk
+
+class     = "class" [ extends  ] "{" { member } "}"
+extend    = "(" [ exp { "," exp } ] ")"
+member    = name ( [ ":" exp ";" ] | [ arg ] blk )
+
+const     = "null" | "true" | "false";
+
+array     = "[" [ array_x { "," array_x } ] "]"
+array_x   = [ ( num | str | name ) ":" ] exp

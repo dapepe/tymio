@@ -1,0 +1,5 @@
+This version of DatePicker has been adapted for tymio.
+
+The following changes were performed:
+ - Modify "datepicker_jqui" them
+ - Modify button classes in Picker.Date.js (Using bootstrap classes)

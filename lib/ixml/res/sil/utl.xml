@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE ixml SYSTEM "http://www.ixmldev.com/schema/ixml.dtd">
+<ixml>
+
+<global var="UTL"/>
+
+<function var="UTL.length">
+  <length var="return">$return</length>
+</function>
+
+<function var="UTL.size">
+  <size var="return">$return</size>
+</function>
+
+<function var="UTL.char">
+  <char var="return">$return</char>
+</function>
+
+<function var="UTL.ord">
+  <ord var="return">$return</ord>
+</function>
+
+<function var="UTL.lcase">
+  <tolower var="return">$return</tolower>
+</function>
+
+<function var="UTL.ucase">
+  <toupper var="return">$return</toupper>
+</function>
+
+<function var="UTL.ucwords">
+  <toupper var="return" type="words">$return</toupper>
+</function>
+
+<function var="UTL.ucfirst">
+  <toupper var="return" type="first">$return</toupper>
+</function>
+
+<function var="UTL.trim">
+  <trim var="return">$return</trim>
+</function>
+
+<function var="UTL.trim255">
+  <trim var="return"><substr length="255">$return</substr></trim>
+</function>
+
+<function var="UTL.ltrim">
+  <trim var="return" type="left">$return</trim>
+</function>
+
+<function var="UTL.rtrim">
+  <trim var="return" type="right">$return</trim>
+</function>
+
+<function var="UTL.exec">
+  <exec var="return">$return</exec>
+</function>
+
+<function var="UTL.abs">
+  <math:abs var="return">$return</math:abs>
+</function>
+
+<function var="UTL.sign">
+  <math:sign var="return">$return</math:sign>
+</function>
+
+<function var="UTL.exp">
+  <math:exp var="return">$return</math:exp>
+</function>
+
+<function var="UTL.ln">
+  <math:ln var="return">$return</math:ln>
+</function>
+
+<function var="UTL.log">
+  <math:log var="return">$return</math:log>
+</function>
+
+<function var="UTL.sqr">
+  <math:pow var="return">$return</math:pow>
+</function>
+
+<function var="UTL.sqrt">
+  <math:sqrt var="return">$return</math:sqrt>
+</function>
+
+<function var="UTL.pi">
+  <math:pi var="return"/>
+</function>
+
+<function var="UTL.sin">
+  <math:sin var="return">$return</math:sin>
+</function>
+
+<function var="UTL.sinh">
+  <math:sinh var="return">$return</math:sinh>
+</function>
+
+<function var="UTL.asin">
+  <math:asin var="return">$return</math:asin>
+</function>
+
+<function var="UTL.asin">
+  <math:asinh var="return">$return</math:asinh>
+</function>
+
+<function var="UTL.cos">
+  <math:cos var="return">$return</math:cos>
+</function>
+
+<function var="UTL.cosh">
+  <math:cosh var="return">$return</math:cosh>
+</function>
+
+<function var="UTL.acos">
+  <math:acos var="return">$return</math:acos>
+</function>
+
+<function var="UTL.acos">
+  <math:acosh var="return">$return</math:acosh>
+</function>
+
+<function var="UTL.tan">
+  <math:tan var="return">$return</math:tan>
+</function>
+
+<function var="UTL.tanh">
+  <math:tanh var="return">$return</math:tanh>
+</function>
+
+<function var="UTL.atan">
+  <math:atan var="return">$return</math:atan>
+</function>
+
+<function var="UTL.atan">
+  <math:atanh var="return">$return</math:atanh>
+</function>
+
+<function var="UTL.round">
+  <math:round var="return">$return</math:round>
+</function>
+
+<function var="UTL.ceil">
+  <math:ceil var="return">$return</math:ceil>
+</function>
+
+<function var="UTL.round">
+  <math:floor var="return">$return</math:floor>
+</function>
+
+<function var="UTL.rand">
+  <math:rand var="return"/>
+</function>
+
+<function var="UTL.bin2dec">
+  <math:convert var="return" from="bin">$return</math:convert>
+</function>
+
+<function var="UTL.oct2dec">
+  <math:convert var="return" from="oct">$return</math:convert>
+</function>
+
+<function var="UTL.hex2dec">
+  <math:convert var="return" from="hex">$return</math:convert>
+</function>
+
+<function var="UTL.dec2bin">
+  <math:convert var="return" to="bin">$return</math:convert>
+</function>
+
+<function var="UTL.dec2oct">
+  <math:convert var="return" to="oct">$return</math:convert>
+</function>
+
+<function var="UTL.dec2hex">
+  <math:convert var="return" to="hex">$return</math:convert>
+</function>
+
+<function var="UTL.deg2rad">
+  <math:convert var="return" from="deg" to="rad">$return</math:convert>
+</function>
+
+<function var="UTL.rad2deg">
+  <math:convert var="return" from="rad" to="deg">$return</math:convert>
+</function>
+
+<function var="UTL.date">
+  <if value1="$return">
+    <date:now var="return"/>
+    
+    <else>
+      <date:parse var="return">$return</date:parse>
+    </else>
+  </if>
+</function>
+
+<function var="UTL.md5">
+  <encode:md5 var="return">$return</encode:md5>
+</function>
+
+<function var="UTL.sha1">
+  <encode:sha1 var="return">$return</encode:sha1>
+</function>
+
+<function var="UTL.crc32">
+  <encode:crc32 var="return">$return</encode:crc32>
+</function>
+
+<function var="UTL.soundex">
+  <encode:soundex var="return">$return</encode:soundex>
+</function>
+
+<function var="UTL.metaphone">
+  <encode:metaphone var="return">$return</encode:metaphone>
+</function>
+
+<function var="UTL.rot13">
+  <encode:rot13 var="return">$return</encode:rot13>
+</function>
+
+<function var="UTL.deflate">
+  <encode:deflate var="return">$return</encode:deflate>
+</function>
+
+<function var="UTL.compress">
+  <encode:zlib var="return">$return</encode:zlib>
+</function>
+
+<function var="UTL.xmlencode">
+  <encode:xml var="return">$return</encode:xml>
+</function>
+
+<function var="UTL.htmlencode">
+  <encode:html var="return">$return</encode:html>
+</function>
+
+<function var="UTL.urlencode">
+  <encode:url var="return">$return</encode:url>
+</function>
+
+<function var="UTL.base64encode">
+  <encode:base64 var="return">$return</encode:base64>
+</function>
+
+<function var="UTL.qpencode">
+  <encode:quotedprint var="return">$return</encode:quotedprint>
+</function>
+
+<function var="UTL.inflate">
+  <decode:deflate var="return">$return</decode:deflate>
+</function>
+
+<function var="UTL.uncompress">
+  <decode:zlib var="return">$return</decode:zlib>
+</function>
+
+<function var="UTL.xmldecode">
+  <decode:xml var="return">$return</decode:xml>
+</function>
+
+<function var="UTL.htmldecode">
+  <decode:html var="return">$return</decode:html>
+</function>
+
+<function var="UTL.urldecode">
+  <decode:url var="return">$return</decode:url>
+</function>
+
+<function var="UTL.base64decode">
+  <decode:base64 var="return">$return</decode:base64>
+</function>
+
+<function var="UTL.qpdecode">
+  <decode:quotedprint var="return">$return</decode:quotedprint>
+</function>
+
+<function var="UTL.fileexists">
+  <file:exists var="return" filename="$return"/>
+</function>
+
+<function var="UTL.filetype">
+  <file:typeof var="return" filename="$return"/>
+</function>
+
+<function var="UTL.readfile">
+  <file:read var="return" filename="$return"/>
+</function>
+
+</ixml>

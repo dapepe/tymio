@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xpage title="Not found" id="404">
+	<div class="p">
+		<h1>404 - Not found</h1>
+		<div class="alert alert-info">The requested view was not found on this server</div>
+	</div>
+</xpage>

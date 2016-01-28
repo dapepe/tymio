@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xpage title="Clockings" id="clockings">
+	<view:include src="assets/lib/tymio/api/clocking.js" type="js" />
+	<view:include src="assets/lib/tymio/api/holiday.js" type="js" />
+	<view:include src="assets/lib/tymio/api/transaction.js" type="js" />
+	<view:include src="assets/lib/tymio/api/user.js" type="js" />
+	<view:include src="app/modules/transactions/transactiontable.js" type="js" />
+	<view:include src="app/modules/transactions/transactionwizard.js" type="js" />
+	<view:include src="app/modules/clockings/clockings.js" type="js" />
+
+	<!-- CLOCKING POPUP DETAILS -->
+	<div id="clocking_popup_details" class="form-inline">
+		<div><input type="hidden" id="clocking_edit_id" value="" /></div>
+
+		<div class="f_l">
+			<div id="viewDetailsUser" />
+			<div class="clear p2" />
+			<div id="clocking_edit_type" />
+			<div class="clear p2" />
+			<div id="viewDetailsApprovalStatus" />
+		</div>
+
+		<div class="f_r">
+			<div id="clocking_edit_start" class="f_r" />
+			<div class="clear p2" />
+			<div id="clocking_edit_end" class="f_r" />
+			<div class="clear p2" />
+			<div id="clocking_edit_break" class="f_r" />
+		</div>
+
+		<div class="clear" />
+
+		<div id="clocking_edit_flexitime" class="f_l m_r" />
+		<div id="clocking_edit_overtime" class="f_l m_r" />
+		<div id="clocking_edit_denied" class="f_l m_r" />
+		<div id="clocking_edit_regular" class="f_l" />
+		<div class="clear" />
+
+		<label class="m_t">Kommentar</label>
+		<textarea id="clocking_edit_comment" class="comment_box" />
+	</div>
+
+	<div class="p_l p_r">
+		<!-- ACTIONS -->
+		<div class="btn-toolbar form-horizontal">
+			<div id="mprRange" class="f_l m_r"/>
+			<div id="selUser" class="f_l m_r" />
+			<div class="input-prepend f_l m_r">
+				<span class="add-on"><i class="icon-inbox"></i></span><select id="selFilter" style="width: auto">
+					<option value="">{{common.all}}</option>
+					<option value="1">Nur Gebuchte zeigen</option>
+					<option value="2">Gebuchte ausblenden</option>
+				</select>
+			</div>
+			<div id="chkShowDel" class="f_l" />
+
+			<div id="btnNewWorktime" class="f_r btn primary m_l"><i class="icon-plus"></i>{{action.add}}</div>
+			<div id="btnNewTransaction" class="f_r btn m_l"><i class="icon-lock"></i>{{clocking.transaction.create}}</div>
+			<div id="btnOptions" class="f_r" />
+			<div class="clear" />
+		</div>
+
+		<div class="b_l b_r b_b">
+			<!-- TABLE -->
+			<div id="tabClocking" class="fullw" />
+		</div>
+	</div>
+</xpage>

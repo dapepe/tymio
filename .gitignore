@@ -1,0 +1,8 @@
+/lib/entities/build/classes/tymio/map
+/lib/entities/build/classes/tymio/om
+/lib/entities/build.properties
+/lib/entities/runtime-conf.xml
+/lib/entities/build/conf/tymio-conf.php
+/config.ini
+/.idea
+.DS_Store

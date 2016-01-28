@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ixml>
+	<!--
+		"_DATA":
+		- "user": { ... }      // The user object
+		- "clockings": [ ... ]
+		- "booking_types": { identifier: { "Id": ..., "AccountId": ..., "Identifier": ..., "Label": ..., "Unit": ... }, ... }
+		- "bookings": {}        // Receives the bookings to be created
+		- "transactions": {}    // Receives the transactions to be created
+	-->
+
+	<set var="bookingUid">0</set>
+<!--
+ {
+     "user": {
+         "Id": 4,
+         "AccountId": 32,
+         "DomainId": 31,
+         "Deleted": 0,
+         "Name": "mmuster",
+         "Firstname": "Max",
+         "Lastname": "Muster",
+         "Phone": "",
+         "ManagerOf": null,
+         "IsAdmin": 0,
+         "Email": "mmuster@muster.de",
+         "Number": null
+     },
+     "clockings": [{
+         "Id": 68930,
+         "UserId": 4,
+         "TypeId": 2,
+         "Creationdate": 1343654361,
+         "Start": 1343426400,
+         "End": 1343772000,
+         "Breaktime": 0,
+         "Comment": "",
+         "ApprovalStatus": 1,
+         "Deleted": false,
+         "Frozen": true,
+         "Type": {
+             "Id": 2,
+             "AccountId": 32,
+             "Identifier": "reduce_overtime",
+             "Label": "\u00dc-Abbau",
+             "WholeDay": true
+         }
+     }],
+     "booking_types": {
+         "test": {
+             "Id": 1,
+             "AccountId": 32,
+             "Identifier": "test",
+             "Label": "test",
+             "Unit": "days"
+         }
+     },
+     "bookings": [],
+     "transactions": []
+ }
+ -->
+
+	<foreach var="_DATA.clockings" var_value="clocking">
+		<!-- Create transaction -->
+		<array:build var="transaction">
+			<array:item key="Date">%clocking.Start</array:item>
+			<array:item key="Comment">%clocking.Comment</array:item>
+		</array:build>
+
+		<set var="transaction.Clockings[]">%clocking.Id</set>
+
+		<!-- Create booking -->
+		<array:build var="booking">
+			<assign var="BookingType" var_source="_DATA.booking_types[%clocking.Type.Identifier]" />
+			<is var="BookingType" type="null">
+				<error>Could not map clocking type "%clocking.Type.Identifier" to any booking types.</error>
+			</is>
+
+			<if value1="%clocking.Type.WholeDay">
+				<bookingtime var="Time" round="round" unit="%BookingType.Unit" start="%clocking.Start" end="%clocking.End" break="%clocking.Breaktime" />
+			<else>
+				<!-- Whole-day entries: Determine and subtract holidays -->
+				<api name="holiday" do="list" var="holidays">
+					<param name="domain" var="%_DATA.user.DomainId" />
+					<param name="start" var="clocking.Start" />
+					<param name="end">%(%clocking.End + 86400)</param>
+				</api>
+				<bookingtime var="Time" round="round" unit="%BookingType.Unit" start="%clocking.Start" end="%(%clocking.End + 86400)" break="0" />
+			</else>
+			</if>
+
+			<array:item key="BookingTypeId">%BookingType.Id</array:item>
+			<array:item key="Label"><date:format var="date" format="Y-m-d H:i:s">%clocking.Start</date:format> - <date:format var="date" format="Y-m-d H:i:s">%clocking.End</date:format>: %clocking.Comment</array:item>
+			<array:item key="Value">%(%Time)</array:item>
+		</array:build>
+
+		<set var="transaction.Bookings[]">%bookingUid</set>
+		<assign var="_DATA.bookings[]" var_source="booking" />
+
+		<set var="bookingUid">%(%bookingUid+1)</set>
+
+		<!-- Add transaction -->
+		<assign var="_DATA.transactions[]" var_source="transaction" />
+	</foreach>
+</ixml>
