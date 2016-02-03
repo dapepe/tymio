@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<config>
+  <propel>
+    <datasources default="tymio">
+      <datasource id="tymio">
+      <adapter>mysql</adapter>
+      <connection>
+        <!-- <classname>DebugPDO</classname> -->
+        <dsn>mysql:host=sql-cms-01;dbname=tymio</dsn>
+        <database>tymio</database>
+        <user>tymio</user>
+        <password>MKZMaJQKWRJDpF2E</password>
+      </connection>
+      </datasource>
+    </datasources>
+  </propel>
+</config>
